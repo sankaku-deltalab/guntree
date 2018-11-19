@@ -1,3 +1,5 @@
+import { range } from 'lodash';
+
 import { IFiringState } from 'guntree/gun';
 import { Iterate } from 'guntree/lazy-evaluative';
 
@@ -61,6 +63,27 @@ describe.only('#Iterate', () => {
 
             // Then throw error
             expect(() => iterate.calc(state)).toThrowError();
+        }
+    });
+
+    test('use previous repeating if not specified target', () => {
+        for (const idx of range(4)) {
+            // Given repeating progress
+            const stateClass = jest.fn<IFiringState>(() => ({
+                getRepeatState: jest.fn().mockImplementation((position: number) => {
+                    if (position === 0) return { finished: idx, total: 4 };
+                    return { finished: 3, total: 4 };
+                }),
+            }));
+            const state = new stateClass();
+
+            // When eval iterate without target
+            const input = [0, 1, 2, 3];
+            const iterate = new Iterate(input);
+            const actual = iterate.calc(state);
+
+            // Then use previous repeating
+            expect(actual).toBeCloseTo(input[idx]);
         }
     });
 });
