@@ -31,7 +31,7 @@ describe.only('#Iterate', () => {
     });
 
     test('deal default value when finished repeating is out of input', () => {
-        // Given repeating progress in second repeat
+        // Given repeating progress
         const stateClass = jest.fn<IFiringState>(() => ({
             getRepeatState: jest.fn().mockReturnValueOnce({ finished: 2, total: 3 }),
         }));
@@ -48,18 +48,18 @@ describe.only('#Iterate', () => {
     });
 
     test('throw error if default is not in option and finished repeating is out of input', () => {
-        // Given repeating progress in second repeat
+        // Given repeating progress
         const stateClass = jest.fn<IFiringState>(() => ({
             getRepeatState: jest.fn().mockReturnValueOnce({ finished: 2, total: 3 }),
         }));
         const state = new stateClass();
 
-        // When eval iterate with one length input and default
+        // When eval iterate with one length input without default
         for (const option of [undefined, {}]) {
             const input = [0];
             const iterate = new Iterate(input, option);
 
-            // Then deal default
+            // Then throw error
             expect(() => iterate.calc(state)).toThrowError();
         }
     });
