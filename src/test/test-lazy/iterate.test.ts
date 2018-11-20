@@ -3,14 +3,6 @@ import { range } from 'lodash';
 import { IFiringState } from 'guntree/gun';
 import { Iterate } from 'guntree/lazy-evaluative';
 
-/**
-  * - 順番に値を出力する
-  * - 入力が足りない場合、デフォルト値を使う
-  * - 入力が足りず、デフォルト値がない場合、例外を投げる
-  * - 連射順が指定されていて、その連射があるならそれを使う
-  * - 連射名が指定されていて、その連射があるならそれを使う
-  * - 連射名が指定されていない場合、現在の連射を使う
- */
 describe.only('#Iterate', () => {
     test.each`
     input           | finished | expected

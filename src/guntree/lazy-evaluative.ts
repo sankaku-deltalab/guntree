@@ -1,6 +1,10 @@
 import { IFiringState, getRepeatStateByTarget } from 'guntree/gun';
 
 export interface ILazyEvaluative<T> {
+    /**
+     * Calculate value for gun
+     * @param state Current firing state
+     */
     calc(state: IFiringState): T;
 }
 
@@ -17,11 +21,22 @@ export class Linear implements ILazyEvaluative<number> {
 }
 
 export type TIterateOption<T> = {
+    /** Default value used if repeating is not in array */
     default?: T;
+
+    /** Used for specifying repeat */
     target?: string | number;
 };
 
+/**
+ * Iterate values in argument with repeating.
+ */
 export class Iterate<T> implements ILazyEvaluative<T> {
+    /**
+     *
+     * @param array values iterated with repeating
+     * @param option
+     */
     constructor(private readonly array: T[],
                 private readonly option?: TIterateOption<T>) {}
 
