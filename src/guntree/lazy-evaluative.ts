@@ -18,6 +18,7 @@ export class Linear implements ILazyEvaluative<number> {
 
 export type TIterateOption<T> = {
     default?: T;
+    target?: string;
 };
 
 export class Iterate<T> implements ILazyEvaluative<T> {
@@ -25,7 +26,8 @@ export class Iterate<T> implements ILazyEvaluative<T> {
                 private readonly option?: TIterateOption<T>) {}
 
     calc(state: IFiringState): T {
-        const repeat = getRepeatStateByTarget(state, undefined);
+        const target = this.option !== undefined ? this.option.target : undefined;
+        const repeat = getRepeatStateByTarget(state, target);
         if (repeat.finished >= this.array.length) {
             if (this.option !== undefined && this.option.default !== undefined) return this.option.default;
             throw new Error('Iterate expected repeating out of range but default value is not in option');
