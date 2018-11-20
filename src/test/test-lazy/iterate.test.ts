@@ -109,4 +109,27 @@ describe.only('#Iterate', () => {
             expect(actual).toBeCloseTo(input[finished]);
         }
     });
+
+    test('use repeating specified by target with number', () => {
+        const pairs: [number, number][] = [[1, 0], [3, 1]];
+        for (const [target, finished] of pairs) {
+            // Given repeating progress
+            const stateClass = jest.fn<IFiringState>(() => ({
+                getRepeatState: jest.fn().mockImplementation((position: number) => {
+                    if (position === target) return { finished, total: 4 };
+                    if (position === 2) return { finished: 2, total: 4 };
+                    return { finished: 3, total: 4 };
+                }),
+            }));
+            const state = new stateClass();
+
+            // When eval iterate with target
+            const input = [0, 1, 2, 3];
+            const iterate = new Iterate(input, { target });
+            const actual = iterate.calc(state);
+
+            // Then use specified repeating
+            expect(actual).toBeCloseTo(input[finished]);
+        }
+    });
 });

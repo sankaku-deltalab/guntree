@@ -1,4 +1,4 @@
-import { IFiringState, IRepeatState, getRepeatStateByTarget } from 'guntree/gun';
+import { IFiringState, getRepeatStateByTarget } from 'guntree/gun';
 
 export interface ILazyEvaluative<T> {
     calc(state: IFiringState): T;
@@ -18,7 +18,7 @@ export class Linear implements ILazyEvaluative<number> {
 
 export type TIterateOption<T> = {
     default?: T;
-    target?: string;
+    target?: string | number;
 };
 
 export class Iterate<T> implements ILazyEvaluative<T> {
