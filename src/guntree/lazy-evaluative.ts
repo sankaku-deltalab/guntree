@@ -50,3 +50,19 @@ export class Iterate<T> implements ILazyEvaluative<T> {
         return this.array[repeat.finished];
     }
 }
+
+/**
+ * Deal rounded value
+ */
+export class Round implements ILazyEvaluative<number> {
+    /**
+     *
+     * @param input number or lazy-evaluative deals number
+     */
+    constructor(private readonly input: number | ILazyEvaluative<number>) {}
+
+    calc(state: IFiringState): number {
+        if (typeof this.input === 'number') return Math.round(this.input);
+        return Math.round(this.input.calc(state));
+    }
+}
