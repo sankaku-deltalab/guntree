@@ -20,9 +20,9 @@ export class Linear implements ILazyEvaluative<number> {
     }
 }
 
-export type TIterateOption<T> = {
+export type TIterateOption = {
     /** Default value used if repeating is not in array */
-    default?: T;
+    default?: number;
 
     /** Used for specifying repeat */
     target?: string | number;
@@ -31,23 +31,25 @@ export type TIterateOption<T> = {
 /**
  * Iterate values in argument with repeating.
  */
-export class Iterate<T> implements ILazyEvaluative<T> {
+export class Iterate implements ILazyEvaluative<number> {
     /**
      *
      * @param array values iterated with repeating
      * @param option
      */
-    constructor(private readonly array: T[],
-                private readonly option?: TIterateOption<T>) {}
+    constructor(private readonly array: (number | ILazyEvaluative<number>)[],
+                private readonly option?: TIterateOption) {}
 
-    calc(state: IFiringState): T {
+    calc(state: IFiringState): number {
         const target = this.option !== undefined ? this.option.target : undefined;
         const repeat = getRepeatStateByTarget(state, target);
         if (repeat.finished >= this.array.length) {
             if (this.option !== undefined && this.option.default !== undefined) return this.option.default;
             throw new Error('Iterate expected repeating out of range but default value is not in option');
         }
-        return this.array[repeat.finished];
+        const value = this.array[repeat.finished];
+        if (typeof value === 'number') return value;
+        return value.calc(state);
     }
 }
 

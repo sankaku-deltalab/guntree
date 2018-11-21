@@ -1,7 +1,7 @@
 import { range } from 'lodash';
 
 import { IFiringState } from 'guntree/gun';
-import { Iterate } from 'guntree/lazy-evaluative';
+import { ILazyEvaluative, Iterate } from 'guntree/lazy-evaluative';
 
 describe.only('#Iterate', () => {
     test.each`
@@ -123,5 +123,28 @@ describe.only('#Iterate', () => {
             // Then use specified repeating
             expect(actual).toBeCloseTo(input[finished]);
         }
+    });
+
+    test('can use lazy-evaluative in array', () => {
+        // Given repeating progress
+        const stateClass = jest.fn<IFiringState>(() => ({
+            getRepeatState: jest.fn().mockReturnValueOnce({ finished: 0, total: 3 }),
+        }));
+        const state = new stateClass();
+
+        // And lazy-evaluative
+        const value = 1323;
+        const leClass = jest.fn<ILazyEvaluative<number>>(() => ({
+            calc: jest.fn().mockReturnValueOnce(value),
+        }));
+        const le = new leClass();
+
+        // When eval iterate with one length input and default
+        const input = [le];
+        const iterate = new Iterate(input);
+        const actual = iterate.calc(state);
+
+        // Then deal default
+        expect(actual).toBeCloseTo(value);
     });
 });
