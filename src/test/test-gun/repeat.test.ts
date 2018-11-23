@@ -1,6 +1,7 @@
 import { range } from 'lodash';
 
 import { IRepeatState, IFiringState, IGun, Repeat } from 'guntree/gun';
+import { ILazyEvaluative } from 'guntree/lazy-evaluative';
 
 const createFiringStateMockClass = (): jest.Mock<IFiringState> => {
     return jest.fn<IFiringState>((clone?: jest.Mock<IFiringState>) => {
@@ -138,5 +139,33 @@ describe('#Repeat', () => {
 
         // Then consume frames
         expect(consumedFrames).toBeCloseTo(frames);
+    });
+
+    test('use lazy-evaluative to times', () => {
+        // Given repeating progress
+        const stateClass = createFiringStateMockClass();
+        const stateClone = new stateClass();
+        const state = new stateClass(stateClone);
+
+        // And lazy-evaluative used for times
+        const expectedTimes = 5;
+        const leClass = jest.fn<ILazyEvaluative<number>>((t: number) => ({
+            calc: jest.fn().mockReturnValue(t),
+        }));
+        const le = new leClass(expectedTimes);
+
+        // When play Repeat
+        const interval = 3;
+        const repeat = new Repeat({ interval, times: le });
+        const progress = repeat.play(state);
+        let consumedFrames = 0;
+        while (true) {
+            const r = progress.next();
+            if (r.done) break;
+            consumedFrames += 1;
+        }
+
+        // Then consume frames
+        expect(consumedFrames).toBe(expectedTimes * interval);
     });
 });

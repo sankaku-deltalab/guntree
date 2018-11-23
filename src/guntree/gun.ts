@@ -29,7 +29,7 @@ export function getRepeatStateByTarget(state: IFiringState, target: number | str
 }
 
 export type RepeatOption = {
-    times: number;
+    times: number | ILazyEvaluative<number>;
     interval: number;
     name?: string;
 };
@@ -44,7 +44,7 @@ export class Repeat implements IGun {
 
     *play(state: IFiringState): IterableIterator<void> {
         const stateClone = state.copy();
-        const repeatTimes = this.option.times;
+        const repeatTimes = this.calcRepeatTimes(state);
 
         const repeatState = stateClone.startRepeating({ finished: 0, total: repeatTimes }, this.option.name);
         for (const finished of range(repeatTimes)) {
@@ -62,6 +62,11 @@ export class Repeat implements IGun {
                 stateClone.finishRepeating(repeatState);
             }
         }
+    }
+
+    private calcRepeatTimes(state: IFiringState) {
+        if (typeof this.option.times === 'number') return this.option.times;
+        return this.option.times.calc(state);
     }
 }
 
