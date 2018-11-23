@@ -30,7 +30,7 @@ export function getRepeatStateByTarget(state: IFiringState, target: number | str
 
 export type RepeatOption = {
     times: number | ILazyEvaluative<number>;
-    interval: number;
+    interval: number | ILazyEvaluative<number>;
     name?: string;
 };
 
@@ -43,8 +43,8 @@ export class Repeat implements IGun {
     }
 
     *play(state: IFiringState): IterableIterator<void> {
-        const stateClone = state.copy();
         const repeatTimes = this.calcRepeatTimes(state);
+        const stateClone = state.copy();
 
         const repeatState = stateClone.startRepeating({ finished: 0, total: repeatTimes }, this.option.name);
         for (const finished of range(repeatTimes)) {
@@ -52,7 +52,7 @@ export class Repeat implements IGun {
             for (const gun of this.guns) yield* gun.play(stateClone);
 
             // wait interval
-            yield* wait(this.option.interval);
+            yield* wait(this.calcInterval(stateClone));
 
             // process repeating
             repeatState.finished += 1;
@@ -67,6 +67,11 @@ export class Repeat implements IGun {
     private calcRepeatTimes(state: IFiringState) {
         if (typeof this.option.times === 'number') return this.option.times;
         return this.option.times.calc(state);
+    }
+
+    private calcInterval(state: IFiringState) {
+        if (typeof this.option.interval === 'number') return this.option.interval;
+        return this.option.interval.calc(state);
     }
 }
 

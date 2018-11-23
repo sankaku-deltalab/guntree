@@ -179,4 +179,38 @@ describe('#Repeat', () => {
         // And lazy-evaluative was evaluated only once time
         expect(le.calc).toBeCalledTimes(1);
     });
+
+    test('use lazy-evaluative to interval', () => {
+        // Given repeating progress
+        const stateClass = createFiringStateMockClass();
+        const stateClone = new stateClass();
+        const state = new stateClass(stateClone);
+
+        // And lazy-evaluative used for interval
+        const expectedInterval = 5;
+        const leClass = jest.fn<ILazyEvaluative<number>>((t: number) => ({
+            calc: jest.fn().mockReturnValue(t),
+        }));
+        const le = new leClass(expectedInterval);
+
+        // When play Repeat
+        const times = 3;
+        const repeat = new Repeat({ times, interval: le });
+        const progress = repeat.play(state);
+        let consumedFrames = 0;
+        while (true) {
+            const r = progress.next();
+            if (r.done) break;
+            if (expectedInterval > 0 && consumedFrames % expectedInterval === 0) {
+                expect(le.calc).lastCalledWith(stateClone);
+                expect(le.calc).toReturnWith(expectedInterval);
+                const expectedRepeated = 1 + consumedFrames / expectedInterval;
+                expect(le.calc).toHaveBeenCalledTimes(expectedRepeated);
+            }
+            consumedFrames += 1;
+        }
+
+        // Then consume frames
+        expect(consumedFrames).toBe(times * expectedInterval);
+    });
 });
