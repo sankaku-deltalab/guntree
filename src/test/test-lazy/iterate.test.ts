@@ -3,7 +3,7 @@ import { range } from 'lodash';
 import { IFiringState } from 'guntree/gun';
 import { ILazyEvaluative, Iterate } from 'guntree/lazy-evaluative';
 
-describe.only('#Iterate', () => {
+describe('#Iterate', () => {
     test.each`
     input           | finished | expected
     ${[10, 20, 30]} | ${0}     | ${10}
