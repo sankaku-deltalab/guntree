@@ -213,4 +213,60 @@ describe('#Repeat', () => {
         // Then consume frames
         expect(consumedFrames).toBe(times * expectedInterval);
     });
+
+    test('play guns at first frame of each repeating', () => {
+        // Given repeating progress
+        const stateClass = createFiringStateMockClass();
+        const stateClone = new stateClass();
+        const state = new stateClass(stateClone);
+
+        // And guns consume childFrames
+        const gunClass = jest.fn<IGun>((frames: number) => ({
+            play: jest.fn().mockImplementation(() => {
+                function* playing(): IterableIterator<void> {
+                    for (const _ of range(frames)) yield;
+                }
+                return playing();
+            }),
+        }));
+        const childFrames1 = 3;
+        const childFrames2 = 5;
+        const gun1 = new gunClass(childFrames1);
+        const gun2 = new gunClass(childFrames2);
+
+        // When play Repeat
+        const times = 4;
+        const interval = 6;
+        const repeat = new Repeat({ times, interval }, gun1, gun2);
+        const progress = repeat.play(state);
+
+        const gun1StartingFrames =
+            range(times).map<[number, number]>(t => [t + 1, t * (childFrames1 + childFrames2 + interval)]);
+        const gun2StartingFrames = gun1StartingFrames.map<[number, number]>(([t, f]) => [t, f + childFrames1]);
+        const gunAndStartFrames: [IGun, [number, number][]][] = [
+            [gun1, gun1StartingFrames],
+            [gun2, gun2StartingFrames],
+        ];
+
+        let consumedFrames = 0;
+        while (true) {
+            const r = progress.next();
+
+            // Then play guns
+            for (const [gun, frames] of gunAndStartFrames) {
+                for (const [fired, frame] of [[0, -1], ...frames].reverse()) {
+                    if (consumedFrames >= frame) {
+                        expect(gun.play).toBeCalledTimes(fired);
+                        if (fired !== 0) {
+                            expect(gun.play).lastCalledWith(stateClone);
+                        }
+                        break;
+                    }
+                }
+            }
+
+            if (r.done) break;
+            consumedFrames += 1;
+        }
+    });
 });
