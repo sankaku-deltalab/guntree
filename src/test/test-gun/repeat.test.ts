@@ -1,7 +1,6 @@
 import { range } from 'lodash';
 
 import { IRepeatState, IFiringState, IGun, Repeat } from 'guntree/gun';
-import { ILazyEvaluative } from 'guntree/lazy-evaluative';
 
 const createFiringStateMockClass = (): jest.Mock<IFiringState> => {
     return jest.fn<IFiringState>((clone?: jest.Mock<IFiringState>) => {
@@ -28,7 +27,7 @@ const createFiringStateMockClass = (): jest.Mock<IFiringState> => {
 };
 
 describe('#Repeat', () => {
-    test.only.each`
+    test.each`
     frames | times | interval
     ${0}   | ${0}  | ${0}
     ${0}   | ${1}  | ${0}
@@ -57,7 +56,7 @@ describe('#Repeat', () => {
         expect(consumedFrames).toBeCloseTo(frames);
     });
 
-    test.only.each`
+    test.each`
     frames | times | interval | childFrames
     ${0}   | ${0}  | ${0}     | ${0}
     ${0}   | ${1}  | ${0}     | ${0}
@@ -82,7 +81,7 @@ describe('#Repeat', () => {
         const gunClass = jest.fn<IGun>(() => ({
             play: jest.fn().mockImplementation(() => {
                 function* playing(): IterableIterator<void> {
-                    for (const i of range(childFrames)) yield;
+                    for (const _ of range(childFrames)) yield;
                 }
                 return playing();
             }),
@@ -91,6 +90,44 @@ describe('#Repeat', () => {
 
         // When play Repeat
         const repeat = new Repeat({ times, interval }, gun);
+        const progress = repeat.play(state);
+        let consumedFrames = 0;
+        while (true) {
+            const r = progress.next();
+            if (r.done) break;
+            consumedFrames += 1;
+        }
+
+        // Then consume frames
+        expect(consumedFrames).toBeCloseTo(frames);
+    });
+
+    test.each`
+    frames | times | interval | childFrames1 | childFrames2
+    ${0}   | ${0}  | ${0}     | ${0}         | ${0}
+    ${22}  | ${2}  | ${7}     | ${3}         | ${1}
+    `('consume $frames frames with 2 child guns given by ($times * ($childFrames1 * $childFrames2 + $interval))', (
+        { frames, times, interval, childFrames1, childFrames2 }) => {
+        // Given repeating progress
+        const stateClass = createFiringStateMockClass();
+        const stateClone2 = new stateClass();
+        const stateClone = new stateClass(stateClone2);
+        const state = new stateClass(stateClone);
+
+        // And gun consume childFrames
+        const gunClass = jest.fn<IGun>((frames: number) => ({
+            play: jest.fn().mockImplementation(() => {
+                function* playing(): IterableIterator<void> {
+                    for (const _ of range(frames)) yield;
+                }
+                return playing();
+            }),
+        }));
+        const gun1 = new gunClass(childFrames1);
+        const gun2 = new gunClass(childFrames2);
+
+        // When play Repeat
+        const repeat = new Repeat({ times, interval }, gun1, gun2);
         const progress = repeat.play(state);
         let consumedFrames = 0;
         while (true) {
