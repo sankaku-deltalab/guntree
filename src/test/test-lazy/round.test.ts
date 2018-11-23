@@ -1,7 +1,7 @@
 import { IFiringState } from 'guntree/gun';
 import { ILazyEvaluative, Round } from 'guntree/lazy-evaluative';
 
-describe.only('#Round', () => {
+describe('#Round', () => {
     test.each`
     input   | expected
     ${0.49} | ${0}
