@@ -26,4 +26,8 @@ export class Parameter {
         this.value *= multiplier;
         return multiplier;
     }
+
+    reset(newValue: number): void {
+        this.value = newValue;
+    }
 }

@@ -59,4 +59,17 @@ describe('#Parameter', () => {
         // Then parameter was multiplied
         expect(parameter.calcValue()).toBeCloseTo(initialValue * mlt);
     });
+
+    test('can reset value', () => {
+        // Given parameter
+        const initialValue = 123;
+        const parameter = new Parameter(initialValue);
+
+        // When reset value
+        const newValue = 56;
+        parameter.reset(newValue);
+
+        // Then parameter was reset
+        expect(parameter.calcValue()).toBeCloseTo(newValue);
+    });
 });
