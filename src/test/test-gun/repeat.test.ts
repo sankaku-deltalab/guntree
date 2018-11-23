@@ -54,7 +54,7 @@ describe('#Repeat', () => {
         }
 
         // Then consume frames
-        expect(consumedFrames).toBeCloseTo(frames);
+        expect(consumedFrames).toBe(frames);
     });
 
     test.each`
@@ -100,7 +100,7 @@ describe('#Repeat', () => {
         }
 
         // Then consume frames
-        expect(consumedFrames).toBeCloseTo(frames);
+        expect(consumedFrames).toBe(frames);
     });
 
     test.each`
@@ -138,7 +138,7 @@ describe('#Repeat', () => {
         }
 
         // Then consume frames
-        expect(consumedFrames).toBeCloseTo(frames);
+        expect(consumedFrames).toBe(frames);
     });
 
     test('use lazy-evaluative to times', () => {
@@ -162,10 +162,21 @@ describe('#Repeat', () => {
         while (true) {
             const r = progress.next();
             if (r.done) break;
+
+            // Then lazy-evaluative was evaluated at only first frame
+            if (consumedFrames === 0) {
+                expect(le.calc).toBeCalledTimes(1);
+                expect(le.calc).lastCalledWith(state);
+                expect(le.calc).toReturnWith(expectedTimes);
+            }
+
             consumedFrames += 1;
         }
 
         // Then consume frames
         expect(consumedFrames).toBe(expectedTimes * interval);
+
+        // And lazy-evaluative was evaluated only once time
+        expect(le.calc).toBeCalledTimes(1);
     });
 });
