@@ -9,7 +9,7 @@ describe('#Parameter', () => {
         const parameter = new Parameter(initialValue);
 
         // Then parameter has initial value
-        expect(parameter.calcValue()).toBe(initialValue);
+        expect(parameter.getValue()).toBe(initialValue);
     });
 
     test('can add value', () => {
@@ -22,7 +22,7 @@ describe('#Parameter', () => {
         parameter.add(adding);
 
         // Then parameter was added
-        expect(parameter.calcValue()).toBe(initialValue + adding);
+        expect(parameter.getValue()).toBe(initialValue + adding);
     });
 
     test('can add value with multiplier', () => {
@@ -44,7 +44,7 @@ describe('#Parameter', () => {
         }
 
         // Then parameter was added with multiplier
-        expect(parameter.calcValue()).toBeCloseTo(initialValue + (adding[0] + adding[1]) * mlt);
+        expect(parameter.getValue()).toBeCloseTo(initialValue + (adding[0] + adding[1]) * mlt);
     });
 
     test('can multiply value', () => {
@@ -57,7 +57,7 @@ describe('#Parameter', () => {
         parameter.multiply(mlt);
 
         // Then parameter was multiplied
-        expect(parameter.calcValue()).toBeCloseTo(initialValue * mlt);
+        expect(parameter.getValue()).toBeCloseTo(initialValue * mlt);
     });
 
     test('can reset value', () => {
@@ -70,6 +70,6 @@ describe('#Parameter', () => {
         parameter.reset(newValue);
 
         // Then parameter was reset
-        expect(parameter.calcValue()).toBeCloseTo(newValue);
+        expect(parameter.getValue()).toBeCloseTo(newValue);
     });
 });

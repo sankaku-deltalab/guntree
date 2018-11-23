@@ -7,7 +7,7 @@ export class Parameter {
         this.addingMultiplier = 1;
     }
 
-    calcValue(): number {
+    getValue(): number {
         return this.value;
     }
 
