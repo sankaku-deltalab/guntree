@@ -21,4 +21,9 @@ export class Parameter {
         this.addingMultiplier *= multiplier;
         return this.addingMultiplier;
     }
+
+    multiply(multiplier: number): number {
+        this.value *= multiplier;
+        return multiplier;
+    }
 }

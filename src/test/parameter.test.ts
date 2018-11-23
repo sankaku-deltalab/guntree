@@ -46,4 +46,17 @@ describe('#Parameter', () => {
         // Then parameter was added with multiplier
         expect(parameter.calcValue()).toBeCloseTo(initialValue + (adding[0] + adding[1]) * mlt);
     });
+
+    test('can multiply value', () => {
+        // Given parameter
+        const initialValue = 123;
+        const parameter = new Parameter(initialValue);
+
+        // When multiply value
+        const mlt = 1.2;
+        parameter.multiply(mlt);
+
+        // Then parameter was multiplied
+        expect(parameter.calcValue()).toBeCloseTo(initialValue * mlt);
+    });
 });
