@@ -269,4 +269,49 @@ describe('#Repeat', () => {
             consumedFrames += 1;
         }
     });
+
+    test.each`
+    times | interval | name
+    ${0}  | ${0}     | ${'a'}
+    ${2}  | ${7}     | ${undefined}
+    ${2}  | ${7}     | ${undefined}
+    `('log repeating when {times: $times, interval: $interval, name: $name}', ({ times, interval, name }) => {
+        // Given repeating progress
+        const stateClass = createFiringStateMockClass();
+        const stateClone = new stateClass();
+        const state = new stateClass(stateClone);
+
+        // When play Repeat
+        const repeat = new Repeat({ times, interval, name });
+        const progress = repeat.play(state);
+
+        let consumedFrames = 0;
+        while (true) {
+            const r = progress.next();
+
+            // Then notify start repeating to state
+            if (consumedFrames === 0) {
+                expect(stateClone.startRepeating).lastCalledWith({ finished: 0, total: times }, name);
+            }
+
+            // And update repeating state and notify finish repeating
+            if (consumedFrames < times * interval) {
+                const expectedRepeated = Math.floor(consumedFrames / interval);
+                expect((<any> stateClone).repeatingStack[0]).toEqual({ finished: expectedRepeated, total: times });
+            } else {
+                expect(stateClone.finishRepeating).toBeCalledWith({ finished: times, total: times });
+                expect(r.done).toBe(true);
+            }
+
+            if (r.done) break;
+            consumedFrames += 1;
+
+            // And not notify finish repeating while repeating
+            expect(stateClone.finishRepeating).not.toBeCalled();
+        }
+
+        // And notify start and finish repeating only once
+        expect(stateClone.startRepeating).toBeCalledTimes(1);
+        expect(stateClone.finishRepeating).toBeCalledTimes(1);
+    });
 });

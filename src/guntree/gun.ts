@@ -47,7 +47,7 @@ export class Repeat implements IGun {
         const stateClone = state.copy();
 
         const repeatState = stateClone.startRepeating({ finished: 0, total: repeatTimes }, this.option.name);
-        for (const finished of range(repeatTimes)) {
+        for (const _ of range(repeatTimes)) {
             // fire children
             for (const gun of this.guns) yield* gun.play(stateClone);
 
@@ -56,12 +56,8 @@ export class Repeat implements IGun {
 
             // process repeating
             repeatState.finished += 1;
-
-            // finish firing if complete firing
-            if (finished === repeatTimes - 1) {
-                stateClone.finishRepeating(repeatState);
-            }
         }
+        stateClone.finishRepeating(repeatState);
     }
 
     private calcRepeatTimes(state: IFiringState) {
