@@ -65,4 +65,28 @@ describe('#Add', () => {
         // And progress was finished
         expect(result.done).toBe(true);
     });
+
+    test('throw error if parameter is not exist', () => {
+        // Given FiringState
+        const parameterClass = jest.fn<Parameter>(() => ({
+            add: jest.fn(),
+        }));
+        const parameterName = 'a';
+        const parameter = new parameterClass();
+        const firingStateClass = jest.fn<IFiringState>(() => ({
+            parameters: new Map<string, Parameter>([[parameterName, parameter]]),
+        }));
+        const state = new firingStateClass();
+
+        // And Add use another parameter name
+        const adding = 2;
+        const fatalParameterName = 'b';
+        const add = new Add(fatalParameterName, adding);
+
+        // When play Add with one frame
+        const progress = add.play(state);
+
+        // Then throw error
+        expect(() => { progress.next(); }).toThrowError();
+    });
 });
