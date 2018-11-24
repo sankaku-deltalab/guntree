@@ -1,6 +1,7 @@
 import { range } from 'lodash';
 
 import { ILazyEvaluative } from 'guntree/lazy-evaluative';
+import { Parameter } from 'guntree/parameter';
 
 export interface IRepeatState {
     finished: number;
@@ -8,6 +9,8 @@ export interface IRepeatState {
 }
 
 export interface IFiringState {
+    parameters: Map<string, Parameter>;
+
     copy(): IFiringState;
 
     getRepeatState(position: number): IRepeatState;
