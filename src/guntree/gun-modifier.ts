@@ -69,3 +69,26 @@ export class MultiplyLaterAdding implements IGun {
         return this.multiplier.calc(state);
     }
 }
+
+/**
+ * Reset value to parameter.
+ */
+export class Reset implements IGun {
+    /**
+     * @param name paramter name
+     * @param newValue new value value or lazy-evaluative deal multiplier value
+     */
+    constructor(private readonly name: string,
+                private readonly newValue: number | ILazyEvaluative<number>) {}
+
+    *play(state: IFiringState): IterableIterator<void> {
+        const param = state.parameters.get(this.name);
+        if (param === undefined) throw new Error(`Parameter ${this.name} is not exist`);
+        param.reset(this.calcNewValue(state));
+    }
+
+    private calcNewValue(state: IFiringState): number {
+        if (typeof this.newValue === 'number') return this.newValue;
+        return this.newValue.calc(state);
+    }
+}
