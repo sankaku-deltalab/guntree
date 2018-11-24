@@ -19,6 +19,8 @@ export interface IFiringState {
     startRepeating(state: IRepeatState, name?: string): IRepeatState;
     notifyContinueRepeating(state: IRepeatState): void;
     finishRepeating(state: IRepeatState): void;
+
+    notifyFired(bullet: IBullet): void;
 }
 
 export interface IGun {
@@ -36,6 +38,25 @@ export type RepeatOption = {
     interval: number | ILazyEvaluative<number>;
     name?: string;
 };
+
+/**
+ * Bullet express property of bullet.
+ */
+export interface IBullet {}
+
+/**
+ * Fire bullet.
+ */
+export class Fire implements IGun {
+    /**
+     * @param bullet Fired bullet
+     */
+    constructor(private readonly bullet: IBullet) {}
+
+    *play(state: IFiringState): IterableIterator<void> {
+        state.notifyFired(this.bullet);
+    }
+}
 
 export class Repeat implements IGun {
     private readonly guns: IGun[];
