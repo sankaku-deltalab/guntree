@@ -14,7 +14,7 @@ export class Add implements IGun {
 
     *play(state: IFiringState): IterableIterator<void> {
         const param = state.parameters.get(this.name);
-        if (param === undefined) throw new Error();  // TODO:
+        if (param === undefined) throw new Error(`Parameter ${this.name} is not exist`);
         param.add(this.calcAdding(state));
     }
 
