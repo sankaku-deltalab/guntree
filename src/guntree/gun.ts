@@ -23,6 +23,22 @@ export interface IFiringState {
     notifyFired(bullet: IBullet): void;
 }
 
+export class FiringState {
+    readonly parameters: Map<string, Parameter>;
+
+    constructor() {
+        this.parameters = new Map();
+    }
+
+    copy(): FiringState {
+        const clone = new FiringState();
+        for (const [key, param] of this.parameters) {
+            clone.parameters.set(key, param.copy());
+        }
+        return clone;
+    }
+}
+
 export interface IGun {
     play(state: IFiringState): IterableIterator<void>;
 }
