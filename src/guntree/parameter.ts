@@ -63,4 +63,10 @@ export class Parameter {
     reset(newValue: number): void {
         this.value = newValue;
     }
+
+    copy(): Parameter {
+        const clone = new Parameter(this.value);
+        clone.addingMultiplier = this.addingMultiplier;
+        return clone;
+    }
 }

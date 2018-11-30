@@ -72,4 +72,22 @@ describe('#Parameter', () => {
         // Then parameter was reset
         expect(parameter.getValue()).toBeCloseTo(newValue);
     });
+
+    test('can copy self', () => {
+        // Given parameter multiplied later adding
+        const initialValue = 123;
+        const mlt = 14;
+        const parameter = new Parameter(initialValue);
+        parameter.multiplyLaterAdding(mlt);
+
+        // When copy parameter
+        const clone = parameter.copy();
+
+        // Then copied parameter has same value
+        expect(clone.getValue()).toBeCloseTo(initialValue);
+
+        // And copied parameter has same multiplier
+        const adding = 45;
+        expect(clone.add(adding)).toBeCloseTo(adding * mlt);
+    });
 });
