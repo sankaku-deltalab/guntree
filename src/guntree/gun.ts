@@ -25,10 +25,12 @@ export interface IFiringState {
 export class FiringState {
     readonly parameters: Map<string, Parameter>;
     private readonly repeatStateStack: IRepeatState[];
+    private readonly repeatMap: Map<string, IRepeatState>;
 
     constructor() {
         this.parameters = new Map();
         this.repeatStateStack = [{ finished: 0, total: 1 }];
+        this.repeatMap = new Map();
     }
 
     copy(): FiringState {
@@ -44,8 +46,17 @@ export class FiringState {
         return this.repeatStateStack[idx];
     }
 
+    getRepeatStateByName(name: string): IRepeatState {
+        const rs = this.repeatMap.get(name);
+        if (rs === undefined) throw new Error();
+        return rs;
+    }
+
     startRepeating(state: IRepeatState, name?: string): IRepeatState {
         this.repeatStateStack.push(state);
+        if (name !== undefined) {
+            this.repeatMap.set(name, state);
+        }
         return state;
     }
 

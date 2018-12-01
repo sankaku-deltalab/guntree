@@ -75,6 +75,37 @@ describe('#FiringState', () => {
         expect(actual).toBe(repeatStates.reverse()[position]);
     });
 
+    test('can get repeat state by name', () => {
+        // Given firing state
+        const state = new FiringState();
+
+        // When start repeating with name
+        const name = 'a';
+        const rs = state.startRepeating({ finished: 0, total: 10 }, name);
+
+        // And get repeating with name
+        const actual = state.getRepeatStateByName(name);
+
+        // Then get repeating
+        expect(actual).toBe(rs);
+    });
+
+    test('throw error if get repeat state by name and not contain repeating with that name', () => {
+        // Given firing state
+        const state = new FiringState();
+
+        // When start repeating with name
+        const name = 'a';
+        const badName = 'b';
+        state.startRepeating({ finished: 0, total: 10 }, name);
+
+        // And get repeating with name
+        const func = () => state.getRepeatStateByName(badName);
+
+        // Then throw error repeating
+        expect(func).toThrowError();
+    });
+
     test('has initial repeating', () => {
         // Given firing state
         const state = new FiringState();
