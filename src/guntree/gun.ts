@@ -17,7 +17,6 @@ export interface IFiringState {
     getRepeatStateByName(name: string): IRepeatState;
 
     startRepeating(state: IRepeatState, name?: string): IRepeatState;
-    notifyContinueRepeating(state: IRepeatState): void;
     finishRepeating(state: IRepeatState): void;
 
     notifyFired(bullet: IBullet): void;
@@ -25,9 +24,11 @@ export interface IFiringState {
 
 export class FiringState {
     readonly parameters: Map<string, Parameter>;
+    private readonly repeatStateStack: IRepeatState[];
 
     constructor() {
         this.parameters = new Map();
+        this.repeatStateStack = [];
     }
 
     copy(): FiringState {
@@ -36,6 +37,16 @@ export class FiringState {
             clone.parameters.set(key, param.copy());
         }
         return clone;
+    }
+
+    getRepeatState(position: number): IRepeatState {
+        const idx = this.repeatStateStack.length - 1 - position;
+        return this.repeatStateStack[idx];
+    }
+
+    startRepeating(state: IRepeatState, name?: string): IRepeatState {
+        this.repeatStateStack.push(state);
+        return state;
     }
 }
 
