@@ -28,7 +28,7 @@ export class FiringState {
 
     constructor() {
         this.parameters = new Map();
-        this.repeatStateStack = [];
+        this.repeatStateStack = [{ finished: 0, total: 1 }];
     }
 
     copy(): FiringState {
@@ -47,6 +47,11 @@ export class FiringState {
     startRepeating(state: IRepeatState, name?: string): IRepeatState {
         this.repeatStateStack.push(state);
         return state;
+    }
+
+    finishRepeating(state: IRepeatState): void {
+        if (this.repeatStateStack.length === 1) throw new Error('Repeating was finished');
+        this.repeatStateStack.pop();
     }
 }
 

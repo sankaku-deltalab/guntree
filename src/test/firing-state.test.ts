@@ -74,4 +74,22 @@ describe('#FiringState', () => {
         // Then dealt state is expected position's state
         expect(actual).toBe(repeatStates.reverse()[position]);
     });
+
+    test('throw error if finish repeating if repeating was completed', () => {
+        // Given repeating state
+        const repeatState: IRepeatState = { finished: 0, total: 10 };
+
+        // And firing state
+        const state = new FiringState();
+
+        // When start repeating
+        state.startRepeating(repeatState);
+
+        // And finish repeating
+        state.finishRepeating(repeatState);
+
+        // And finish repeating again
+        // Then throw error
+        expect(() => state.finishRepeating({ finished: 0, total: 10 })).toThrowError();
+    });
 });
