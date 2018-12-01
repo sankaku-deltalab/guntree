@@ -9,16 +9,54 @@ export interface IRepeatState {
     total: number;
 }
 
+/**
+ * FiringState contains information while firing.
+ */
 export interface IFiringState {
+    /** Parameters expression real value. */
     parameters: Map<string, Parameter>;
+
+    /** Player playing GunTree with this state. */
     player: IPlayer;
 
+    /** Copy this state. */
     copy(): IFiringState;
 
+    /**
+     * Get repeat state with position.
+     *
+     * e.g.
+     * - getRepeatState(0) return current repeating,
+     * - getRepeatState(1) return previous repeating.
+     *
+     * @param position Repeating position
+     */
     getRepeatState(position: number): IRepeatState;
+
+    /**
+     * Get repeat state with name.
+     *
+     * @param name Repeating name
+     */
     getRepeatStateByName(name: string): IRepeatState;
 
+    /**
+     * Notify start repeating.
+     * Called by guns.
+     * Return input repeat state.
+     *
+     * @param state Repeat state
+     * @param name Repeat state name
+     */
     startRepeating(state: IRepeatState, name?: string): IRepeatState;
+
+    /**
+     * Notify finish repeating.
+     * Started repeating must be finished.
+     *
+     * @param state Repeat state
+     * @param name Repeat state name
+     */
     finishRepeating(state: IRepeatState, name?: string): void;
 }
 
