@@ -20,7 +20,7 @@ export class Player implements IPlayer {
     }
 
     start(): void {
-        if (this.gunTree === null) throw new Error();  // TODO:
+        if (this.gunTree === null) throw new Error('GunTree was not set');
         this.firingProgress = this.gunTree.play(new FiringState(this));
         this.firingProgress.next();
     }

@@ -39,7 +39,18 @@ describe('#Player', () => {
         expect(gunTree.play).toBeCalledTimes(1);
     });
 
-    test('can continue gun tree', () => {});
+    test('throw error if start without gun tree', () => {
+        // Given Player
+        const player = new Player();
+
+        // When start player without gun tree
+        const starting = () => player.start();
+
+        // Then throw error
+        expect(starting).toThrowError();
+    });
+
+    test.skip('can continue gun tree', () => {});
     test.skip('notify completing of gun tree to owner', () => {});
     test.skip('notify firing to owner', () => {});
 
