@@ -17,7 +17,7 @@ export interface IFiringState {
     getRepeatStateByName(name: string): IRepeatState;
 
     startRepeating(state: IRepeatState, name?: string): IRepeatState;
-    finishRepeating(state: IRepeatState): void;
+    finishRepeating(state: IRepeatState, name?: string): void;
 
     notifyFired(bullet: IBullet): void;
 }
@@ -25,7 +25,7 @@ export interface IFiringState {
 export class FiringState {
     readonly parameters: Map<string, Parameter>;
     private readonly repeatStateStack: IRepeatState[];
-    private readonly repeatMap: Map<string, IRepeatState>;
+    private readonly repeatMap: Map<string, IRepeatState[]>;
 
     constructor() {
         this.parameters = new Map();
@@ -47,22 +47,46 @@ export class FiringState {
     }
 
     getRepeatStateByName(name: string): IRepeatState {
-        const rs = this.repeatMap.get(name);
-        if (rs === undefined) throw new Error();
-        return rs;
+        const rsStack = this.repeatMap.get(name);
+        if (rsStack === undefined) throw new Error();
+        return rsStack[rsStack.length - 1];
     }
 
     startRepeating(state: IRepeatState, name?: string): IRepeatState {
         this.repeatStateStack.push(state);
         if (name !== undefined) {
-            this.repeatMap.set(name, state);
+            this.setRepeatMap(state, name);
         }
         return state;
     }
 
-    finishRepeating(state: IRepeatState): void {
+    private setRepeatMap(state: IRepeatState, name: string) {
+        if (!this.repeatMap.has(name)) {
+            this.repeatMap.set(name, []);
+        }
+
+        const rsStack = this.repeatMap.get(name);
+        if (rsStack === undefined) throw new Error();
+        rsStack.push(state);
+    }
+
+    finishRepeating(state: IRepeatState, name?: string): void {
         if (this.repeatStateStack.length === 1) throw new Error('Repeating was finished');
-        this.repeatStateStack.pop();
+        if (name !== undefined) {
+            this.popRepeatMap(state, name);
+        }
+        const rs = this.repeatStateStack.pop();
+        if (rs !== state) throw new Error('Finishing repeating is not final repeating');
+    }
+
+    private popRepeatMap(state: IRepeatState, name: string) {
+        const rsStack = this.repeatMap.get(name);
+        if (rsStack === undefined || rsStack.length === 0) {
+            throw new Error(`repeating <${name}> was finished but not repeating`);
+        }
+        const rs = rsStack.pop();
+        if (rs !== state) throw new Error('Finishing repeating is not final repeating');
+        return rs;
     }
 }
 
@@ -124,7 +148,7 @@ export class Repeat implements IGun {
             // process repeating
             repeatState.finished += 1;
         }
-        stateClone.finishRepeating(repeatState);
+        stateClone.finishRepeating(repeatState, this.option.name);
     }
 
     private calcRepeatTimes(state: IFiringState) {

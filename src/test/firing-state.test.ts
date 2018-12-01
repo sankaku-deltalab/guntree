@@ -106,6 +106,27 @@ describe('#FiringState', () => {
         expect(func).toThrowError();
     });
 
+    test('can get repeat state by name with nested repeating', () => {
+        // Given firing state
+        const state = new FiringState();
+
+        // When start repeating with name twice
+        const name = 'a';
+        const rs1 = state.startRepeating({ finished: 0, total: 10 }, name);
+        const rs2 = state.startRepeating({ finished: 1, total: 10 }, name);
+
+        for (const rs of [rs2, rs1]) {
+            // And get repeating with name
+            const actual = state.getRepeatStateByName(name);
+
+            // Then get second repeating
+            expect(actual).toBe(rs);
+
+            // finish repeating for next loop
+            state.finishRepeating(rs, name);
+        }
+    });
+
     test('has initial repeating', () => {
         // Given firing state
         const state = new FiringState();
@@ -134,5 +155,22 @@ describe('#FiringState', () => {
         // And finish repeating again
         // Then throw error
         expect(() => state.finishRepeating({ finished: 0, total: 10 })).toThrowError();
+    });
+
+    test('throw error when finish repeating if finishing repeating is not current repeating', () => {
+        // Given repeating state
+        const rs1: IRepeatState = { finished: 0, total: 10 };
+        const rs2: IRepeatState = { finished: 1, total: 10 };
+
+        // And firing state
+        const state = new FiringState();
+
+        // When start repeating twice
+        state.startRepeating(rs1);
+        state.startRepeating(rs2);
+
+        // And finish first repeating
+        // Then throw error
+        expect(() => state.finishRepeating(rs1)).toThrowError();
     });
 });

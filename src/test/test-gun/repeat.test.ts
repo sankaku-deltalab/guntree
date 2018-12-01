@@ -299,7 +299,7 @@ describe('#Repeat', () => {
                 const expectedRepeated = Math.floor(consumedFrames / interval);
                 expect((<any> stateClone).repeatingStack[0]).toEqual({ finished: expectedRepeated, total: times });
             } else {
-                expect(stateClone.finishRepeating).toBeCalledWith({ finished: times, total: times });
+                expect(stateClone.finishRepeating).toBeCalledWith({ finished: times, total: times }, name);
                 expect(r.done).toBe(true);
             }
 
