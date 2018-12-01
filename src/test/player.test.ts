@@ -50,7 +50,32 @@ describe('#Player', () => {
         expect(starting).toThrowError();
     });
 
-    test.skip('can continue gun tree', () => {});
+    test.each`
+        gunTreeLength
+        ${0}
+        ${1}
+        ${12}
+    `('can continue gun tree', ({ gunTreeLength }) => {
+        // Given Player with gun tree
+        const gunTree = createGun(gunTreeLength);
+        const player = new Player();
+        player.setGunTree(gunTree);
+
+        // When start player
+        const doneAtFirst = player.start();
+        expect(doneAtFirst).toBe(gunTreeLength === 0);
+
+        // And play full tick
+        for (const i of range(gunTreeLength)) {
+            expect(player.isRunning).toBe(true);
+            const done = player.tick();
+            expect(done).toBe((i === gunTreeLength - 1));
+        }
+
+        // Then playing was finished
+        expect(player.isRunning).toBe(false);
+    });
+
     test.skip('notify completing of gun tree to owner', () => {});
     test.skip('notify firing to owner', () => {});
 
