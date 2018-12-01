@@ -2,6 +2,7 @@ import { range } from 'lodash';
 
 import { ILazyEvaluative } from 'guntree/lazy-evaluative';
 import { Parameter } from 'guntree/parameter';
+import { IPlayer } from 'guntree/player';
 
 export interface IRepeatState {
     finished: number;
@@ -10,6 +11,7 @@ export interface IRepeatState {
 
 export interface IFiringState {
     parameters: Map<string, Parameter>;
+    player: IPlayer;
 
     copy(): IFiringState;
 
@@ -18,23 +20,21 @@ export interface IFiringState {
 
     startRepeating(state: IRepeatState, name?: string): IRepeatState;
     finishRepeating(state: IRepeatState, name?: string): void;
-
-    notifyFired(bullet: IBullet): void;
 }
 
-export class FiringState {
+export class FiringState implements IFiringState {
     readonly parameters: Map<string, Parameter>;
     private readonly repeatStateStack: IRepeatState[];
     private readonly repeatMap: Map<string, IRepeatState[]>;
 
-    constructor() {
+    constructor(readonly player: IPlayer) {
         this.parameters = new Map();
         this.repeatStateStack = [{ finished: 0, total: 1 }];
         this.repeatMap = new Map();
     }
 
     copy(): FiringState {
-        const clone = new FiringState();
+        const clone = new FiringState(this.player);
         for (const [key, param] of this.parameters) {
             clone.parameters.set(key, param.copy());
         }
@@ -121,7 +121,7 @@ export class Fire implements IGun {
     constructor(private readonly bullet: IBullet) {}
 
     *play(state: IFiringState): IterableIterator<void> {
-        state.notifyFired(this.bullet);
+        state.player.notifyFired(state, this.bullet);
     }
 }
 

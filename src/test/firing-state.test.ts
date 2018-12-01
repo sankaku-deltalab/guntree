@@ -1,13 +1,13 @@
 import { range } from 'lodash';
 
-import { IRepeatState, FiringState, IGun } from 'guntree/gun';
+import { IRepeatState, FiringState } from 'guntree/gun';
 import { Parameter } from 'guntree/parameter';
+import { IPlayer } from 'guntree/player';
 
-/**
-- 連射の記録
-- 発砲の通知
-- コピー
- */
+const createPlayer = (): IPlayer => {
+    const plClass = jest.fn<IPlayer>();
+    return new plClass();
+};
 
 describe('#FiringState', () => {
     test('can copy self', () => {
@@ -18,9 +18,12 @@ describe('#FiringState', () => {
         const paramClone = new paramClass();
         const param = new paramClass(paramClone);
 
+        // And Player
+        const player = createPlayer();
+
         // And firing state with parameter
         const paramName = 'a';
-        const state = new FiringState();
+        const state = new FiringState(player);
         state.parameters.set(paramName, param);
 
         // When copy firing state
@@ -34,8 +37,11 @@ describe('#FiringState', () => {
         // Given repeating state
         const repeatState: IRepeatState = { finished: 0, total: 10 };
 
+        // And Player
+        const player = createPlayer();
+
         // And firing state
-        const state = new FiringState();
+        const state = new FiringState(player);
 
         // When start repeating
         state.startRepeating(repeatState);
@@ -60,8 +66,11 @@ describe('#FiringState', () => {
             repeatStates.push({ finished: i * 2, total: nest * 3 });
         }
 
+        // And Player
+        const player = createPlayer();
+
         // And firing state
-        const state = new FiringState();
+        const state = new FiringState(player);
 
         // When start nested repeating
         for (const rs of repeatStates) {
@@ -76,8 +85,11 @@ describe('#FiringState', () => {
     });
 
     test('can get repeat state by name', () => {
-        // Given firing state
-        const state = new FiringState();
+        // Given Player
+        const player = createPlayer();
+
+        // And firing state
+        const state = new FiringState(player);
 
         // When start repeating with name
         const name = 'a';
@@ -91,8 +103,11 @@ describe('#FiringState', () => {
     });
 
     test('throw error if get repeat state by name and not contain repeating with that name', () => {
-        // Given firing state
-        const state = new FiringState();
+        // Given Player
+        const player = createPlayer();
+
+        // And firing state
+        const state = new FiringState(player);
 
         // When start repeating with name
         const name = 'a';
@@ -107,8 +122,11 @@ describe('#FiringState', () => {
     });
 
     test('can get repeat state by name with nested repeating', () => {
-        // Given firing state
-        const state = new FiringState();
+        // Given Player
+        const player = createPlayer();
+
+        // And firing state
+        const state = new FiringState(player);
 
         // When start repeating with name twice
         const name = 'a';
@@ -128,8 +146,11 @@ describe('#FiringState', () => {
     });
 
     test('has initial repeating', () => {
-        // Given firing state
-        const state = new FiringState();
+        // Given Player
+        const player = createPlayer();
+
+        // And firing state
+        const state = new FiringState(player);
 
         // When get current repeating
         const actual = state.getRepeatState(0);
@@ -143,8 +164,11 @@ describe('#FiringState', () => {
         // Given repeating state
         const repeatState: IRepeatState = { finished: 0, total: 10 };
 
+        // And Player
+        const player = createPlayer();
+
         // And firing state
-        const state = new FiringState();
+        const state = new FiringState(player);
 
         // When start repeating
         state.startRepeating(repeatState);
@@ -162,8 +186,11 @@ describe('#FiringState', () => {
         const rs1: IRepeatState = { finished: 0, total: 10 };
         const rs2: IRepeatState = { finished: 1, total: 10 };
 
+        // And Player
+        const player = createPlayer();
+
         // And firing state
-        const state = new FiringState();
+        const state = new FiringState(player);
 
         // When start repeating twice
         state.startRepeating(rs1);
