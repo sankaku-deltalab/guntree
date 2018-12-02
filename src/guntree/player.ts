@@ -10,11 +10,15 @@ export interface IPlayer {
     notifyFired(state: IFiringState, bullet: IBullet): void;
 }
 
+export interface IPlayerOwner {
+    notifyFired(player: IPlayer, state: IFiringState, bullet: IBullet): void;
+}
+
 export class Player implements IPlayer {
     private gunTree: IGun | null;
     private firingProgress: IterableIterator<void> | null;
 
-    constructor() {
+    constructor(private readonly owner: IPlayerOwner) {
         this.gunTree = null;
         this.firingProgress = null;
     }
@@ -44,6 +48,6 @@ export class Player implements IPlayer {
     }
 
     notifyFired(state: IFiringState, bullet: IBullet): void {
-        // TODO:
+        this.owner.notifyFired(this, state, bullet);
     }
 }
