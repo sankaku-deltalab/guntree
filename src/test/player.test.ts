@@ -21,12 +21,6 @@ const createEmptyMock = <T>(): T => {
     return new cls();
 };
 
-/**
-- parameterが初期化されている
-- playするとgunがplayされる
-- 終了時に通知が飛ぶ
- */
-
 describe('#Player', () => {
     test('can start gun tree', () => {
         // Given gun tree
@@ -118,5 +112,38 @@ describe('#Player', () => {
         // Then gun was played with state and state parameter was initialized
         const gunState: IFiringState = (<jest.Mock> gunTree.play).mock.calls[0][0];
         expect(gunState.parameters.get(name)).toEqual(new Parameter(value));
+    });
+
+    test('can add initial parameter', () => {
+        // Given parameter name and value
+        const additionalParameters = {
+            abc: 15,
+            cde: 24,
+        };
+
+        // And Player with gun tree and parameter
+        const gunTree = createGun(0);
+        const player = new Player(createEmptyMock(), { additionalParameters });
+        player.setGunTree(gunTree);
+
+        // When start player
+        player.start();
+
+        // Then gun was played with state and state parameter was initialized
+        const gunState: IFiringState = (<jest.Mock> gunTree.play).mock.calls[0][0];
+        for (const [name, value] of Object.entries(additionalParameters)) {
+            expect(gunState.parameters.get(name)).toEqual(new Parameter(value));
+        }
+
+        // And default parameters are still alive
+        const defaultParameters: [string, number][] = [
+            ['angle', 0],
+            ['aimAngle', 0],
+            ['speed', 1],
+            ['size', 1],
+        ];
+        for (const [name, value] of defaultParameters) {
+            expect(gunState.parameters.get(name)).toEqual(new Parameter(value));
+        }
     });
 });

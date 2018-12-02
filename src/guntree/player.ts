@@ -15,13 +15,20 @@ export interface IPlayerOwner {
     notifyFired(player: IPlayer, state: IFiringState, bullet: IBullet): void;
 }
 
+export type TPlayerOption = {
+    additionalParameters?: {[key: string]: number};
+};
+
 export class Player implements IPlayer {
     private gunTree: IGun | null;
     private firingProgress: IterableIterator<void> | null;
+    private readonly option: TPlayerOption;
 
-    constructor(private readonly owner: IPlayerOwner) {
+    constructor(private readonly owner: IPlayerOwner,
+                option?: TPlayerOption) {
         this.gunTree = null;
         this.firingProgress = null;
+        this.option = option || {};
     }
 
     get isRunning(): boolean {
@@ -40,12 +47,16 @@ export class Player implements IPlayer {
 
     private createFiringState(): IFiringState {
         const state = new FiringState(this);
-        const initialParameters: [string, number][] = [
+        let initialParameters: [string, number][] = [
             ['angle', 0],
             ['aimAngle', 0],
             ['speed', 1],
             ['size', 1],
         ];
+        if (this.option.additionalParameters !== undefined) {
+            const additional = Object.entries(this.option.additionalParameters);
+            initialParameters = initialParameters.concat(additional);
+        }
         for (const [key, value] of initialParameters) {
             state.parameters.set(key, new Parameter(value));
         }
