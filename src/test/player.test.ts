@@ -2,6 +2,7 @@ import { range } from 'lodash';
 
 import { IFiringState, IGun, IBullet } from 'guntree/gun';
 import { Player, IPlayerOwner } from 'guntree/player';
+import { Parameter } from 'guntree/parameter';
 
 const createGun = (frames: number): IGun => {
     const gunClass = jest.fn<IGun>((f: number) => ({
@@ -99,12 +100,23 @@ describe('#Player', () => {
         expect(owner.notifyFired).toBeCalledWith(player, state, bullet);
     });
 
-    test.skip.each`
+    test.each`
         name          | value
-        ${'angle'}    | 0
-        ${'aimAngle'} | 0
-        ${'speed'}    | 1
-        ${'size'}     | 1
+        ${'angle'}    | ${0}
+        ${'aimAngle'} | ${0}
+        ${'speed'}    | ${1}
+        ${'size'}     | ${1}
     `('initialize parameter `$name` to $value', ({ name, value }) => {
+        // Given Player with gun tree
+        const gunTree = createGun(0);
+        const player = new Player(createEmptyMock());
+        player.setGunTree(gunTree);
+
+        // When start player
+        player.start();
+
+        // Then gun was played with state and state parameter was initialized
+        const gunState: IFiringState = (<jest.Mock> gunTree.play).mock.calls[0][0];
+        expect(gunState.parameters.get(name)).toEqual(new Parameter(value));
     });
 });

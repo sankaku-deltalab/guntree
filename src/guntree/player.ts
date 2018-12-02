@@ -1,4 +1,5 @@
 import { IFiringState, FiringState, IGun, IBullet } from 'guntree/gun';
+import { Parameter } from 'guntree/parameter';
 
 export interface IPlayer {
     isRunning: boolean;
@@ -33,8 +34,22 @@ export class Player implements IPlayer {
 
     start(): boolean {
         if (this.gunTree === null) throw new Error('GunTree was not set');
-        this.firingProgress = this.gunTree.play(new FiringState(this));
+        this.firingProgress = this.gunTree.play(this.createFiringState());
         return this.tick();
+    }
+
+    private createFiringState(): IFiringState {
+        const state = new FiringState(this);
+        const initialParameters: [string, number][] = [
+            ['angle', 0],
+            ['aimAngle', 0],
+            ['speed', 1],
+            ['size', 1],
+        ];
+        for (const [key, value] of initialParameters) {
+            state.parameters.set(key, new Parameter(value));
+        }
+        return state;
     }
 
     tick(): boolean {
