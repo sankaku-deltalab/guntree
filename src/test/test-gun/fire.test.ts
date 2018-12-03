@@ -1,10 +1,15 @@
 import { IFiringState, IBullet, Fire } from 'guntree/gun';
+import { IPlayer } from 'guntree/player';
 
 describe('#Fire', () => {
     test('notify fired to firing state', () => {
         // Given repeating progress
-        const firingStateClass = jest.fn<IFiringState>(() => ({
+        const playerClass = jest.fn<IPlayer>(() => ({
             notifyFired: jest.fn(),
+        }));
+        const player = new playerClass();
+        const firingStateClass = jest.fn<IFiringState>(() => ({
+            player,
         }));
         const state = new firingStateClass();
 
@@ -20,8 +25,8 @@ describe('#Fire', () => {
         const result = progress.next();
 
         // Then parameter has added only once
-        expect(state.notifyFired).toBeCalledTimes(1);
-        expect(state.notifyFired).toBeCalledWith(bullet);
+        expect(state.player.notifyFired).toBeCalledTimes(1);
+        expect(state.player.notifyFired).toBeCalledWith(state, bullet);
 
         // And progress was finished
         expect(result.done).toBe(true);

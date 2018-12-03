@@ -2,25 +2,130 @@ import { range } from 'lodash';
 
 import { ILazyEvaluative } from 'guntree/lazy-evaluative';
 import { Parameter } from 'guntree/parameter';
+import { IPlayer } from 'guntree/player';
 
 export interface IRepeatState {
     finished: number;
     total: number;
 }
 
+/**
+ * FiringState contains information while firing.
+ */
 export interface IFiringState {
+    /** Parameters expression real value. */
     parameters: Map<string, Parameter>;
 
+    /** Player playing GunTree with this state. */
+    player: IPlayer;
+
+    /** Copy this state. */
     copy(): IFiringState;
 
+    /**
+     * Get repeat state with position.
+     *
+     * e.g.
+     * - getRepeatState(0) return current repeating,
+     * - getRepeatState(1) return previous repeating.
+     *
+     * @param position Repeating position
+     */
     getRepeatState(position: number): IRepeatState;
+
+    /**
+     * Get repeat state with name.
+     *
+     * @param name Repeating name
+     */
     getRepeatStateByName(name: string): IRepeatState;
 
+    /**
+     * Notify start repeating.
+     * Called by guns.
+     * Return input repeat state.
+     *
+     * @param state Repeat state
+     * @param name Repeat state name
+     */
     startRepeating(state: IRepeatState, name?: string): IRepeatState;
-    notifyContinueRepeating(state: IRepeatState): void;
-    finishRepeating(state: IRepeatState): void;
 
-    notifyFired(bullet: IBullet): void;
+    /**
+     * Notify finish repeating.
+     * Started repeating must be finished.
+     *
+     * @param state Repeat state
+     * @param name Repeat state name
+     */
+    finishRepeating(state: IRepeatState, name?: string): void;
+}
+
+export class FiringState implements IFiringState {
+    readonly parameters: Map<string, Parameter>;
+    private readonly repeatStateStack: IRepeatState[];
+    private readonly repeatMap: Map<string, IRepeatState[]>;
+
+    constructor(readonly player: IPlayer) {
+        this.parameters = new Map();
+        this.repeatStateStack = [{ finished: 0, total: 1 }];
+        this.repeatMap = new Map();
+    }
+
+    copy(): FiringState {
+        const clone = new FiringState(this.player);
+        for (const [key, param] of this.parameters) {
+            clone.parameters.set(key, param.copy());
+        }
+        return clone;
+    }
+
+    getRepeatState(position: number): IRepeatState {
+        const idx = this.repeatStateStack.length - 1 - position;
+        return this.repeatStateStack[idx];
+    }
+
+    getRepeatStateByName(name: string): IRepeatState {
+        const rsStack = this.repeatMap.get(name);
+        if (rsStack === undefined) throw new Error();
+        return rsStack[rsStack.length - 1];
+    }
+
+    startRepeating(state: IRepeatState, name?: string): IRepeatState {
+        this.repeatStateStack.push(state);
+        if (name !== undefined) {
+            this.setRepeatMap(state, name);
+        }
+        return state;
+    }
+
+    private setRepeatMap(state: IRepeatState, name: string) {
+        if (!this.repeatMap.has(name)) {
+            this.repeatMap.set(name, []);
+        }
+
+        const rsStack = this.repeatMap.get(name);
+        if (rsStack === undefined) throw new Error();
+        rsStack.push(state);
+    }
+
+    finishRepeating(state: IRepeatState, name?: string): void {
+        if (this.repeatStateStack.length === 1) throw new Error('Repeating was finished');
+        if (name !== undefined) {
+            this.popRepeatMap(state, name);
+        }
+        const rs = this.repeatStateStack.pop();
+        if (rs !== state) throw new Error('Finishing repeating is not final repeating');
+    }
+
+    private popRepeatMap(state: IRepeatState, name: string) {
+        const rsStack = this.repeatMap.get(name);
+        if (rsStack === undefined || rsStack.length === 0) {
+            throw new Error(`repeating <${name}> was finished but not repeating`);
+        }
+        const rs = rsStack.pop();
+        if (rs !== state) throw new Error('Finishing repeating is not final repeating');
+        return rs;
+    }
 }
 
 export interface IGun {
@@ -54,7 +159,7 @@ export class Fire implements IGun {
     constructor(private readonly bullet: IBullet) {}
 
     *play(state: IFiringState): IterableIterator<void> {
-        state.notifyFired(this.bullet);
+        state.player.notifyFired(state, this.bullet);
     }
 }
 
@@ -81,7 +186,7 @@ export class Repeat implements IGun {
             // process repeating
             repeatState.finished += 1;
         }
-        stateClone.finishRepeating(repeatState);
+        stateClone.finishRepeating(repeatState, this.option.name);
     }
 
     private calcRepeatTimes(state: IFiringState) {
