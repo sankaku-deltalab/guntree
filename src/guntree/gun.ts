@@ -13,8 +13,11 @@ export interface IRepeatState {
  * FiringState contains information while firing.
  */
 export interface IFiringState {
-    /** Parameters expression real value. */
+    /** Parameters express real value. */
     parameters: Map<string, Parameter>;
+
+    /** Parameters express string value. */
+    texts: Map<string, string>;
 
     /** Player playing GunTree with this state. */
     player: IPlayer;
@@ -62,11 +65,13 @@ export interface IFiringState {
 
 export class FiringState implements IFiringState {
     readonly parameters: Map<string, Parameter>;
+    readonly texts: Map<string, string>;
     private readonly repeatStateStack: IRepeatState[];
     private readonly repeatMap: Map<string, IRepeatState[]>;
 
     constructor(readonly player: IPlayer) {
         this.parameters = new Map();
+        this.texts = new Map();
         this.repeatStateStack = [{ finished: 0, total: 1 }];
         this.repeatMap = new Map();
     }
@@ -75,6 +80,9 @@ export class FiringState implements IFiringState {
         const clone = new FiringState(this.player);
         for (const [key, param] of this.parameters) {
             clone.parameters.set(key, param.copy());
+        }
+        for (const [key, value] of this.texts) {
+            clone.texts.set(key, value);
         }
         return clone;
     }
