@@ -208,6 +208,27 @@ export class Repeat implements IGun {
     }
 }
 
+/**
+ * Fire bullet.
+ */
+export class SetText implements IGun {
+    /**
+     * @param key Key of text
+     * @param text text
+     */
+    constructor(private readonly key: string,
+                private readonly text: string | ILazyEvaluative<string>) {}
+
+    *play(state: IFiringState): IterableIterator<void> {
+        state.texts.set(this.key, this.calcText(state));
+    }
+
+    private calcText(state: IFiringState): string {
+        if (typeof this.text === 'string') return this.text;
+        return this.text.calc(state);
+    }
+}
+
 export function* wait(frames: number): IterableIterator<void> {
     for (const _ of range(frames)) {
         yield;
