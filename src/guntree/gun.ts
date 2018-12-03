@@ -87,6 +87,9 @@ export class FiringState implements IFiringState {
         for (const rs of this.repeatStateStack) {
             clone.repeatStateStack.push(rs);
         }
+        for (const [name, rs] of this.repeatMap) {
+            clone.repeatMap.set(name, rs);
+        }
         return clone;
     }
 
