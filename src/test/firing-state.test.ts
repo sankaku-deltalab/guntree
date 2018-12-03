@@ -10,7 +10,7 @@ const createPlayer = (): IPlayer => {
 };
 
 describe('#FiringState', () => {
-    test('can copy self', () => {
+    test('can copy self with parameter', () => {
         // Given Parameter and clone
         const paramClass = jest.fn<Parameter>((cloned: Parameter) => ({
             copy: jest.fn().mockReturnValueOnce(cloned),
@@ -48,6 +48,29 @@ describe('#FiringState', () => {
 
         // Then clone has cloned parameter
         expect(clone.texts.get(paramName)).toBe(text);
+    });
+
+    test('can copy self with repeat state', () => {
+        // Given RepeatStates
+        const rsNum = 6;
+        const rsList = range(rsNum).map(v => ({ finished: v, total: rsNum + 1 }));
+
+        // And firing state
+        const state = new FiringState(createPlayer());
+        for (const rs of rsList) {
+            state.startRepeating(rs);
+        }
+
+        // When copy firing state
+        const clone = state.copy();
+
+        // Then clone has state
+        let idx = 0;
+        for (const rs of rsList.reverse()) {
+            expect(clone.getRepeatState(idx)).toBe(rs);
+            idx += 1;
+        }
+        expect(idx).toBeGreaterThan(0);
     });
 
     test('can get current repeat state', () => {
