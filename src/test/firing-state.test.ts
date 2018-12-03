@@ -33,6 +33,23 @@ describe('#FiringState', () => {
         expect(clone.parameters.get(paramName)).toBe(paramClone);
     });
 
+    test('can copy self with texts', () => {
+        // Given Player
+        const player = createPlayer();
+
+        // And firing state with parameter
+        const paramName = 'a';
+        const text = 'abc';
+        const state = new FiringState(player);
+        state.texts.set(paramName, text);
+
+        // When copy firing state
+        const clone = state.copy();
+
+        // Then clone has cloned parameter
+        expect(clone.texts.get(paramName)).toBe(text);
+    });
+
     test('can get current repeat state', () => {
         // Given repeating state
         const repeatState: IRepeatState = { finished: 0, total: 10 };
