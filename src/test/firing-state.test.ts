@@ -10,7 +10,7 @@ const createPlayer = (): IPlayer => {
 };
 
 describe('#FiringState', () => {
-    test('can copy self', () => {
+    test('can copy self with parameter', () => {
         // Given Parameter and clone
         const paramClass = jest.fn<Parameter>((cloned: Parameter) => ({
             copy: jest.fn().mockReturnValueOnce(cloned),
@@ -48,6 +48,53 @@ describe('#FiringState', () => {
 
         // Then clone has cloned parameter
         expect(clone.texts.get(paramName)).toBe(text);
+    });
+
+    test('can copy self with repeat state', () => {
+        // Given RepeatStates
+        const rsNum = 6;
+        const rsList = range(rsNum).map(v => ({ finished: v, total: rsNum + 1 }));
+
+        // And firing state
+        const state = new FiringState(createPlayer());
+        for (const rs of rsList) {
+            state.startRepeating(rs);
+        }
+
+        // When copy firing state
+        const clone = state.copy();
+
+        // Then clone has state
+        let idx = 0;
+        for (const rs of rsList.reverse()) {
+            expect(clone.getRepeatState(idx)).toBe(rs);
+            idx += 1;
+        }
+        expect(idx).toBeGreaterThan(0);
+    });
+
+    test('can copy self with repeat state and their name', () => {
+        // Given RepeatStates
+        const rsNum = 6;
+        const rsListAndName = range(rsNum).map<[IRepeatState, string]>(
+            v => [{ finished: v, total: rsNum + 1 }, v.toString()]);
+
+        // And firing state
+        const state = new FiringState(createPlayer());
+        for (const [rs, name] of rsListAndName) {
+            state.startRepeating(rs, name);
+        }
+
+        // When copy firing state
+        const clone = state.copy();
+
+        // Then clone has state
+        let anyNamesRepeatingIsExist = false;
+        for (const [rs, name] of rsListAndName.reverse()) {
+            expect(clone.getRepeatStateByName(name)).toBe(rs);
+            anyNamesRepeatingIsExist = true;
+        }
+        expect(anyNamesRepeatingIsExist).toBe(true);
     });
 
     test('can get current repeat state', () => {
