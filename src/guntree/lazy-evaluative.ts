@@ -1,4 +1,4 @@
-import { IFiringState, getRepeatStateByTarget } from 'guntree/gun';
+import { IFiringState, TVector3D, getRepeatStateByTarget } from 'guntree/gun';
 
 export interface ILazyEvaluative<T> {
     /**
@@ -66,5 +66,20 @@ export class Round implements ILazyEvaluative<number> {
     calc(state: IFiringState): number {
         if (typeof this.input === 'number') return Math.round(this.input);
         return Math.round(this.input.calc(state));
+    }
+}
+
+/**
+ * Deal location.
+ */
+export class GetLocation implements ILazyEvaluative<TVector3D> {
+    /**
+     *
+     * @param name name of location
+     */
+    constructor(private readonly name: string) {}
+
+    calc(state: IFiringState): TVector3D {
+        return state.player.getLocation(this.name);
     }
 }
