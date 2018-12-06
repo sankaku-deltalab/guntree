@@ -19,6 +19,9 @@ export interface IFiringState {
     /** Parameters express string value. */
     texts: Map<string, string>;
 
+    /** Parameters express vector value. */
+    vectors: Map<string, TVector3D>;
+
     /** Player playing GunTree with this state. */
     player: IPlayer;
 
@@ -63,9 +66,16 @@ export interface IFiringState {
     finishRepeating(state: IRepeatState, name?: string): void;
 }
 
+export type TVector3D = {
+    x: number,
+    y: number,
+    z: number,
+};
+
 export class FiringState implements IFiringState {
     readonly parameters: Map<string, Parameter>;
     readonly texts: Map<string, string>;
+    readonly vectors: Map<string, TVector3D>;
     private readonly repeatStateStack: IRepeatState[];
     private readonly repeatMap: Map<string, IRepeatState[]>;
 
@@ -74,6 +84,7 @@ export class FiringState implements IFiringState {
         this.texts = new Map();
         this.repeatStateStack = [{ finished: 0, total: 1 }];
         this.repeatMap = new Map();
+        this.vectors = new Map();
     }
 
     copy(): FiringState {
@@ -83,6 +94,9 @@ export class FiringState implements IFiringState {
         }
         for (const [key, value] of this.texts) {
             clone.texts.set(key, value);
+        }
+        for (const [name, vec] of this.vectors) {
+            clone.vectors.set(name, Object.assign({}, vec));
         }
         for (const rs of this.repeatStateStack) {
             clone.repeatStateStack.push(rs);
