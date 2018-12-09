@@ -96,15 +96,38 @@ export class CalcDirection implements ILazyEvaluative<number> {
                 private readonly dest: TVector2D | ILazyEvaluative<TVector2D>) {}
 
     calc(state: IFiringState): number {
-        const src = this.getVectorFromLazy(state, this.src);
-        const dest = this.getVectorFromLazy(state, this.dest);
+        const src = getVectorFromLazy(state, this.src);
+        const dest = getVectorFromLazy(state, this.dest);
         const direction = [dest.x - src.x, dest.y - src.y];
         const angleRad = Math.atan2(direction[1], direction[0]);
         return 360 * angleRad / (2 * Math.PI);
     }
+}
 
-    private getVectorFromLazy(state: IFiringState, vec: TVector2D | ILazyEvaluative<TVector2D>): TVector2D {
-        if ('x' in vec && 'y' in vec) return vec;
-        return vec.calc(state);
+/**
+ * Deal globalized vector.
+ */
+export class GlobalizeVector implements ILazyEvaluative<TVector2D> {
+    constructor(private readonly vector: TVector2D | ILazyEvaluative<TVector2D>,
+                private readonly angle: number | ILazyEvaluative<number>) {}
+
+    calc(state: IFiringState): TVector2D {
+        const vector = getVectorFromLazy(state, this.vector);
+        const angleDeg = getNumberFromLazy(state, this.angle);
+        const angleRad = angleDeg * 2 * Math.PI / 360;
+        return {
+            x: vector.x * Math.cos(-angleRad) - vector.y * Math.sin(-angleRad),
+            y: vector.x * Math.sin(-angleRad) + vector.y * Math.cos(-angleRad),
+        };
     }
 }
+
+const getVectorFromLazy = (state: IFiringState, vector: TVector2D | ILazyEvaluative<TVector2D>): TVector2D => {
+    if ('x' in vector && 'y' in vector) return vector;
+    return vector.calc(state);
+};
+
+const getNumberFromLazy = (state: IFiringState, value: number | ILazyEvaluative<number>): number => {
+    if (typeof value === 'number') return value;
+    return value.calc(state);
+};
