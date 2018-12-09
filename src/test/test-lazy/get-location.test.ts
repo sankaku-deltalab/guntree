@@ -1,11 +1,11 @@
-import { IFiringState, TVector3D } from 'guntree/gun';
+import { IFiringState, TVector2D } from 'guntree/gun';
 import { IPlayer } from 'guntree/player';
 import { GetLocation } from 'guntree/lazy-evaluative';
 
 describe('#GetLocation', () => {
     test('deal location gotten from player', () => {
         // Given repeating progress
-        const vec: TVector3D = { x: 23, y: 84, z: 654 };
+        const vec: TVector2D = { x: 23, y: 84 };
         const playerClass = jest.fn<IPlayer>(() => ({
             getLocation: jest.fn().mockReturnValueOnce(vec),
         }));

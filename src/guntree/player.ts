@@ -1,4 +1,4 @@
-import { IFiringState, TVector3D, FiringState, IGun, IBullet } from 'guntree/gun';
+import { IFiringState, TVector2D, FiringState, IGun, IBullet } from 'guntree/gun';
 import { Parameter } from 'guntree/parameter';
 
 export interface IPlayer {
@@ -9,12 +9,12 @@ export interface IPlayer {
     tick(): void;
 
     notifyFired(state: IFiringState, bullet: IBullet): void;
-    getLocation(name: string): TVector3D;
+    getLocation(name: string): TVector2D;
 }
 
 export interface IPlayerOwner {
     notifyFired(player: IPlayer, state: IFiringState, bullet: IBullet): void;
-    getLocation(player: IPlayer, name: string): TVector3D;
+    getLocation(player: IPlayer, name: string): TVector2D;
 }
 
 export type TPlayerOption = {
@@ -79,7 +79,7 @@ export class Player implements IPlayer {
         this.owner.notifyFired(this, state, bullet);
     }
 
-    getLocation(name: string): TVector3D {
+    getLocation(name: string): TVector2D {
         return this.owner.getLocation(this, name);
     }
 }

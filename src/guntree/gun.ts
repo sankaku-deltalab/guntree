@@ -20,7 +20,7 @@ export interface IFiringState {
     texts: Map<string, string>;
 
     /** Parameters express vector value. */
-    vectors: Map<string, TVector3D>;
+    vectors: Map<string, TVector2D>;
 
     /** Player playing GunTree with this state. */
     player: IPlayer;
@@ -66,16 +66,15 @@ export interface IFiringState {
     finishRepeating(state: IRepeatState, name?: string): void;
 }
 
-export type TVector3D = {
+export type TVector2D = {
     x: number,
     y: number,
-    z: number,
 };
 
 export class FiringState implements IFiringState {
     readonly parameters: Map<string, Parameter>;
     readonly texts: Map<string, string>;
-    readonly vectors: Map<string, TVector3D>;
+    readonly vectors: Map<string, TVector2D>;
     private readonly repeatStateStack: IRepeatState[];
     private readonly repeatMap: Map<string, IRepeatState[]>;
 
