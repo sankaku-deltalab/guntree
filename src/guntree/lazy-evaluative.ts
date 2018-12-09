@@ -83,3 +83,28 @@ export class GetLocation implements ILazyEvaluative<TVector2D> {
         return state.player.getLocation(this.name);
     }
 }
+
+/**
+ * Deal direction between to locations.
+ */
+export class CalcDirection implements ILazyEvaluative<number> {
+    /**
+     * @param src source of direction
+     * @param dest destination of direction
+     */
+    constructor(private readonly src: TVector2D | ILazyEvaluative<TVector2D>,
+                private readonly dest: TVector2D | ILazyEvaluative<TVector2D>) {}
+
+    calc(state: IFiringState): number {
+        const src = this.getVectorFromLazy(state, this.src);
+        const dest = this.getVectorFromLazy(state, this.dest);
+        const direction = [dest.x - src.x, dest.y - src.y];
+        const angleRad = Math.atan2(direction[1], direction[0]);
+        return 360 * angleRad / (2 * Math.PI);
+    }
+
+    private getVectorFromLazy(state: IFiringState, vec: TVector2D | ILazyEvaluative<TVector2D>): TVector2D {
+        if ('x' in vec && 'y' in vec) return vec;
+        return vec.calc(state);
+    }
+}
