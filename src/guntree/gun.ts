@@ -248,6 +248,27 @@ export class SetText implements IGun {
     }
 }
 
+/**
+ * Set vector to FiringState.
+ */
+export class SetVector implements IGun {
+    /**
+     * @param key key of vector
+     * @param vector vector
+     */
+    constructor(private readonly key: string,
+                private readonly vector: TVector2D | ILazyEvaluative<TVector2D>) {}
+
+    *play(state: IFiringState): IterableIterator<void> {
+        state.vectors.set(this.key, this.calcVector(state));
+    }
+
+    private calcVector(state: IFiringState): TVector2D {
+        if ('x' in this.vector) return this.vector;
+        return this.vector.calc(state);
+    }
+}
+
 export function* wait(frames: number): IterableIterator<void> {
     for (const _ of range(frames)) {
         yield;
