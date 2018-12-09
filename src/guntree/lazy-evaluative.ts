@@ -116,8 +116,8 @@ export class GlobalizeVector implements ILazyEvaluative<TVector2D> {
         const angleDeg = getNumberFromLazy(state, this.angle);
         const angleRad = angleDeg * 2 * Math.PI / 360;
         return {
-            x: vector.x * Math.cos(-angleRad) - vector.y * Math.sin(-angleRad),
-            y: vector.x * Math.sin(-angleRad) + vector.y * Math.cos(-angleRad),
+            x: vector.x * Math.cos(angleRad) - vector.y * Math.sin(angleRad),
+            y: vector.x * Math.sin(angleRad) + vector.y * Math.cos(angleRad),
         };
     }
 }

@@ -4,9 +4,9 @@ import { ILazyEvaluative, GlobalizeVector } from 'guntree/lazy-evaluative';
 describe('#GlobalizeVector', () => {
     test('calc globalized vector localized by angle', () => {
         // Given parameters
-        const offset = { x: 1, y: Math.sqrt(3) };
+        const offset = { x: 1, y: Math.sqrt(3) };  // length: sqrt(2), angle: 60
         const angle = -15;
-        const expected = { x: Math.sqrt(2), y: Math.sqrt(2) };
+        const expected = { x: Math.sqrt(2), y: Math.sqrt(2) };  // length: sqrt(2), angle: 45
 
         // And firing state
         const firingStateClass = jest.fn<IFiringState>();
@@ -19,7 +19,8 @@ describe('#GlobalizeVector', () => {
         const actual = alv.calc(state);
 
         // Then vector was added
-        expect(actual).toEqual(expected);
+        expect(actual.x).toBeCloseTo(expected.x);
+        expect(actual.y).toBeCloseTo(expected.y);
     });
 
     test('can use lazy-evaluative to vector and angle', () => {
@@ -45,6 +46,7 @@ describe('#GlobalizeVector', () => {
         const actual = alv.calc(state);
 
         // Then vector was added
-        expect(actual).toEqual(expected);
+        expect(actual.x).toBeCloseTo(expected.x);
+        expect(actual.y).toBeCloseTo(expected.y);
     });
 });
