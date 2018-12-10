@@ -37,7 +37,6 @@ describe('#Concat', () => {
 
             // Then play child guns as sequentially with state without copy
             const idx = Math.floor(consumedFrames / childFrames);
-            console.log(idx, guns[idx]);
             expect(guns[idx].play).toBeCalledTimes(1);
             expect(guns[idx].play).toBeCalledWith(state);
 
