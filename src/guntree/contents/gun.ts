@@ -135,6 +135,28 @@ export class Sequential implements IGun {
     }
 }
 
+/**
+ * Play guns parallel.
+ * Each child guns are played with copied FiringState.
+ */
+export class Parallel implements IGun {
+    private readonly guns: IGun[];
+
+    constructor(...guns: IGun[]) {
+        this.guns = guns;
+    }
+
+    *play(state: IFiringState): IterableIterator<void> {
+        const progresses = this.guns.map(g => g.play(state.copy()));
+        while (true) {
+            const doneList = progresses.map(p => p.next().done);
+            const allFinished = doneList.reduce((done1, done2) => done1 && done2);
+            if (allFinished) return;
+            yield;
+        }
+    }
+}
+
 const getNumberFromLazy = (state: IFiringState,
                            numberOrLazy: number | ILazyEvaluative<number>): number => {
     if (typeof numberOrLazy === 'number') return numberOrLazy;
