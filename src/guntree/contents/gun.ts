@@ -1,6 +1,6 @@
 import { range } from 'lodash';
 
-import { IFiringState, IGun, IBullet } from 'guntree/gun';
+import { IFiringState, IRepeatState, IGun, IBullet } from 'guntree/gun';
 import { ILazyEvaluative } from 'guntree/lazy-evaluative';
 
 /**
@@ -24,12 +24,8 @@ export type RepeatOption = {
 };
 
 export class Repeat implements IGun {
-    private readonly guns: IGun[];
-
     constructor(private readonly option: RepeatOption,
-                ...guns: IGun[]) {
-        this.guns = guns;
-    }
+                private readonly gun: IGun) {}
 
     *play(state: IFiringState): IterableIterator<void> {
         const repeatTimes = this.calcRepeatTimes(state);
@@ -37,13 +33,8 @@ export class Repeat implements IGun {
 
         const repeatState = stateClone.startRepeating({ finished: 0, total: repeatTimes }, this.option.name);
         for (const _ of range(repeatTimes)) {
-            // fire children
-            for (const gun of this.guns) yield* gun.play(stateClone);
-
-            // wait interval
+            yield* this.gun.play(stateClone);
             yield* wait(this.calcInterval(stateClone));
-
-            // process repeating
             repeatState.finished += 1;
         }
         stateClone.finishRepeating(repeatState, this.option.name);
@@ -59,6 +50,61 @@ export class Repeat implements IGun {
         return this.option.interval.calc(state);
     }
 }
+
+export class ParallelRepeat implements IGun {
+    constructor(private readonly option: RepeatOption,
+                private readonly gun: IGun) {}
+
+    *play(state: IFiringState): IterableIterator<void> {
+        const repeatTimes = getNumberFromLazy(state, this.option.times);
+
+        if (repeatTimes === 0) return;
+
+        const name = this.option.name;
+
+        const stateClones = range(repeatTimes).map(_ => state.copy());
+        const repeatStates = stateClones.map(
+            (clone, i) => clone.startRepeating({ finished: i, total: repeatTimes }, name));
+        const intervals = stateClones.map(s => getNumberFromLazy(s, this.option.interval));
+        const bootTimes = intervals.map((_, idx, ary) => {
+            let cum = 0;
+            for (const i in range(idx)) {
+                cum += ary[i];
+            }
+            return cum;
+        });
+
+        function* playChild(st: IFiringState,
+                            rs: IRepeatState,
+                            boot: number,
+                            interval: number,
+                            gun: IGun): IterableIterator<void> {
+            yield* wait(boot);
+            yield* gun.play(st);
+            yield* wait(interval);
+            st.finishRepeating(rs, name);
+        }
+
+        const playProgresses = range(repeatTimes).map((i) => {
+            return playChild(stateClones[i], repeatStates[i], bootTimes[i], intervals[i], this.gun);
+        });
+
+        while (true) {
+            const doneList = playProgresses.map(p => p.next().done);
+            const allFinished = doneList.reduce((done1, done2) => done1 && done2);
+            if (allFinished) return;
+            yield;
+        }
+
+    }
+}
+
+const getNumberFromLazy = (state: IFiringState,
+                           numberOrLazy: number | ILazyEvaluative<number>): number => {
+    if (typeof numberOrLazy === 'number') return numberOrLazy;
+    return numberOrLazy.calc(state);
+
+};
 
 export function* wait(frames: number): IterableIterator<void> {
     for (const _ of range(frames)) {

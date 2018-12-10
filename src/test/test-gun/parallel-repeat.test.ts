@@ -1,15 +1,15 @@
 import { range } from 'lodash';
 
 import { IRepeatState, IFiringState, IGun } from 'guntree/gun';
-import { Repeat } from 'guntree/contents/gun';
+import { ParallelRepeat } from 'guntree/contents/gun';
 import { ILazyEvaluative } from 'guntree/lazy-evaluative';
 
 const createFiringStateMockClass = (): jest.Mock<IFiringState> => {
-    return jest.fn<IFiringState>((clone?: jest.Mock<IFiringState>) => {
+    return jest.fn<IFiringState>(() => {
         const fireState = {
             repeatingMap: new Map<String, IRepeatState>(),
             repeatingStack: (<IRepeatState[]> []),
-            copy: jest.fn().mockReturnValue(clone),
+            copy: jest.fn(),
             startRepeating: jest.fn().mockImplementation((state: IRepeatState, name?: string) => {
                 if (name !== undefined) {
                     fireState.repeatingMap.set(name, state);
@@ -28,6 +28,28 @@ const createFiringStateMockClass = (): jest.Mock<IFiringState> => {
     });
 };
 
+const createFiringStateMocks = (cloneNum: number): [IFiringState, IFiringState[]] => {
+    const stateMockClass = createFiringStateMockClass();
+    const clones = range(cloneNum).map(_ => new stateMockClass());
+    const state = new stateMockClass();
+    for (const clone of clones) {
+        (<jest.Mock> state.copy).mockReturnValueOnce(clone);
+    }
+    return [state, clones];
+};
+
+const createFiringStateMockClassSimple = (): jest.Mock<IFiringState> => {
+    return jest.fn<IFiringState>((clone?: jest.Mock<IFiringState>) => {
+        const fireState = {
+            repeatingMap: new Map<String, IRepeatState>(),
+            copy: jest.fn().mockReturnValue(clone),
+            startRepeating: jest.fn(),
+            finishRepeating: jest.fn(),
+        };
+        return fireState;
+    });
+};
+
 const gunClass = jest.fn<IGun>((frame: number) => ({
     play: jest.fn().mockImplementation(() => {
         function* playing(): IterableIterator<void> {
@@ -37,7 +59,7 @@ const gunClass = jest.fn<IGun>((frame: number) => ({
     }),
 }));
 
-describe('#Repeat', () => {
+describe('#ParallelRepeat', () => {
     test.each`
     frames | times | interval
     ${0}   | ${0}  | ${0}
@@ -47,14 +69,14 @@ describe('#Repeat', () => {
     ${5}   | ${5}  | ${1}
     ${6}   | ${1}  | ${6}
     ${14}  | ${2}  | ${7}
-    `('consume $frames frames given by (times: $times * interval: $interval)', ({ frames, times, interval }) => {
+    `('consume $frames frames when (times: $times, interval: $interval) if no child', ({ frames, times, interval }) => {
         // Given repeating progress
-        const stateClass = createFiringStateMockClass();
+        const stateClass = createFiringStateMockClassSimple();
         const stateClone = new stateClass();
         const state = new stateClass(stateClone);
 
-        // When play Repeat
-        const repeat = new Repeat({ times, interval }, new gunClass(0));
+        // When play ParallelRepeat
+        const repeat = new ParallelRepeat({ times, interval }, new gunClass(0));
         const progress = repeat.play(state);
         let consumedFrames = 0;
         while (true) {
@@ -79,11 +101,11 @@ describe('#Repeat', () => {
     ${5}   | ${5}  | ${1}     | ${0}
     ${6}   | ${1}  | ${6}     | ${0}
     ${7}   | ${1}  | ${3}     | ${4}
-    ${20}  | ${2}  | ${7}     | ${3}
-    `('consume $frames frames given by ($times * ($childFrames + $interval))', (
+    ${17}  | ${2}  | ${7}     | ${3}
+    `('consume $frames frames given by (times * interval + (times !== 0) * childFrames)', (
         { frames, times, interval, childFrames }) => {
         // Given repeating progress
-        const stateClass = createFiringStateMockClass();
+        const stateClass = createFiringStateMockClassSimple();
         const stateClone2 = new stateClass();
         const stateClone = new stateClass(stateClone2);
         const state = new stateClass(stateClone);
@@ -91,8 +113,8 @@ describe('#Repeat', () => {
         // And gun consume childFrames
         const gun = new gunClass(childFrames);
 
-        // When play Repeat
-        const repeat = new Repeat({ times, interval }, gun);
+        // When play ParallelRepeat
+        const repeat = new ParallelRepeat({ times, interval }, gun);
         const progress = repeat.play(state);
         let consumedFrames = 0;
         while (true) {
@@ -107,7 +129,7 @@ describe('#Repeat', () => {
 
     test('use lazy-evaluative to times', () => {
         // Given repeating progress
-        const stateClass = createFiringStateMockClass();
+        const stateClass = createFiringStateMockClassSimple();
         const stateClone = new stateClass();
         const state = new stateClass(stateClone);
 
@@ -118,9 +140,9 @@ describe('#Repeat', () => {
         }));
         const le = new leClass(expectedTimes);
 
-        // When play Repeat
+        // When play ParallelRepeat
         const interval = 3;
-        const repeat = new Repeat({ interval, times: le }, new gunClass(0));
+        const repeat = new ParallelRepeat({ interval, times: le }, new gunClass(0));
         const progress = repeat.play(state);
         let consumedFrames = 0;
         while (true) {
@@ -146,7 +168,7 @@ describe('#Repeat', () => {
 
     test('use lazy-evaluative to interval', () => {
         // Given repeating progress
-        const stateClass = createFiringStateMockClass();
+        const stateClass = createFiringStateMockClassSimple();
         const stateClone = new stateClass();
         const state = new stateClass(stateClone);
 
@@ -157,30 +179,22 @@ describe('#Repeat', () => {
         }));
         const le = new leClass(expectedInterval);
 
-        // When play Repeat
+        // When play ParallelRepeat
         const times = 3;
-        const repeat = new Repeat({ times, interval: le }, new gunClass(0));
+        const repeat = new ParallelRepeat({ times, interval: le }, new gunClass(0));
         const progress = repeat.play(state);
-        let consumedFrames = 0;
         while (true) {
             const r = progress.next();
             if (r.done) break;
-            if (expectedInterval > 0 && consumedFrames % expectedInterval === 0) {
-                expect(le.calc).lastCalledWith(stateClone);
-                expect(le.calc).toReturnWith(expectedInterval);
-                const expectedRepeated = 1 + consumedFrames / expectedInterval;
-                expect(le.calc).toHaveBeenCalledTimes(expectedRepeated);
-            }
-            consumedFrames += 1;
         }
 
-        // Then consume frames
-        expect(consumedFrames).toBe(times * expectedInterval);
+        // Then interval evaluated at each repeating
+        expect(le.calc).toBeCalledTimes(times);
     });
 
     test('play gun at first frame of each repeating', () => {
         // Given repeating progress
-        const stateClass = createFiringStateMockClass();
+        const stateClass = createFiringStateMockClassSimple();
         const stateClone = new stateClass();
         const state = new stateClass(stateClone);
 
@@ -188,13 +202,13 @@ describe('#Repeat', () => {
         const childFrames = 3;
         const gun = new gunClass(childFrames);
 
-        // When play Repeat
+        // When play ParallelRepeat
         const times = 4;
         const interval = 6;
         const expectedFrames = times * (childFrames + interval);
-        const gunStartFrames = range(expectedFrames).map(f => f % (childFrames + interval) === 0);
+        const gunStartFrames = range(expectedFrames).map(f => f % interval === 0);
 
-        const repeat = new Repeat({ times, interval }, gun);
+        const repeat = new ParallelRepeat({ times, interval }, gun);
         const progress = repeat.play(state);
 
         let consumedFrames = 0;
@@ -204,7 +218,7 @@ describe('#Repeat', () => {
 
             // Then play guns at expected frames
             if (gunStartFrames[consumedFrames]) {
-                expectedFiredCount += 1;
+                expectedFiredCount = Math.min(expectedFiredCount + 1, times);
                 expect(gun.play).lastCalledWith(stateClone);
             }
             expect(gun.play).toBeCalledTimes(expectedFiredCount);
@@ -218,15 +232,12 @@ describe('#Repeat', () => {
     times | interval | name
     ${0}  | ${0}     | ${'a'}
     ${2}  | ${7}     | ${undefined}
-    ${2}  | ${7}     | ${undefined}
     `('log repeating when {times: $times, interval: $interval, name: $name}', ({ times, interval, name }) => {
         // Given repeating progress
-        const stateClass = createFiringStateMockClass();
-        const stateClone = new stateClass();
-        const state = new stateClass(stateClone);
+        const [state, stateClones] = createFiringStateMocks(times);
 
-        // When play Repeat
-        const repeat = new Repeat({ times, interval, name }, new gunClass(0));
+        // When play ParallelRepeat
+        const repeat = new ParallelRepeat({ times, interval, name }, new gunClass(0));
         const progress = repeat.play(state);
 
         let consumedFrames = 0;
@@ -235,27 +246,19 @@ describe('#Repeat', () => {
 
             // Then notify start repeating to state
             if (consumedFrames === 0) {
-                expect(stateClone.startRepeating).lastCalledWith({ finished: 0, total: times }, name);
-            }
-
-            // And update repeating state and notify finish repeating
-            if (consumedFrames < times * interval) {
-                const expectedRepeated = Math.floor(consumedFrames / interval);
-                expect((<any> stateClone).repeatingStack[0]).toEqual({ finished: expectedRepeated, total: times });
-            } else {
-                expect(stateClone.finishRepeating).toBeCalledWith({ finished: times, total: times }, name);
-                expect(r.done).toBe(true);
+                for (const i of range(times)) {
+                    expect(stateClones[i].startRepeating).lastCalledWith({ finished: i, total: times }, name);
+                }
             }
 
             if (r.done) break;
             consumedFrames += 1;
-
-            // And not notify finish repeating while repeating
-            expect(stateClone.finishRepeating).not.toBeCalled();
         }
 
-        // And notify start and finish repeating only once
-        expect(stateClone.startRepeating).toBeCalledTimes(1);
-        expect(stateClone.finishRepeating).toBeCalledTimes(1);
+        // And notify start and finish repeating only once at each clones
+        for (const i of range(times)) {
+            expect(stateClones[i].startRepeating).toBeCalledTimes(1);
+            expect(stateClones[i].finishRepeating).toBeCalledTimes(1);
+        }
     });
 });
