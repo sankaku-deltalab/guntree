@@ -157,6 +157,17 @@ export class Parallel implements IGun {
     }
 }
 
+/**
+ * Wait input frames.
+ */
+export class Wait implements IGun {
+    constructor(private readonly frames: number | ILazyEvaluative<number>) {}
+
+    *play(state: IFiringState): IterableIterator<void> {
+        yield* wait(getNumberFromLazy(state, this.frames));
+    }
+}
+
 const getNumberFromLazy = (state: IFiringState,
                            numberOrLazy: number | ILazyEvaluative<number>): number => {
     if (typeof numberOrLazy === 'number') return numberOrLazy;
