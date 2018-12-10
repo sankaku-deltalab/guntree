@@ -28,6 +28,15 @@ const createFiringStateMockClass = (): jest.Mock<IFiringState> => {
     });
 };
 
+const gunClass = jest.fn<IGun>((frame: number) => ({
+    play: jest.fn().mockImplementation(() => {
+        function* playing(): IterableIterator<void> {
+            for (const _ of range(frame)) yield;
+        }
+        return playing();
+    }),
+}));
+
 describe('#Repeat', () => {
     test.each`
     frames | times | interval
@@ -45,7 +54,7 @@ describe('#Repeat', () => {
         const state = new stateClass(stateClone);
 
         // When play Repeat
-        const repeat = new Repeat({ times, interval });
+        const repeat = new Repeat({ times, interval }, new gunClass(0));
         const progress = repeat.play(state);
         let consumedFrames = 0;
         while (true) {
@@ -80,56 +89,10 @@ describe('#Repeat', () => {
         const state = new stateClass(stateClone);
 
         // And gun consume childFrames
-        const gunClass = jest.fn<IGun>(() => ({
-            play: jest.fn().mockImplementation(() => {
-                function* playing(): IterableIterator<void> {
-                    for (const _ of range(childFrames)) yield;
-                }
-                return playing();
-            }),
-        }));
-        const gun = new gunClass();
+        const gun = new gunClass(childFrames);
 
         // When play Repeat
         const repeat = new Repeat({ times, interval }, gun);
-        const progress = repeat.play(state);
-        let consumedFrames = 0;
-        while (true) {
-            const r = progress.next();
-            if (r.done) break;
-            consumedFrames += 1;
-        }
-
-        // Then consume frames
-        expect(consumedFrames).toBe(frames);
-    });
-
-    test.each`
-    frames | times | interval | childFrames1 | childFrames2
-    ${0}   | ${0}  | ${0}     | ${0}         | ${0}
-    ${22}  | ${2}  | ${7}     | ${3}         | ${1}
-    `('consume $frames frames with 2 child guns given by ($times * ($childFrames1 * $childFrames2 + $interval))', (
-        { frames, times, interval, childFrames1, childFrames2 }) => {
-        // Given repeating progress
-        const stateClass = createFiringStateMockClass();
-        const stateClone2 = new stateClass();
-        const stateClone = new stateClass(stateClone2);
-        const state = new stateClass(stateClone);
-
-        // And gun consume childFrames
-        const gunClass = jest.fn<IGun>((frames: number) => ({
-            play: jest.fn().mockImplementation(() => {
-                function* playing(): IterableIterator<void> {
-                    for (const _ of range(frames)) yield;
-                }
-                return playing();
-            }),
-        }));
-        const gun1 = new gunClass(childFrames1);
-        const gun2 = new gunClass(childFrames2);
-
-        // When play Repeat
-        const repeat = new Repeat({ times, interval }, gun1, gun2);
         const progress = repeat.play(state);
         let consumedFrames = 0;
         while (true) {
@@ -157,7 +120,7 @@ describe('#Repeat', () => {
 
         // When play Repeat
         const interval = 3;
-        const repeat = new Repeat({ interval, times: le });
+        const repeat = new Repeat({ interval, times: le }, new gunClass(0));
         const progress = repeat.play(state);
         let consumedFrames = 0;
         while (true) {
@@ -196,7 +159,7 @@ describe('#Repeat', () => {
 
         // When play Repeat
         const times = 3;
-        const repeat = new Repeat({ times, interval: le });
+        const repeat = new Repeat({ times, interval: le }, new gunClass(0));
         const progress = repeat.play(state);
         let consumedFrames = 0;
         while (true) {
@@ -215,59 +178,39 @@ describe('#Repeat', () => {
         expect(consumedFrames).toBe(times * expectedInterval);
     });
 
-    test('play guns at first frame of each repeating', () => {
+    test('play gun at first frame of each repeating', () => {
         // Given repeating progress
         const stateClass = createFiringStateMockClass();
         const stateClone = new stateClass();
         const state = new stateClass(stateClone);
 
         // And guns consume childFrames
-        const gunClass = jest.fn<IGun>((frames: number) => ({
-            play: jest.fn().mockImplementation(() => {
-                function* playing(): IterableIterator<void> {
-                    for (const _ of range(frames)) yield;
-                }
-                return playing();
-            }),
-        }));
-        const childFrames1 = 3;
-        const childFrames2 = 5;
-        const gun1 = new gunClass(childFrames1);
-        const gun2 = new gunClass(childFrames2);
+        const childFrames = 3;
+        const gun = new gunClass(childFrames);
 
         // When play Repeat
         const times = 4;
         const interval = 6;
-        const repeat = new Repeat({ times, interval }, gun1, gun2);
+        const expectedFrames = times * (childFrames + interval);
+        const gunStartFrames = range(expectedFrames).map(f => f % (childFrames + interval) === 0);
+
+        const repeat = new Repeat({ times, interval }, gun);
         const progress = repeat.play(state);
 
-        const gun1StartingFrames =
-            range(times).map<[number, number]>(t => [t + 1, t * (childFrames1 + childFrames2 + interval)]);
-        const gun2StartingFrames = gun1StartingFrames.map<[number, number]>(([t, f]) => [t, f + childFrames1]);
-        const gunAndStartFrames: [IGun, [number, number][]][] = [
-            [gun1, gun1StartingFrames],
-            [gun2, gun2StartingFrames],
-        ];
-
         let consumedFrames = 0;
+        let expectedFiredCount = 0;
         while (true) {
             const r = progress.next();
 
-            // Then play guns
-            for (const [gun, frames] of gunAndStartFrames) {
-                for (const [fired, frame] of [[0, -1], ...frames].reverse()) {
-                    if (consumedFrames >= frame) {
-                        expect(gun.play).toBeCalledTimes(fired);
-                        if (fired !== 0) {
-                            expect(gun.play).lastCalledWith(stateClone);
-                        }
-                        break;
-                    }
-                }
+            // Then play guns at expected frames
+            if (gunStartFrames[consumedFrames]) {
+                expectedFiredCount += 1;
+                expect(gun.play).lastCalledWith(stateClone);
             }
+            expect(gun.play).toBeCalledTimes(expectedFiredCount);
 
-            if (r.done) break;
             consumedFrames += 1;
+            if (r.done) break;
         }
     });
 
@@ -283,7 +226,7 @@ describe('#Repeat', () => {
         const state = new stateClass(stateClone);
 
         // When play Repeat
-        const repeat = new Repeat({ times, interval, name });
+        const repeat = new Repeat({ times, interval, name }, new gunClass(0));
         const progress = repeat.play(state);
 
         let consumedFrames = 0;

@@ -24,12 +24,8 @@ export type RepeatOption = {
 };
 
 export class Repeat implements IGun {
-    private readonly guns: IGun[];
-
     constructor(private readonly option: RepeatOption,
-                ...guns: IGun[]) {
-        this.guns = guns;
-    }
+                private readonly gun: IGun) {}
 
     *play(state: IFiringState): IterableIterator<void> {
         const repeatTimes = this.calcRepeatTimes(state);
@@ -37,13 +33,8 @@ export class Repeat implements IGun {
 
         const repeatState = stateClone.startRepeating({ finished: 0, total: repeatTimes }, this.option.name);
         for (const _ of range(repeatTimes)) {
-            // fire children
-            for (const gun of this.guns) yield* gun.play(stateClone);
-
-            // wait interval
+            yield* this.gun.play(stateClone);
             yield* wait(this.calcInterval(stateClone));
-
-            // process repeating
             repeatState.finished += 1;
         }
         stateClone.finishRepeating(repeatState, this.option.name);
