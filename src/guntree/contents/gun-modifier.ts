@@ -1,4 +1,4 @@
-import { IFiringState, IGun } from 'guntree/gun';
+import { IFiringState, IGun, TVector2D } from 'guntree/gun';
 import { ILazyEvaluative } from 'guntree/lazy-evaluative';
 
 /**
@@ -92,3 +92,75 @@ export class ResetParameter implements IGun {
         return this.newValue.calc(state);
     }
 }
+
+/**
+ * Fire bullet.
+ */
+export class SetText implements IGun {
+    /**
+     * @param key Key of text
+     * @param text text
+     */
+    constructor(private readonly key: string,
+                private readonly text: string | ILazyEvaluative<string>) {}
+
+    *play(state: IFiringState): IterableIterator<void> {
+        state.texts.set(this.key, this.calcText(state));
+    }
+
+    private calcText(state: IFiringState): string {
+        if (typeof this.text === 'string') return this.text;
+        return this.text.calc(state);
+    }
+}
+
+/**
+ * Set vector to FiringState.
+ */
+export class SetVector implements IGun {
+    /**
+     * @param key key of vector
+     * @param vector vector
+     */
+    constructor(private readonly key: string,
+                private readonly vector: TVector2D | ILazyEvaluative<TVector2D>) {}
+
+    *play(state: IFiringState): IterableIterator<void> {
+        state.vectors.set(this.key, this.calcVector(state));
+    }
+
+    private calcVector(state: IFiringState): TVector2D {
+        if ('x' in this.vector) return this.vector;
+        return this.vector.calc(state);
+    }
+}
+
+/**
+ * Add vector to FiringState.
+ */
+export class AddVector implements IGun {
+    /**
+     * @param key key of vector
+     * @param vector vector would be added
+     */
+    constructor(private readonly key: string,
+                private readonly vector: TVector2D | ILazyEvaluative<TVector2D>) {}
+
+    *play(state: IFiringState): IterableIterator<void> {
+        const vec = state.vectors.get(this.key);
+        if (vec === undefined) throw new Error(`vector must exist at '${this.key}'`);
+        state.vectors.set(this.key, addVector(vec, this.calcVector(state)));
+    }
+
+    private calcVector(state: IFiringState): TVector2D {
+        if ('x' in this.vector) return this.vector;
+        return this.vector.calc(state);
+    }
+}
+
+const addVector = (vec1: TVector2D, vec2: TVector2D): TVector2D => {
+    return {
+        x: vec1.x + vec2.x,
+        y: vec1.y + vec2.y,
+    };
+};

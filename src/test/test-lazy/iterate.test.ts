@@ -1,7 +1,8 @@
 import { range } from 'lodash';
 
 import { IFiringState } from 'guntree/gun';
-import { ILazyEvaluative, Iterate } from 'guntree/lazy-evaluative';
+import { ILazyEvaluative } from 'guntree/lazy-evaluative';
+import { Iterate } from 'guntree/contents/lazy-evaluative';
 
 describe('#Iterate', () => {
     test.each`

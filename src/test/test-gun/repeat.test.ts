@@ -1,6 +1,7 @@
 import { range } from 'lodash';
 
-import { IRepeatState, IFiringState, IGun, Repeat } from 'guntree/gun';
+import { IRepeatState, IFiringState, IGun } from 'guntree/gun';
+import { Repeat } from 'guntree/contents/gun';
 import { ILazyEvaluative } from 'guntree/lazy-evaluative';
 
 const createFiringStateMockClass = (): jest.Mock<IFiringState> => {

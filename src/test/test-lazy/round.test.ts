@@ -1,5 +1,6 @@
 import { IFiringState } from 'guntree/gun';
-import { ILazyEvaluative, Round } from 'guntree/lazy-evaluative';
+import { ILazyEvaluative } from 'guntree/lazy-evaluative';
+import { Round } from 'guntree/contents/lazy-evaluative';
 
 describe('#Round', () => {
     test.each`

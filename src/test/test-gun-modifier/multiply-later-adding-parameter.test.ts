@@ -1,6 +1,6 @@
 import { Parameter } from 'guntree/parameter';
 import { IFiringState } from 'guntree/gun';
-import { MultiplyLaterAddingParameter } from 'guntree/gun-modifier';
+import { MultiplyLaterAddingParameter } from 'guntree/contents/gun-modifier';
 import { ILazyEvaluative } from 'guntree/lazy-evaluative';
 
 describe('#MultiplyLaterAddingParameter', () => {
