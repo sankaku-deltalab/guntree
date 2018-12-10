@@ -117,6 +117,24 @@ export class Concat implements IGun {
     }
 }
 
+/**
+ * Play guns sequentially.
+ * Each child guns are played with copied FiringState.
+ */
+export class Sequential implements IGun {
+    private readonly guns: IGun[];
+
+    constructor(...guns: IGun[]) {
+        this.guns = guns;
+    }
+
+    *play(state: IFiringState): IterableIterator<void> {
+        for (const gun of this.guns) {
+            yield* gun.play(state.copy());
+        }
+    }
+}
+
 const getNumberFromLazy = (state: IFiringState,
                            numberOrLazy: number | ILazyEvaluative<number>): number => {
     if (typeof numberOrLazy === 'number') return numberOrLazy;
