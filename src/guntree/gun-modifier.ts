@@ -4,7 +4,7 @@ import { ILazyEvaluative } from 'guntree/lazy-evaluative';
 /**
  * Add parameter.
  */
-export class Add implements IGun {
+export class AddParameter implements IGun {
     /**
      * @param name paramter name
      * @param adding adding value or lazy-evaluative deal adding value
@@ -27,7 +27,7 @@ export class Add implements IGun {
 /**
  * Multiply parameter.
  */
-export class Multiply implements IGun {
+export class MultiplyParameter implements IGun {
     /**
      * @param name paramter name
      * @param multiplier multiplier value or lazy-evaluative deal multiplier value
@@ -50,7 +50,7 @@ export class Multiply implements IGun {
 /**
  * Multiply later adding value to parameter.
  */
-export class MultiplyLaterAdding implements IGun {
+export class MultiplyLaterAddingParameter implements IGun {
     /**
      * @param name paramter name
      * @param multiplier multiplier value or lazy-evaluative deal multiplier value
@@ -73,7 +73,7 @@ export class MultiplyLaterAdding implements IGun {
 /**
  * Reset value to parameter.
  */
-export class Reset implements IGun {
+export class ResetParameter implements IGun {
     /**
      * @param name paramter name
      * @param newValue new value value or lazy-evaluative deal multiplier value

@@ -1,9 +1,9 @@
 import { Parameter } from 'guntree/parameter';
 import { IFiringState } from 'guntree/gun';
-import { Multiply } from 'guntree/gun-modifier';
+import { MultiplyParameter } from 'guntree/gun-modifier';
 import { ILazyEvaluative } from 'guntree/lazy-evaluative';
 
-describe('#Multiply', () => {
+describe('#MultiplyParameter', () => {
     test('can multiply parameter with constant number', () => {
         // Given FiringState
         const parameterClass = jest.fn<Parameter>(() => ({
@@ -16,11 +16,11 @@ describe('#Multiply', () => {
         }));
         const state = new firingStateClass();
 
-        // And Multiply
+        // And MultiplyParameter
         const multiplier = 2;
-        const mlt = new Multiply(parameterName, multiplier);
+        const mlt = new MultiplyParameter(parameterName, multiplier);
 
-        // When play Multiply with one frame
+        // When play MultiplyParameter with one frame
         const progress = mlt.play(state);
         const result = progress.next();
 
@@ -51,10 +51,10 @@ describe('#Multiply', () => {
         }));
         const le = new leClass();
 
-        // And Multiply
-        const mlt = new Multiply(parameterName, le);
+        // And MultiplyParameter
+        const mlt = new MultiplyParameter(parameterName, le);
 
-        // When play Multiply with one frame
+        // When play MultiplyParameter with one frame
         const progress = mlt.play(state);
         const result = progress.next();
 
@@ -78,12 +78,12 @@ describe('#Multiply', () => {
         }));
         const state = new firingStateClass();
 
-        // And Multiply use another parameter name
+        // And MultiplyParameter use another parameter name
         const multiplier = 2;
         const fatalParameterName = 'b';
-        const mlt = new Multiply(fatalParameterName, multiplier);
+        const mlt = new MultiplyParameter(fatalParameterName, multiplier);
 
-        // When play Multiply with one frame
+        // When play MultiplyParameter with one frame
         const progress = mlt.play(state);
 
         // Then throw error

@@ -1,9 +1,9 @@
 import { Parameter } from 'guntree/parameter';
 import { IFiringState } from 'guntree/gun';
-import { Reset } from 'guntree/gun-modifier';
+import { ResetParameter } from 'guntree/gun-modifier';
 import { ILazyEvaluative } from 'guntree/lazy-evaluative';
 
-describe('#Reset', () => {
+describe('#ResetParameter', () => {
     test('can reset parameter with constant number', () => {
         // Given FiringState
         const parameterClass = jest.fn<Parameter>(() => ({
@@ -16,11 +16,11 @@ describe('#Reset', () => {
         }));
         const state = new firingStateClass();
 
-        // And Reset
+        // And ResetParameter
         const newValue = 2;
-        const reset = new Reset(parameterName, newValue);
+        const reset = new ResetParameter(parameterName, newValue);
 
-        // When play Reset with one frame
+        // When play ResetParameter with one frame
         const progress = reset.play(state);
         const result = progress.next();
 
@@ -51,10 +51,10 @@ describe('#Reset', () => {
         }));
         const le = new leClass();
 
-        // And Reset
-        const reset = new Reset(parameterName, le);
+        // And ResetParameter
+        const reset = new ResetParameter(parameterName, le);
 
-        // When play Reset with one frame
+        // When play ResetParameter with one frame
         const progress = reset.play(state);
         const result = progress.next();
 
@@ -78,12 +78,12 @@ describe('#Reset', () => {
         }));
         const state = new firingStateClass();
 
-        // And Reset use another parameter name
+        // And ResetParameter use another parameter name
         const newValue = 2;
         const fatalParameterName = 'b';
-        const reset = new Reset(fatalParameterName, newValue);
+        const reset = new ResetParameter(fatalParameterName, newValue);
 
-        // When play Reset with one frame
+        // When play ResetParameter with one frame
         const progress = reset.play(state);
 
         // Then throw error

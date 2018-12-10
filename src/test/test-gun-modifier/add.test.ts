@@ -1,9 +1,9 @@
 import { Parameter } from 'guntree/parameter';
 import { IFiringState } from 'guntree/gun';
-import { Add } from 'guntree/gun-modifier';
+import { AddParameter } from 'guntree/gun-modifier';
 import { ILazyEvaluative } from 'guntree/lazy-evaluative';
 
-describe('#Add', () => {
+describe('#AddParameter', () => {
     test('can add parameter with constant number', () => {
         // Given FiringState
         const parameterClass = jest.fn<Parameter>(() => ({
@@ -16,11 +16,11 @@ describe('#Add', () => {
         }));
         const state = new firingStateClass();
 
-        // And Add
+        // And AddParameter
         const adding = 2;
-        const add = new Add(parameterName, adding);
+        const add = new AddParameter(parameterName, adding);
 
-        // When play Add with one frame
+        // When play AddParameter with one frame
         const progress = add.play(state);
         const result = progress.next();
 
@@ -51,10 +51,10 @@ describe('#Add', () => {
         }));
         const le = new leClass();
 
-        // And Add
-        const add = new Add(parameterName, le);
+        // And AddParameter
+        const add = new AddParameter(parameterName, le);
 
-        // When play Add with one frame
+        // When play AddParameter with one frame
         const progress = add.play(state);
         const result = progress.next();
 
@@ -78,12 +78,12 @@ describe('#Add', () => {
         }));
         const state = new firingStateClass();
 
-        // And Add use another parameter name
+        // And AddParameter use another parameter name
         const adding = 2;
         const fatalParameterName = 'b';
-        const add = new Add(fatalParameterName, adding);
+        const add = new AddParameter(fatalParameterName, adding);
 
-        // When play Add with one frame
+        // When play AddParameter with one frame
         const progress = add.play(state);
 
         // Then throw error
