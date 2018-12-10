@@ -1,5 +1,6 @@
 import { IFiringState, TVector2D } from 'guntree/gun';
-import { ILazyEvaluative, CalcDirection } from 'guntree/lazy-evaluative';
+import { ILazyEvaluative } from 'guntree/lazy-evaluative';
+import { CalcDirection } from 'guntree/contents/lazy-evaluative';
 
 describe('#CalcDirection', () => {
     test('deal direction between two locations from constant vector', () => {

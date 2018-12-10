@@ -1,13 +1,13 @@
 import { Parameter } from 'guntree/parameter';
 import { IFiringState } from 'guntree/gun';
-import { Add } from 'guntree/gun-modifier';
+import { MultiplyParameter } from 'guntree/contents/gun-modifier';
 import { ILazyEvaluative } from 'guntree/lazy-evaluative';
 
-describe('#Add', () => {
-    test('can add parameter with constant number', () => {
+describe('#MultiplyParameter', () => {
+    test('can multiply parameter with constant number', () => {
         // Given FiringState
         const parameterClass = jest.fn<Parameter>(() => ({
-            add: jest.fn(),
+            multiply: jest.fn(),
         }));
         const parameterName = 'a';
         const parameter = new parameterClass();
@@ -16,26 +16,26 @@ describe('#Add', () => {
         }));
         const state = new firingStateClass();
 
-        // And Add
-        const adding = 2;
-        const add = new Add(parameterName, adding);
+        // And MultiplyParameter
+        const multiplier = 2;
+        const mlt = new MultiplyParameter(parameterName, multiplier);
 
-        // When play Add with one frame
-        const progress = add.play(state);
+        // When play MultiplyParameter with one frame
+        const progress = mlt.play(state);
         const result = progress.next();
 
-        // Then parameter has added only once
-        expect(parameter.add).toBeCalledTimes(1);
-        expect(parameter.add).toBeCalledWith(adding);
+        // Then parameter has multiplied only once
+        expect(parameter.multiply).toBeCalledTimes(1);
+        expect(parameter.multiply).toBeCalledWith(multiplier);
 
         // And progress was finished
         expect(result.done).toBe(true);
     });
 
-    test('can add parameter with lazy-evaluative', () => {
+    test('can multiply parameter with lazy-evaluative', () => {
         // Given FiringState
         const parameterClass = jest.fn<Parameter>(() => ({
-            add: jest.fn(),
+            multiply: jest.fn(),
         }));
         const parameterName = 'a';
         const parameter = new parameterClass();
@@ -45,22 +45,22 @@ describe('#Add', () => {
         const state = new firingStateClass();
 
         // And lazy-evaluative
-        const adding = 2;
+        const multiplier = 2;
         const leClass = jest.fn<ILazyEvaluative<number>>(() => ({
-            calc: jest.fn().mockReturnValueOnce(adding),
+            calc: jest.fn().mockReturnValueOnce(multiplier),
         }));
         const le = new leClass();
 
-        // And Add
-        const add = new Add(parameterName, le);
+        // And MultiplyParameter
+        const mlt = new MultiplyParameter(parameterName, le);
 
-        // When play Add with one frame
-        const progress = add.play(state);
+        // When play MultiplyParameter with one frame
+        const progress = mlt.play(state);
         const result = progress.next();
 
-        // Then parameter has added only once
-        expect(parameter.add).toBeCalledTimes(1);
-        expect(parameter.add).toBeCalledWith(adding);
+        // Then parameter has multiplied only once
+        expect(parameter.multiply).toBeCalledTimes(1);
+        expect(parameter.multiply).toBeCalledWith(multiplier);
 
         // And progress was finished
         expect(result.done).toBe(true);
@@ -69,7 +69,7 @@ describe('#Add', () => {
     test('throw error if parameter is not exist', () => {
         // Given FiringState
         const parameterClass = jest.fn<Parameter>(() => ({
-            add: jest.fn(),
+            multiply: jest.fn(),
         }));
         const parameterName = 'a';
         const parameter = new parameterClass();
@@ -78,13 +78,13 @@ describe('#Add', () => {
         }));
         const state = new firingStateClass();
 
-        // And Add use another parameter name
-        const adding = 2;
+        // And MultiplyParameter use another parameter name
+        const multiplier = 2;
         const fatalParameterName = 'b';
-        const add = new Add(fatalParameterName, adding);
+        const mlt = new MultiplyParameter(fatalParameterName, multiplier);
 
-        // When play Add with one frame
-        const progress = add.play(state);
+        // When play MultiplyParameter with one frame
+        const progress = mlt.play(state);
 
         // Then throw error
         expect(() => { progress.next(); }).toThrowError();

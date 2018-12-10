@@ -1,5 +1,6 @@
 import { IFiringState, TVector2D } from 'guntree/gun';
-import { ILazyEvaluative, GlobalizeVector } from 'guntree/lazy-evaluative';
+import { ILazyEvaluative } from 'guntree/lazy-evaluative';
+import { GlobalizeVector } from 'guntree/contents/lazy-evaluative';
 
 describe('#GlobalizeVector', () => {
     test('calc globalized vector localized by angle', () => {

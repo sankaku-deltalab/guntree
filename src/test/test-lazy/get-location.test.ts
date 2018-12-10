@@ -1,6 +1,6 @@
 import { IFiringState, TVector2D } from 'guntree/gun';
 import { IPlayer } from 'guntree/player';
-import { GetLocation } from 'guntree/lazy-evaluative';
+import { GetLocation } from 'guntree/contents/lazy-evaluative';
 
 describe('#GetLocation', () => {
     test('deal location gotten from player', () => {

@@ -1,9 +1,9 @@
 import { Parameter } from 'guntree/parameter';
 import { IFiringState } from 'guntree/gun';
-import { MultiplyLaterAdding } from 'guntree/gun-modifier';
+import { MultiplyLaterAddingParameter } from 'guntree/contents/gun-modifier';
 import { ILazyEvaluative } from 'guntree/lazy-evaluative';
 
-describe('#MultiplyLaterAdding', () => {
+describe('#MultiplyLaterAddingParameter', () => {
     test('can multiply later adding to parameter with constant number', () => {
         // Given FiringState
         const parameterClass = jest.fn<Parameter>(() => ({
@@ -16,11 +16,11 @@ describe('#MultiplyLaterAdding', () => {
         }));
         const state = new firingStateClass();
 
-        // And MultiplyLaterAdding
+        // And MultiplyLaterAddingParameter
         const multiplier = 2;
-        const mlt = new MultiplyLaterAdding(parameterName, multiplier);
+        const mlt = new MultiplyLaterAddingParameter(parameterName, multiplier);
 
-        // When play MultiplyLaterAdding with one frame
+        // When play MultiplyLaterAddingParameter with one frame
         const progress = mlt.play(state);
         const result = progress.next();
 
@@ -51,10 +51,10 @@ describe('#MultiplyLaterAdding', () => {
         }));
         const le = new leClass();
 
-        // And MultiplyLaterAdding
-        const mlt = new MultiplyLaterAdding(parameterName, le);
+        // And MultiplyLaterAddingParameter
+        const mlt = new MultiplyLaterAddingParameter(parameterName, le);
 
-        // When play MultiplyLaterAdding with one frame
+        // When play MultiplyLaterAddingParameter with one frame
         const progress = mlt.play(state);
         const result = progress.next();
 
@@ -78,12 +78,12 @@ describe('#MultiplyLaterAdding', () => {
         }));
         const state = new firingStateClass();
 
-        // And MultiplyLaterAdding use another parameter name
+        // And MultiplyLaterAddingParameter use another parameter name
         const multiplier = 2;
         const fatalParameterName = 'b';
-        const mlt = new MultiplyLaterAdding(fatalParameterName, multiplier);
+        const mlt = new MultiplyLaterAddingParameter(fatalParameterName, multiplier);
 
-        // When play MultiplyLaterAdding with one frame
+        // When play MultiplyLaterAddingParameter with one frame
         const progress = mlt.play(state);
 
         // Then throw error

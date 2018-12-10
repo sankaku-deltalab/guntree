@@ -1,4 +1,5 @@
-import { IFiringState, TVector2D, AddVector } from 'guntree/gun';
+import { IFiringState, TVector2D } from 'guntree/gun';
+import { AddVector } from 'guntree/contents/gun-modifier';
 import { ILazyEvaluative } from 'guntree/lazy-evaluative';
 
 describe('#AddVector', () => {

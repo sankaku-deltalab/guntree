@@ -1,13 +1,13 @@
 import { Parameter } from 'guntree/parameter';
 import { IFiringState } from 'guntree/gun';
-import { Reset } from 'guntree/gun-modifier';
+import { AddParameter } from 'guntree/contents/gun-modifier';
 import { ILazyEvaluative } from 'guntree/lazy-evaluative';
 
-describe('#Reset', () => {
-    test('can reset parameter with constant number', () => {
+describe('#AddParameter', () => {
+    test('can add parameter with constant number', () => {
         // Given FiringState
         const parameterClass = jest.fn<Parameter>(() => ({
-            reset: jest.fn(),
+            add: jest.fn(),
         }));
         const parameterName = 'a';
         const parameter = new parameterClass();
@@ -16,26 +16,26 @@ describe('#Reset', () => {
         }));
         const state = new firingStateClass();
 
-        // And Reset
-        const newValue = 2;
-        const reset = new Reset(parameterName, newValue);
+        // And AddParameter
+        const adding = 2;
+        const add = new AddParameter(parameterName, adding);
 
-        // When play Reset with one frame
-        const progress = reset.play(state);
+        // When play AddParameter with one frame
+        const progress = add.play(state);
         const result = progress.next();
 
-        // Then value was reset only once
-        expect(parameter.reset).toBeCalledTimes(1);
-        expect(parameter.reset).toBeCalledWith(newValue);
+        // Then parameter has added only once
+        expect(parameter.add).toBeCalledTimes(1);
+        expect(parameter.add).toBeCalledWith(adding);
 
         // And progress was finished
         expect(result.done).toBe(true);
     });
 
-    test('can reset parameter with lazy-evaluative', () => {
+    test('can add parameter with lazy-evaluative', () => {
         // Given FiringState
         const parameterClass = jest.fn<Parameter>(() => ({
-            reset: jest.fn(),
+            add: jest.fn(),
         }));
         const parameterName = 'a';
         const parameter = new parameterClass();
@@ -45,22 +45,22 @@ describe('#Reset', () => {
         const state = new firingStateClass();
 
         // And lazy-evaluative
-        const newValue = 2;
+        const adding = 2;
         const leClass = jest.fn<ILazyEvaluative<number>>(() => ({
-            calc: jest.fn().mockReturnValueOnce(newValue),
+            calc: jest.fn().mockReturnValueOnce(adding),
         }));
         const le = new leClass();
 
-        // And Reset
-        const reset = new Reset(parameterName, le);
+        // And AddParameter
+        const add = new AddParameter(parameterName, le);
 
-        // When play Reset with one frame
-        const progress = reset.play(state);
+        // When play AddParameter with one frame
+        const progress = add.play(state);
         const result = progress.next();
 
-        // Then value was reset only once
-        expect(parameter.reset).toBeCalledTimes(1);
-        expect(parameter.reset).toBeCalledWith(newValue);
+        // Then parameter has added only once
+        expect(parameter.add).toBeCalledTimes(1);
+        expect(parameter.add).toBeCalledWith(adding);
 
         // And progress was finished
         expect(result.done).toBe(true);
@@ -69,7 +69,7 @@ describe('#Reset', () => {
     test('throw error if parameter is not exist', () => {
         // Given FiringState
         const parameterClass = jest.fn<Parameter>(() => ({
-            reset: jest.fn(),
+            add: jest.fn(),
         }));
         const parameterName = 'a';
         const parameter = new parameterClass();
@@ -78,13 +78,13 @@ describe('#Reset', () => {
         }));
         const state = new firingStateClass();
 
-        // And Reset use another parameter name
-        const newValue = 2;
+        // And AddParameter use another parameter name
+        const adding = 2;
         const fatalParameterName = 'b';
-        const reset = new Reset(fatalParameterName, newValue);
+        const add = new AddParameter(fatalParameterName, adding);
 
-        // When play Reset with one frame
-        const progress = reset.play(state);
+        // When play AddParameter with one frame
+        const progress = add.play(state);
 
         // Then throw error
         expect(() => { progress.next(); }).toThrowError();
