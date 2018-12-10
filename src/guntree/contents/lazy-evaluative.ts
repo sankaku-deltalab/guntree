@@ -115,6 +115,26 @@ export class GlobalizeVector implements ILazyEvaluative<TVector2D> {
     }
 }
 
+/**
+ * Deal centerized linear values.
+ *
+ * example:
+ *
+ * new CenterizedLinear(15)  // deal [-5, 0, 5] values when repeat 3 times
+ */
+export class CenterizedLinear implements ILazyEvaluative<number> {
+    constructor(private readonly totalRange: number | ILazyEvaluative<number>,
+                private readonly target?: number | string) {}
+
+    calc(state: IFiringState): number {
+        const totalRange = getNumberFromLazy(state, this.totalRange);
+        const repeat = getRepeatStateByTarget(state, this.target);
+        const rate = repeat.finished / repeat.total;
+        const diff = totalRange / repeat.total;
+        return totalRange * rate - (totalRange - diff) / 2;
+    }
+}
+
 const getVectorFromLazy = (state: IFiringState, vector: TVector2D | ILazyEvaluative<TVector2D>): TVector2D => {
     if ('x' in vector && 'y' in vector) return vector;
     return vector.calc(state);
