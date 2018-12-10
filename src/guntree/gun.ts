@@ -19,6 +19,9 @@ export interface IFiringState {
     /** Parameters express string value. */
     texts: Map<string, string>;
 
+    /** Parameters express vector value. */
+    vectors: Map<string, TVector2D>;
+
     /** Player playing GunTree with this state. */
     player: IPlayer;
 
@@ -63,9 +66,15 @@ export interface IFiringState {
     finishRepeating(state: IRepeatState, name?: string): void;
 }
 
+export type TVector2D = {
+    x: number,
+    y: number,
+};
+
 export class FiringState implements IFiringState {
     readonly parameters: Map<string, Parameter>;
     readonly texts: Map<string, string>;
+    readonly vectors: Map<string, TVector2D>;
     private readonly repeatStateStack: IRepeatState[];
     private readonly repeatMap: Map<string, IRepeatState[]>;
 
@@ -74,6 +83,7 @@ export class FiringState implements IFiringState {
         this.texts = new Map();
         this.repeatStateStack = [{ finished: 0, total: 1 }];
         this.repeatMap = new Map();
+        this.vectors = new Map();
     }
 
     copy(): FiringState {
@@ -83,6 +93,9 @@ export class FiringState implements IFiringState {
         }
         for (const [key, value] of this.texts) {
             clone.texts.set(key, value);
+        }
+        for (const [name, vec] of this.vectors) {
+            clone.vectors.set(name, Object.assign({}, vec));
         }
         for (const rs of this.repeatStateStack) {
             clone.repeatStateStack.push(rs);
@@ -234,6 +247,57 @@ export class SetText implements IGun {
         return this.text.calc(state);
     }
 }
+
+/**
+ * Set vector to FiringState.
+ */
+export class SetVector implements IGun {
+    /**
+     * @param key key of vector
+     * @param vector vector
+     */
+    constructor(private readonly key: string,
+                private readonly vector: TVector2D | ILazyEvaluative<TVector2D>) {}
+
+    *play(state: IFiringState): IterableIterator<void> {
+        state.vectors.set(this.key, this.calcVector(state));
+    }
+
+    private calcVector(state: IFiringState): TVector2D {
+        if ('x' in this.vector) return this.vector;
+        return this.vector.calc(state);
+    }
+}
+
+/**
+ * Add vector to FiringState.
+ */
+export class AddVector implements IGun {
+    /**
+     * @param key key of vector
+     * @param vector vector would be added
+     */
+    constructor(private readonly key: string,
+                private readonly vector: TVector2D | ILazyEvaluative<TVector2D>) {}
+
+    *play(state: IFiringState): IterableIterator<void> {
+        const vec = state.vectors.get(this.key);
+        if (vec === undefined) throw new Error(`vector must exist at '${this.key}'`);
+        state.vectors.set(this.key, addVector(vec, this.calcVector(state)));
+    }
+
+    private calcVector(state: IFiringState): TVector2D {
+        if ('x' in this.vector) return this.vector;
+        return this.vector.calc(state);
+    }
+}
+
+const addVector = (vec1: TVector2D, vec2: TVector2D): TVector2D => {
+    return {
+        x: vec1.x + vec2.x,
+        y: vec1.y + vec2.y,
+    };
+};
 
 export function* wait(frames: number): IterableIterator<void> {
     for (const _ of range(frames)) {

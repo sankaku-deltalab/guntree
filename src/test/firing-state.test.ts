@@ -50,6 +50,24 @@ describe('#FiringState', () => {
         expect(clone.texts.get(paramName)).toBe(text);
     });
 
+    test('can copy self with vectors', () => {
+        // Given Player
+        const player = createPlayer();
+
+        // And firing state with parameter
+        const paramName = 'a';
+        const vec = { x: 1, y: 2, z: 3 };
+        const state = new FiringState(player);
+        state.vectors.set(paramName, vec);
+
+        // When copy firing state
+        const clone = state.copy();
+
+        // Then clone has cloned parameter
+        expect(clone.vectors.get(paramName)).not.toBe(vec);
+        expect(clone.vectors.get(paramName)).toEqual(vec);
+    });
+
     test('can copy self with repeat state', () => {
         // Given RepeatStates
         const rsNum = 6;
