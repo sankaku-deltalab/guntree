@@ -164,4 +164,51 @@ describe('#Player', () => {
             expect(gunState.parameters.get(name)).toEqual(new Parameter(value));
         }
     });
+
+    test.each`
+        name        | value
+        ${'muzzle'} | ${'__undefined'}
+    `('initialize text `$name` to $value', ({ name, value }) => {
+        // Given Player with gun tree
+        const gunTree = createGun(0);
+        const player = new Player(createEmptyMock());
+        player.setGunTree(gunTree);
+
+        // When start player
+        player.start();
+
+        // Then gun was played with state and state parameter was initialized
+        const gunState: IFiringState = (<jest.Mock> gunTree.play).mock.calls[0][0];
+        expect(gunState.texts.get(name)).toBe(value);
+    });
+
+    test('can add initial text', () => {
+        // Given text name and value
+        const additionalTexts = {
+            abc: '125',
+            cde: 'FGH',
+        };
+
+        // And Player with gun tree and parameter
+        const gunTree = createGun(0);
+        const player = new Player(createEmptyMock(), { additionalTexts });
+        player.setGunTree(gunTree);
+
+        // When start player
+        player.start();
+
+        // Then gun was played with state and state texts was initialized
+        const gunState: IFiringState = (<jest.Mock> gunTree.play).mock.calls[0][0];
+        for (const [name, value] of Object.entries(additionalTexts)) {
+            expect(gunState.texts.get(name)).toBe(value);
+        }
+
+        // And default parameters are still alive
+        const defaultTexts: [string, string][] = [
+            ['muzzle', '__undefined'],
+        ];
+        for (const [name, value] of defaultTexts) {
+            expect(gunState.texts.get(name)).toBe(value);
+        }
+    });
 });
