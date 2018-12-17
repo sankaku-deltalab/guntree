@@ -1,5 +1,5 @@
 import { IFiringState } from 'guntree/gun';
-import { Linear } from 'guntree/contents/lazy-evaluative';
+import { Linear } from 'guntree/contents/lazyEvaluative';
 
 describe('#Linear', () => {
     test.each([

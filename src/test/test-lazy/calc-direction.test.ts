@@ -1,6 +1,6 @@
 import { IFiringState, TVector2D } from 'guntree/gun';
-import { ILazyEvaluative } from 'guntree/lazy-evaluative';
-import { CalcDirection } from 'guntree/contents/lazy-evaluative';
+import { ILazyEvaluative } from 'guntree/lazyEvaluative';
+import { CalcDirection } from 'guntree/contents/lazyEvaluative';
 
 describe('#CalcDirection', () => {
     test('deal direction between two locations from constant vector', () => {
@@ -21,8 +21,8 @@ describe('#CalcDirection', () => {
         expect(actual).toBeCloseTo(expected);
     });
 
-    test('deal direction between two locations from lazy-evaluative vector', () => {
-        // Given two locations as lazy-evaluative
+    test('deal direction between two locations from lazyEvaluative vector', () => {
+        // Given two locations as lazyEvaluative
         const leClass = jest.fn<ILazyEvaluative<TVector2D>>((vec: TVector2D) => ({
             calc: jest.fn().mockReturnValueOnce(vec),
         }));

@@ -1,6 +1,6 @@
 import { IFiringState, TVector2D } from 'guntree/gun';
-import { ILazyEvaluative } from 'guntree/lazy-evaluative';
-import { GlobalizeVector } from 'guntree/contents/lazy-evaluative';
+import { ILazyEvaluative } from 'guntree/lazyEvaluative';
+import { GlobalizeVector } from 'guntree/contents/lazyEvaluative';
 
 describe('#GlobalizeVector', () => {
     test('calc globalized vector localized by angle', () => {
@@ -24,7 +24,7 @@ describe('#GlobalizeVector', () => {
         expect(actual.y).toBeCloseTo(expected.y);
     });
 
-    test('can use lazy-evaluative to vector and angle', () => {
+    test('can use lazyEvaluative to vector and angle', () => {
         // Given parameters
         const offset = { x: 1, y: Math.sqrt(3) };
         const angle = -15;

@@ -1,8 +1,8 @@
 import { IGun, IBullet } from 'guntree/gun';
-import { TConstantOrLazy } from 'guntree/lazy-evaluative';
+import { TConstantOrLazy } from 'guntree/lazyEvaluative';
 import * as gunO from 'guntree/contents/gun';
-import * as mod from 'guntree/sweet/gun-modifier';
-import * as le from 'guntree/sweet/lazy-evaluative';
+import * as mod from 'guntree/sweet/gunModifier';
+import * as le from 'guntree/sweet/lazyEvaluative';
 
 export const concat = (...guns: IGun[]) => new gunO.Concat(...guns);
 export const sequential = (...guns: IGun[]) => new gunO.Sequential(...guns);

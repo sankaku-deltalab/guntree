@@ -1,6 +1,6 @@
 import { IFiringState, TVector2D } from 'guntree/gun';
-import { SetVector } from 'guntree/contents/gun-modifier';
-import { ILazyEvaluative } from 'guntree/lazy-evaluative';
+import { SetVector } from 'guntree/contents/gunModifier';
+import { ILazyEvaluative } from 'guntree/lazyEvaluative';
 
 describe('#SetVector', () => {
     test('set constant vector to FiringState', () => {
@@ -25,7 +25,7 @@ describe('#SetVector', () => {
         expect(state.vectors.get(name)).toBe(vec);
     });
 
-    test('set lazy-evaluative vector to FiringState', () => {
+    test('set lazyEvaluative vector to FiringState', () => {
         // Given firing state
         const firingStateClass = jest.fn<IFiringState>(() => ({
             vectors: new Map<string, TVector2D>(),

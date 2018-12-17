@@ -1,8 +1,8 @@
 import { range } from 'lodash';
 
 import { IFiringState } from 'guntree/gun';
-import { ILazyEvaluative } from 'guntree/lazy-evaluative';
-import { Iterate } from 'guntree/contents/lazy-evaluative';
+import { ILazyEvaluative } from 'guntree/lazyEvaluative';
+import { Iterate } from 'guntree/contents/lazyEvaluative';
 
 describe('#Iterate', () => {
     test.each`
@@ -126,14 +126,14 @@ describe('#Iterate', () => {
         }
     });
 
-    test('can use lazy-evaluative in array', () => {
+    test('can use lazyEvaluative in array', () => {
         // Given repeating progress
         const stateClass = jest.fn<IFiringState>(() => ({
             getRepeatState: jest.fn().mockReturnValueOnce({ finished: 0, total: 3 }),
         }));
         const state = new stateClass();
 
-        // And lazy-evaluative
+        // And lazyEvaluative
         const value = 1323;
         const leClass = jest.fn<ILazyEvaluative<number>>(() => ({
             calc: jest.fn().mockReturnValueOnce(value),

@@ -1,7 +1,7 @@
 import { TVector2D } from 'guntree/gun';
-import { TConstantOrLazy } from 'guntree/lazy-evaluative';
-import * as modO from 'guntree/contents/gun-modifier';
-import * as le from 'guntree/sweet/lazy-evaluative';
+import { TConstantOrLazy } from 'guntree/lazyEvaluative';
+import * as modO from 'guntree/contents/gunModifier';
+import * as le from 'guntree/sweet/lazyEvaluative';
 
 export const addParameter  = (name: string, adding: TConstantOrLazy<number>) => {
     return new modO.AddParameter(name, adding);

@@ -1,6 +1,6 @@
 import { TVector2D } from 'guntree/gun';
-import { TConstantOrLazy } from 'guntree/lazy-evaluative';
-import * as leO from 'guntree/contents/lazy-evaluative';
+import { TConstantOrLazy } from 'guntree/lazyEvaluative';
+import * as leO from 'guntree/contents/lazyEvaluative';
 
 export const linear = (start: number,
                        stop: number,

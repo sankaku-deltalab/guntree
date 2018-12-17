@@ -1,7 +1,7 @@
 import { Parameter } from 'guntree/parameter';
 import { IFiringState } from 'guntree/gun';
-import { MultiplyParameter } from 'guntree/contents/gun-modifier';
-import { ILazyEvaluative } from 'guntree/lazy-evaluative';
+import { MultiplyParameter } from 'guntree/contents/gunModifier';
+import { ILazyEvaluative } from 'guntree/lazyEvaluative';
 
 describe('#MultiplyParameter', () => {
     test('can multiply parameter with constant number', () => {
@@ -32,7 +32,7 @@ describe('#MultiplyParameter', () => {
         expect(result.done).toBe(true);
     });
 
-    test('can multiply parameter with lazy-evaluative', () => {
+    test('can multiply parameter with lazyEvaluative', () => {
         // Given FiringState
         const parameterClass = jest.fn<Parameter>(() => ({
             multiply: jest.fn(),
@@ -44,7 +44,7 @@ describe('#MultiplyParameter', () => {
         }));
         const state = new firingStateClass();
 
-        // And lazy-evaluative
+        // And lazyEvaluative
         const multiplier = 2;
         const leClass = jest.fn<ILazyEvaluative<number>>(() => ({
             calc: jest.fn().mockReturnValueOnce(multiplier),

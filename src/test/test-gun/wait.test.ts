@@ -1,5 +1,5 @@
 import { IFiringState } from 'guntree/gun';
-import { ILazyEvaluative } from 'guntree/lazy-evaluative';
+import { ILazyEvaluative } from 'guntree/lazyEvaluative';
 import { Wait } from 'guntree/contents/gun';
 
 describe('#Wait', () => {
@@ -25,12 +25,12 @@ describe('#Wait', () => {
         expect(consumedFrames).toBe(waitFrames);
     });
 
-    test('consume lazy-evaluative input frames', () => {
+    test('consume lazyEvaluative input frames', () => {
         // Given firing state
         const firingStateClass = jest.fn<IFiringState>(() => ({}));
         const state = new firingStateClass();
 
-        // And lazy-evaluative
+        // And lazyEvaluative
         const waitFrames = 3;
         const leClass = jest.fn<ILazyEvaluative<number>>(() => ({
             calc: jest.fn().mockReturnValueOnce(waitFrames),

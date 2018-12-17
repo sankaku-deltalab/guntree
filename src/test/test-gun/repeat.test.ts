@@ -2,7 +2,7 @@ import { range } from 'lodash';
 
 import { IRepeatState, IFiringState, IGun } from 'guntree/gun';
 import { Repeat } from 'guntree/contents/gun';
-import { ILazyEvaluative } from 'guntree/lazy-evaluative';
+import { ILazyEvaluative } from 'guntree/lazyEvaluative';
 
 const createFiringStateMockClass = (): jest.Mock<IFiringState> => {
     return jest.fn<IFiringState>((clone?: jest.Mock<IFiringState>) => {
@@ -105,13 +105,13 @@ describe('#Repeat', () => {
         expect(consumedFrames).toBe(frames);
     });
 
-    test('use lazy-evaluative to times', () => {
+    test('use lazyEvaluative to times', () => {
         // Given repeating progress
         const stateClass = createFiringStateMockClass();
         const stateClone = new stateClass();
         const state = new stateClass(stateClone);
 
-        // And lazy-evaluative used for times
+        // And lazyEvaluative used for times
         const expectedTimes = 5;
         const leClass = jest.fn<ILazyEvaluative<number>>((t: number) => ({
             calc: jest.fn().mockReturnValue(t),
@@ -127,7 +127,7 @@ describe('#Repeat', () => {
             const r = progress.next();
             if (r.done) break;
 
-            // Then lazy-evaluative was evaluated at only first frame
+            // Then lazyEvaluative was evaluated at only first frame
             if (consumedFrames === 0) {
                 expect(le.calc).toBeCalledTimes(1);
                 expect(le.calc).lastCalledWith(state);
@@ -140,17 +140,17 @@ describe('#Repeat', () => {
         // Then consume frames
         expect(consumedFrames).toBe(expectedTimes * interval);
 
-        // And lazy-evaluative was evaluated only once time
+        // And lazyEvaluative was evaluated only once time
         expect(le.calc).toBeCalledTimes(1);
     });
 
-    test('use lazy-evaluative to interval', () => {
+    test('use lazyEvaluative to interval', () => {
         // Given repeating progress
         const stateClass = createFiringStateMockClass();
         const stateClone = new stateClass();
         const state = new stateClass(stateClone);
 
-        // And lazy-evaluative used for interval
+        // And lazyEvaluative used for interval
         const expectedInterval = 5;
         const leClass = jest.fn<ILazyEvaluative<number>>((t: number) => ({
             calc: jest.fn().mockReturnValue(t),

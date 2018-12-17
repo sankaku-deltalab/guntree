@@ -1,6 +1,6 @@
 import { IFiringState, TVector2D } from 'guntree/gun';
-import { AddVector } from 'guntree/contents/gun-modifier';
-import { ILazyEvaluative } from 'guntree/lazy-evaluative';
+import { AddVector } from 'guntree/contents/gunModifier';
+import { ILazyEvaluative } from 'guntree/lazyEvaluative';
 
 describe('#AddVector', () => {
     test('add constant vector to FiringState', () => {
@@ -30,7 +30,7 @@ describe('#AddVector', () => {
         expect(result.done).toBe(true);
     });
 
-    test('add lazy-evaluative vector to FiringState', () => {
+    test('add lazyEvaluative vector to FiringState', () => {
         // Given firing state
         const name = 'a';
         const initialVec = { x: 1, y: 2 };

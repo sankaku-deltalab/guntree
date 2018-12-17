@@ -1,5 +1,5 @@
 import { IFiringState, TVector2D, getRepeatStateByTarget } from 'guntree/gun';
-import { ILazyEvaluative, TConstantOrLazy } from 'guntree/lazy-evaluative';
+import { ILazyEvaluative, TConstantOrLazy } from 'guntree/lazyEvaluative';
 
 export class Linear implements ILazyEvaluative<number> {
     constructor(private readonly start: number,
@@ -52,7 +52,7 @@ export class Iterate implements ILazyEvaluative<number> {
 export class Round implements ILazyEvaluative<number> {
     /**
      *
-     * @param input number or lazy-evaluative deals number
+     * @param input number or lazyEvaluative deals number
      */
     constructor(private readonly input: TConstantOrLazy<number>) {}
 

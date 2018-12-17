@@ -1,6 +1,6 @@
 import { IFiringState } from 'guntree/gun';
-import { ILazyEvaluative } from 'guntree/lazy-evaluative';
-import { Round } from 'guntree/contents/lazy-evaluative';
+import { ILazyEvaluative } from 'guntree/lazyEvaluative';
+import { Round } from 'guntree/contents/lazyEvaluative';
 
 describe('#Round', () => {
     test.each`
@@ -30,19 +30,19 @@ describe('#Round', () => {
     ${1}    | ${1}
     ${1.49} | ${1}
     ${1.5}  | ${2}
-    `('deal $expected when input is lazy-evaluative deals $input', ({ input, expected }) => {
+    `('deal $expected when input is lazyEvaluative deals $input', ({ input, expected }) => {
         // Given repeating progress
         const stateClass = jest.fn<IFiringState>();
         const state = new stateClass();
 
-        // When eval round with lazy-evaluative
+        // When eval round with lazyEvaluative
         const leClass = jest.fn<ILazyEvaluative<number>>(() => ({
             calc: jest.fn().mockReturnValue(input),
         }));
         const round = new Round(new leClass());
         const actual = round.calc(state);
 
-        // Then deal rounded value dealt from lazy-evaluative
+        // Then deal rounded value dealt from lazyEvaluative
         expect(actual).toBeCloseTo(expected);
     });
 });

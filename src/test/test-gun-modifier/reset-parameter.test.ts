@@ -1,7 +1,7 @@
 import { Parameter } from 'guntree/parameter';
 import { IFiringState } from 'guntree/gun';
-import { ResetParameter } from 'guntree/contents/gun-modifier';
-import { ILazyEvaluative } from 'guntree/lazy-evaluative';
+import { ResetParameter } from 'guntree/contents/gunModifier';
+import { ILazyEvaluative } from 'guntree/lazyEvaluative';
 
 describe('#ResetParameter', () => {
     test('can reset parameter with constant number', () => {
@@ -32,7 +32,7 @@ describe('#ResetParameter', () => {
         expect(result.done).toBe(true);
     });
 
-    test('can reset parameter with lazy-evaluative', () => {
+    test('can reset parameter with lazyEvaluative', () => {
         // Given FiringState
         const parameterClass = jest.fn<Parameter>(() => ({
             reset: jest.fn(),
@@ -44,7 +44,7 @@ describe('#ResetParameter', () => {
         }));
         const state = new firingStateClass();
 
-        // And lazy-evaluative
+        // And lazyEvaluative
         const newValue = 2;
         const leClass = jest.fn<ILazyEvaluative<number>>(() => ({
             calc: jest.fn().mockReturnValueOnce(newValue),

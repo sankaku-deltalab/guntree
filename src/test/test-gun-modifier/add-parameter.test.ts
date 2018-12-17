@@ -1,7 +1,7 @@
 import { Parameter } from 'guntree/parameter';
 import { IFiringState } from 'guntree/gun';
-import { AddParameter } from 'guntree/contents/gun-modifier';
-import { ILazyEvaluative } from 'guntree/lazy-evaluative';
+import { AddParameter } from 'guntree/contents/gunModifier';
+import { ILazyEvaluative } from 'guntree/lazyEvaluative';
 
 describe('#AddParameter', () => {
     test('can add parameter with constant number', () => {
@@ -32,7 +32,7 @@ describe('#AddParameter', () => {
         expect(result.done).toBe(true);
     });
 
-    test('can add parameter with lazy-evaluative', () => {
+    test('can add parameter with lazyEvaluative', () => {
         // Given FiringState
         const parameterClass = jest.fn<Parameter>(() => ({
             add: jest.fn(),
@@ -44,7 +44,7 @@ describe('#AddParameter', () => {
         }));
         const state = new firingStateClass();
 
-        // And lazy-evaluative
+        // And lazyEvaluative
         const adding = 2;
         const leClass = jest.fn<ILazyEvaluative<number>>(() => ({
             calc: jest.fn().mockReturnValueOnce(adding),

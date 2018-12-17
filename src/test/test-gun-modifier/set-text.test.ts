@@ -1,6 +1,6 @@
 import { IFiringState } from 'guntree/gun';
-import { SetText } from 'guntree/contents/gun-modifier';
-import { ILazyEvaluative } from 'guntree/lazy-evaluative';
+import { SetText } from 'guntree/contents/gunModifier';
+import { ILazyEvaluative } from 'guntree/lazyEvaluative';
 
 describe('#SetText', () => {
     test('set text with string', () => {
@@ -22,8 +22,8 @@ describe('#SetText', () => {
         expect(state.texts.get(key)).toBe(text);
     });
 
-    test('set text with lazy-evaluative deal string', () => {
-        // Given lazy-evaluative
+    test('set text with lazyEvaluative deal string', () => {
+        // Given lazyEvaluative
         const text = 'b';
         const leClass = jest.fn<ILazyEvaluative<string>>((value: string) => ({
             calc: jest.fn().mockReturnValue(value),

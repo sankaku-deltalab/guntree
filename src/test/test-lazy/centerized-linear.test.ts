@@ -1,6 +1,6 @@
 import { IFiringState } from 'guntree/gun';
-import { ILazyEvaluative } from 'guntree/lazy-evaluative';
-import { CenterizedLinear } from 'guntree/contents/lazy-evaluative';
+import { ILazyEvaluative } from 'guntree/lazyEvaluative';
+import { CenterizedLinear } from 'guntree/contents/lazyEvaluative';
 
 describe('#CenterizedLinear', () => {
     test.each`
@@ -98,7 +98,7 @@ describe('#CenterizedLinear', () => {
         expect(actual).toBeCloseTo(-15);
     });
 
-    test('use lazy-evaluative totalRange', () => {
+    test('use lazyEvaluative totalRange', () => {
         // Given repeating progress
         const stateClass = jest.fn<IFiringState>(() => ({
             getRepeatState: jest.fn().mockImplementation((position: number) => {
@@ -108,7 +108,7 @@ describe('#CenterizedLinear', () => {
         }));
         const state = new stateClass();
 
-        // And lazy-evaluative
+        // And lazyEvaluative
         const range = 40;
         const leClass = jest.fn<ILazyEvaluative<number>>(() => ({
             calc: jest.fn().mockReturnValueOnce(range),

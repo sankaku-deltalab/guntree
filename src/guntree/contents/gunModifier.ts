@@ -1,5 +1,5 @@
 import { IFiringState, IGun, TVector2D } from 'guntree/gun';
-import { ILazyEvaluative, TConstantOrLazy } from 'guntree/lazy-evaluative';
+import { ILazyEvaluative, TConstantOrLazy } from 'guntree/lazyEvaluative';
 
 /**
  * Add parameter.
@@ -7,7 +7,7 @@ import { ILazyEvaluative, TConstantOrLazy } from 'guntree/lazy-evaluative';
 export class AddParameter implements IGun {
     /**
      * @param name paramter name
-     * @param adding adding value or lazy-evaluative deal adding value
+     * @param adding adding value or lazyEvaluative deal adding value
      */
     constructor(private readonly name: string,
                 private readonly adding: TConstantOrLazy<number>) {}
@@ -30,7 +30,7 @@ export class AddParameter implements IGun {
 export class MultiplyParameter implements IGun {
     /**
      * @param name paramter name
-     * @param multiplier multiplier value or lazy-evaluative deal multiplier value
+     * @param multiplier multiplier value or lazyEvaluative deal multiplier value
      */
     constructor(private readonly name: string,
                 private readonly multiplier: TConstantOrLazy<number>) {}
@@ -53,7 +53,7 @@ export class MultiplyParameter implements IGun {
 export class MultiplyLaterAddingParameter implements IGun {
     /**
      * @param name paramter name
-     * @param multiplier multiplier value or lazy-evaluative deal multiplier value
+     * @param multiplier multiplier value or lazyEvaluative deal multiplier value
      */
     constructor(private readonly name: string,
                 private readonly multiplier: TConstantOrLazy<number>) {}
@@ -76,7 +76,7 @@ export class MultiplyLaterAddingParameter implements IGun {
 export class ResetParameter implements IGun {
     /**
      * @param name paramter name
-     * @param newValue new value value or lazy-evaluative deal multiplier value
+     * @param newValue new value value or lazyEvaluative deal multiplier value
      */
     constructor(private readonly name: string,
                 private readonly newValue: TConstantOrLazy<number>) {}
