@@ -1,7 +1,7 @@
 import { range } from 'lodash';
 
 import { IFiringState, IRepeatState, IGun, IBullet } from 'guntree/gun';
-import { ILazyEvaluative } from 'guntree/lazy-evaluative';
+import { TConstantOrLazy } from 'guntree/lazy-evaluative';
 
 /**
  * Fire bullet.
@@ -18,8 +18,8 @@ export class Fire implements IGun {
 }
 
 export type RepeatOption = {
-    times: number | ILazyEvaluative<number>;
-    interval: number | ILazyEvaluative<number>;
+    times: TConstantOrLazy<number>;
+    interval: TConstantOrLazy<number>;
     name?: string;
 };
 
@@ -161,7 +161,7 @@ export class Parallel implements IGun {
  * Wait input frames.
  */
 export class Wait implements IGun {
-    constructor(private readonly frames: number | ILazyEvaluative<number>) {}
+    constructor(private readonly frames: TConstantOrLazy<number>) {}
 
     *play(state: IFiringState): IterableIterator<void> {
         yield* wait(getNumberFromLazy(state, this.frames));
@@ -169,7 +169,7 @@ export class Wait implements IGun {
 }
 
 const getNumberFromLazy = (state: IFiringState,
-                           numberOrLazy: number | ILazyEvaluative<number>): number => {
+                           numberOrLazy: TConstantOrLazy<number>): number => {
     if (typeof numberOrLazy === 'number') return numberOrLazy;
     return numberOrLazy.calc(state);
 

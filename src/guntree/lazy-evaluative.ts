@@ -7,3 +7,5 @@ export interface ILazyEvaluative<T> {
      */
     calc(state: IFiringState): T;
 }
+
+export type TConstantOrLazy<T>  = T | ILazyEvaluative<T>;

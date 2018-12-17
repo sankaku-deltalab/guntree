@@ -1,5 +1,5 @@
 import { IFiringState, IGun, TVector2D } from 'guntree/gun';
-import { ILazyEvaluative } from 'guntree/lazy-evaluative';
+import { ILazyEvaluative, TConstantOrLazy } from 'guntree/lazy-evaluative';
 
 /**
  * Add parameter.
@@ -10,7 +10,7 @@ export class AddParameter implements IGun {
      * @param adding adding value or lazy-evaluative deal adding value
      */
     constructor(private readonly name: string,
-                private readonly adding: number | ILazyEvaluative<number>) {}
+                private readonly adding: TConstantOrLazy<number>) {}
 
     *play(state: IFiringState): IterableIterator<void> {
         const param = state.parameters.get(this.name);
@@ -33,7 +33,7 @@ export class MultiplyParameter implements IGun {
      * @param multiplier multiplier value or lazy-evaluative deal multiplier value
      */
     constructor(private readonly name: string,
-                private readonly multiplier: number | ILazyEvaluative<number>) {}
+                private readonly multiplier: TConstantOrLazy<number>) {}
 
     *play(state: IFiringState): IterableIterator<void> {
         const param = state.parameters.get(this.name);
@@ -56,7 +56,7 @@ export class MultiplyLaterAddingParameter implements IGun {
      * @param multiplier multiplier value or lazy-evaluative deal multiplier value
      */
     constructor(private readonly name: string,
-                private readonly multiplier: number | ILazyEvaluative<number>) {}
+                private readonly multiplier: TConstantOrLazy<number>) {}
 
     *play(state: IFiringState): IterableIterator<void> {
         const param = state.parameters.get(this.name);
@@ -79,7 +79,7 @@ export class ResetParameter implements IGun {
      * @param newValue new value value or lazy-evaluative deal multiplier value
      */
     constructor(private readonly name: string,
-                private readonly newValue: number | ILazyEvaluative<number>) {}
+                private readonly newValue: TConstantOrLazy<number>) {}
 
     *play(state: IFiringState): IterableIterator<void> {
         const param = state.parameters.get(this.name);
@@ -102,7 +102,7 @@ export class SetText implements IGun {
      * @param text text
      */
     constructor(private readonly key: string,
-                private readonly text: string | ILazyEvaluative<string>) {}
+                private readonly text: TConstantOrLazy<string>) {}
 
     *play(state: IFiringState): IterableIterator<void> {
         state.texts.set(this.key, this.calcText(state));
@@ -123,7 +123,7 @@ export class SetVector implements IGun {
      * @param vector vector
      */
     constructor(private readonly key: string,
-                private readonly vector: TVector2D | ILazyEvaluative<TVector2D>) {}
+                private readonly vector: TConstantOrLazy<TVector2D >) {}
 
     *play(state: IFiringState): IterableIterator<void> {
         state.vectors.set(this.key, this.calcVector(state));
@@ -144,7 +144,7 @@ export class AddVector implements IGun {
      * @param vector vector would be added
      */
     constructor(private readonly key: string,
-                private readonly vector: TVector2D | ILazyEvaluative<TVector2D>) {}
+                private readonly vector: TConstantOrLazy<TVector2D >) {}
 
     *play(state: IFiringState): IterableIterator<void> {
         const vec = state.vectors.get(this.key);

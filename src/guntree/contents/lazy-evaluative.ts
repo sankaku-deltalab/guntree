@@ -1,5 +1,5 @@
 import { IFiringState, TVector2D, getRepeatStateByTarget } from 'guntree/gun';
-import { ILazyEvaluative } from 'guntree/lazy-evaluative';
+import { ILazyEvaluative, TConstantOrLazy } from 'guntree/lazy-evaluative';
 
 export class Linear implements ILazyEvaluative<number> {
     constructor(private readonly start: number,
@@ -30,7 +30,7 @@ export class Iterate implements ILazyEvaluative<number> {
      * @param array values iterated with repeating
      * @param option
      */
-    constructor(private readonly array: (number | ILazyEvaluative<number>)[],
+    constructor(private readonly array: (TConstantOrLazy<number>)[],
                 private readonly option?: TIterateOption) {}
 
     calc(state: IFiringState): number {
@@ -54,7 +54,7 @@ export class Round implements ILazyEvaluative<number> {
      *
      * @param input number or lazy-evaluative deals number
      */
-    constructor(private readonly input: number | ILazyEvaluative<number>) {}
+    constructor(private readonly input: TConstantOrLazy<number>) {}
 
     calc(state: IFiringState): number {
         if (typeof this.input === 'number') return Math.round(this.input);
@@ -85,8 +85,8 @@ export class CalcDirection implements ILazyEvaluative<number> {
      * @param src source of direction
      * @param dest destination of direction
      */
-    constructor(private readonly src: TVector2D | ILazyEvaluative<TVector2D>,
-                private readonly dest: TVector2D | ILazyEvaluative<TVector2D>) {}
+    constructor(private readonly src: TConstantOrLazy<TVector2D >,
+                private readonly dest: TConstantOrLazy<TVector2D >) {}
 
     calc(state: IFiringState): number {
         const src = getVectorFromLazy(state, this.src);
@@ -101,8 +101,8 @@ export class CalcDirection implements ILazyEvaluative<number> {
  * Deal globalized vector.
  */
 export class GlobalizeVector implements ILazyEvaluative<TVector2D> {
-    constructor(private readonly vector: TVector2D | ILazyEvaluative<TVector2D>,
-                private readonly angle: number | ILazyEvaluative<number>) {}
+    constructor(private readonly vector: TConstantOrLazy<TVector2D >,
+                private readonly angle: TConstantOrLazy<number>) {}
 
     calc(state: IFiringState): TVector2D {
         const vector = getVectorFromLazy(state, this.vector);
@@ -123,7 +123,7 @@ export class GlobalizeVector implements ILazyEvaluative<TVector2D> {
  * new CenterizedLinear(15)  // deal [-5, 0, 5] values when repeat 3 times
  */
 export class CenterizedLinear implements ILazyEvaluative<number> {
-    constructor(private readonly totalRange: number | ILazyEvaluative<number>,
+    constructor(private readonly totalRange: TConstantOrLazy<number>,
                 private readonly target?: number | string) {}
 
     calc(state: IFiringState): number {
@@ -135,12 +135,12 @@ export class CenterizedLinear implements ILazyEvaluative<number> {
     }
 }
 
-const getVectorFromLazy = (state: IFiringState, vector: TVector2D | ILazyEvaluative<TVector2D>): TVector2D => {
+const getVectorFromLazy = (state: IFiringState, vector: TConstantOrLazy<TVector2D >): TVector2D => {
     if ('x' in vector && 'y' in vector) return vector;
     return vector.calc(state);
 };
 
-const getNumberFromLazy = (state: IFiringState, value: number | ILazyEvaluative<number>): number => {
+const getNumberFromLazy = (state: IFiringState, value: TConstantOrLazy<number>): number => {
     if (typeof value === 'number') return value;
     return value.calc(state);
 };
