@@ -40,6 +40,8 @@ export const setText  = (key: string, text: TConstantOrLazy<string>) => {
     return new modO.SetText(key, text);
 };
 
+export const setMuzzle = (muzzle: string) => setText('muzzle', muzzle);
+
 export const setVector  = (key: string, vector: TConstantOrLazy<TVector2D>) => {
     return new modO.SetVector(key, vector);
 };
