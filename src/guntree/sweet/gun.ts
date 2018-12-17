@@ -20,6 +20,10 @@ export const parallelRepeat = (option: gunO.RepeatOption, ...guns: IGun[]) => {
     return new gunO.ParallelRepeat(option, new gunO.Concat(...guns));
 };
 
+export const paraRepeat = (option: gunO.RepeatOption, ...guns: IGun[]) => {
+    return parallelRepeat(option, new gunO.Concat(...guns));
+};
+
 export type TNWayOption = {
     ways: TConstantOrLazy<number>;
     totalAngle: TConstantOrLazy<number>;
@@ -27,9 +31,9 @@ export type TNWayOption = {
 };
 
 export const nWay = (option: TNWayOption, ...guns: IGun[]) => {
-    return parallelRepeat({ times: option.ways, interval: 0, name: option.name },
-                          mod.addNWayAngle({ totalAngle: option.totalAngle, name: option.name }),
-                          ...guns);
+    return paraRepeat({ times: option.ways, interval: 0, name: option.name },
+                      mod.addNWayAngle({ totalAngle: option.totalAngle, name: option.name }),
+                      ...guns);
 };
 
 export type TWhipOption = gunO.RepeatOption & {
@@ -48,7 +52,7 @@ export type TSpreadOption = {
 };
 
 export const spread = (option: TWhipOption, ...guns: IGun[]) => {
-    return parallelRepeat(option,
-                          mod.addSpeed(le.linear(option.speedRange[0], option.speedRange[1])),
-                          ...guns);
+    return paraRepeat(option,
+                      mod.addSpeed(le.linear(option.speedRange[0], option.speedRange[1])),
+                      ...guns);
 };
