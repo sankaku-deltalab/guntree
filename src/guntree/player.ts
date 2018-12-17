@@ -19,6 +19,7 @@ export interface IPlayerOwner {
 
 export type TPlayerOption = {
     additionalParameters?: {[key: string]: number};
+    additionalTexts?: {[key: string]: string};
 };
 
 export class Player implements IPlayer {
@@ -49,6 +50,12 @@ export class Player implements IPlayer {
 
     private createFiringState(): IFiringState {
         const state = new FiringState(this);
+        this.initParameters(state);
+        this.initTexts(state);
+        return state;
+    }
+
+    private initParameters(state: IFiringState): void {
         let initialParameters: [string, number][] = [
             ['angle', 0],
             ['aimAngle', 0],
@@ -62,7 +69,19 @@ export class Player implements IPlayer {
         for (const [key, value] of initialParameters) {
             state.parameters.set(key, new Parameter(value));
         }
-        return state;
+    }
+
+    private initTexts(state: IFiringState): void {
+        let initialTexts: [string, string][] = [
+            ['muzzle', '__undefined'],
+        ];
+        if (this.option.additionalTexts !== undefined) {
+            const additional = Object.entries(this.option.additionalTexts);
+            initialTexts = initialTexts.concat(additional);
+        }
+        for (const [key, value] of initialTexts) {
+            state.texts.set(key, value);
+        }
     }
 
     tick(): boolean {
