@@ -1,8 +1,8 @@
 {
   "name": "guntree",
   "version": "0.1.0",
-  "main": "lib/guntree/index.js",
-  "types": "lib/guntree/index.d.ts",
+  "main": "lib/index.js",
+  "types": "lib/index.d.ts",
   "license": "MIT",
   "scripts": {
     "build": "run-s clean build:lib",
