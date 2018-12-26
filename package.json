@@ -1,9 +1,11 @@
 {
   "name": "guntree",
   "version": "0.1.0",
-  "main": "index.js",
+  "main": "lib/guntree/index.js",
+  "types": "lib/guntree/index.d.ts",
   "license": "MIT",
   "scripts": {
+    "build": "tsc",
     "test": "jest --coverage"
   },
   "devDependencies": {
