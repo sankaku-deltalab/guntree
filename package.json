@@ -10,7 +10,8 @@
     "prepublish": "npm run build"
   },
   "files": [
-    "lib/"
+    "lib/",
+    "LICENSE"
   ],
   "devDependencies": {
     "@types/jest": "^23.3.9",
