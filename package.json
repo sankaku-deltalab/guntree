@@ -9,6 +9,9 @@
     "test": "jest --coverage",
     "prepublish": "npm run build"
   },
+  "files": [
+    "lib/"
+  ],
   "devDependencies": {
     "@types/jest": "^23.3.9",
     "jest": "^23.6.0",
