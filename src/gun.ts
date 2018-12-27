@@ -1,5 +1,5 @@
-import { Parameter } from 'guntree/parameter';
-import { IPlayer } from 'guntree/player';
+import { Parameter } from './parameter';
+import { IPlayer } from './player';
 
 export interface IRepeatState {
     finished: number;

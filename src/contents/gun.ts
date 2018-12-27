@@ -1,7 +1,7 @@
 import { range } from 'lodash';
 
-import { IFiringState, IRepeatState, IGun, IBullet } from 'guntree/gun';
-import { TConstantOrLazy } from 'guntree/lazyEvaluative';
+import { IFiringState, IRepeatState, IGun, IBullet } from '../gun';
+import { TConstantOrLazy } from '../lazyEvaluative';
 
 /**
  * Fire bullet.

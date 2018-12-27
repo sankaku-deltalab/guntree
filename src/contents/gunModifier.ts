@@ -1,5 +1,5 @@
-import { IFiringState, IGun, TVector2D } from 'guntree/gun';
-import { ILazyEvaluative, TConstantOrLazy } from 'guntree/lazyEvaluative';
+import { IFiringState, IGun, TVector2D } from '../gun';
+import { ILazyEvaluative, TConstantOrLazy } from '../lazyEvaluative';
 
 /**
  * Add parameter.

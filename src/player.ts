@@ -1,5 +1,5 @@
-import { IFiringState, TVector2D, FiringState, IGun, IBullet } from 'guntree/gun';
-import { Parameter } from 'guntree/parameter';
+import { IFiringState, TVector2D, FiringState, IGun, IBullet } from './gun';
+import { Parameter } from './parameter';
 
 export interface IPlayer {
     isRunning: boolean;
