@@ -1,166 +1,51 @@
-import { IFiringState, IGun, TVector2D } from '../gun';
-import { ILazyEvaluative, TConstantOrLazy } from '../lazyEvaluative';
+import { TVector2D } from '../gun';
+import { TConstantOrLazy } from '../lazyEvaluative';
+import * as modO from '../elements/gunModifier';
+import * as le from '../contents/lazyEvaluative';
 
-/**
- * Add parameter.
- */
-export class AddParameter implements IGun {
-    /**
-     * @param name paramter name
-     * @param adding adding value or lazyEvaluative deal adding value
-     */
-    constructor(private readonly name: string,
-                private readonly adding: TConstantOrLazy<number>) {}
+export const addParameter  = (name: string, adding: TConstantOrLazy<number>) => {
+    return new modO.AddParameter(name, adding);
+};
 
-    *play(state: IFiringState): IterableIterator<void> {
-        const param = state.parameters.get(this.name);
-        if (param === undefined) throw new Error(`Parameter ${this.name} is not exist`);
-        param.add(this.calcAdding(state));
-    }
+export const mltParameter  = (name: string, multiplier: TConstantOrLazy<number>) => {
+    return new modO.MultiplyParameter(name, multiplier);
+};
 
-    private calcAdding(state: IFiringState): number {
-        if (typeof this.adding === 'number') return this.adding;
-        return this.adding.calc(state);
-    }
-}
+export const mltLaterAddingParameter  = (name: string, multiplier: TConstantOrLazy<number>) => {
+    return new modO.MultiplyLaterAddingParameter(name, multiplier);
+};
 
-/**
- * Multiply parameter.
- */
-export class MultiplyParameter implements IGun {
-    /**
-     * @param name paramter name
-     * @param multiplier multiplier value or lazyEvaluative deal multiplier value
-     */
-    constructor(private readonly name: string,
-                private readonly multiplier: TConstantOrLazy<number>) {}
+export const resetParameter  = (name: string, newValue: TConstantOrLazy<number>) => {
+    return new modO.ResetParameter(name, newValue);
+};
 
-    *play(state: IFiringState): IterableIterator<void> {
-        const param = state.parameters.get(this.name);
-        if (param === undefined) throw new Error(`Parameter ${this.name} is not exist`);
-        param.multiply(this.calcMultiplier(state));
-    }
+export const addAngle = (adding: TConstantOrLazy<number>) => addParameter('angle', adding);
+export const addSpeed = (adding: TConstantOrLazy<number>) => addParameter('speed', adding);
+export const addSize = (adding: TConstantOrLazy<number>) => addParameter('size', adding);
+export const addNWayAngle = (option: le.TAddNWayAngleOption) => addAngle(le.nWayAngle(option));
 
-    private calcMultiplier(state: IFiringState): number {
-        if (typeof this.multiplier === 'number') return this.multiplier;
-        return this.multiplier.calc(state);
-    }
-}
+export const mltAngle = (multiplier: TConstantOrLazy<number>) => mltParameter('angle', multiplier);
+export const mltSpeed = (multiplier: TConstantOrLazy<number>) => mltParameter('speed', multiplier);
+export const mltSize = (multiplier: TConstantOrLazy<number>) => mltParameter('size', multiplier);
 
-/**
- * Multiply later adding value to parameter.
- */
-export class MultiplyLaterAddingParameter implements IGun {
-    /**
-     * @param name paramter name
-     * @param multiplier multiplier value or lazyEvaluative deal multiplier value
-     */
-    constructor(private readonly name: string,
-                private readonly multiplier: TConstantOrLazy<number>) {}
+export const mltLaterAngle = (multiplier: TConstantOrLazy<number>) => mltLaterAddingParameter('angle', multiplier);
+export const mltLaterSpeed = (multiplier: TConstantOrLazy<number>) => mltLaterAddingParameter('speed', multiplier);
+export const mltLaterSize = (multiplier: TConstantOrLazy<number>) => mltLaterAddingParameter('size', multiplier);
 
-    *play(state: IFiringState): IterableIterator<void> {
-        const param = state.parameters.get(this.name);
-        if (param === undefined) throw new Error(`Parameter ${this.name} is not exist`);
-        param.multiplyLaterAdding(this.calcMultiplier(state));
-    }
+export const resetAngle = (newValue: TConstantOrLazy<number>) => resetParameter('angle', newValue);
+export const resetSpeed = (newValue: TConstantOrLazy<number>) => resetParameter('speed', newValue);
+export const resetSize = (newValue: TConstantOrLazy<number>) => resetParameter('size', newValue);
 
-    private calcMultiplier(state: IFiringState): number {
-        if (typeof this.multiplier === 'number') return this.multiplier;
-        return this.multiplier.calc(state);
-    }
-}
+export const setText  = (key: string, text: TConstantOrLazy<string>) => {
+    return new modO.SetText(key, text);
+};
 
-/**
- * Reset value to parameter.
- */
-export class ResetParameter implements IGun {
-    /**
-     * @param name paramter name
-     * @param newValue new value value or lazyEvaluative deal multiplier value
-     */
-    constructor(private readonly name: string,
-                private readonly newValue: TConstantOrLazy<number>) {}
+export const setMuzzle = (muzzle: string) => setText('muzzle', muzzle);
 
-    *play(state: IFiringState): IterableIterator<void> {
-        const param = state.parameters.get(this.name);
-        if (param === undefined) throw new Error(`Parameter ${this.name} is not exist`);
-        param.reset(this.calcNewValue(state));
-    }
+export const setVector  = (key: string, vector: TConstantOrLazy<TVector2D>) => {
+    return new modO.SetVector(key, vector);
+};
 
-    private calcNewValue(state: IFiringState): number {
-        if (typeof this.newValue === 'number') return this.newValue;
-        return this.newValue.calc(state);
-    }
-}
-
-/**
- * Fire bullet.
- */
-export class SetText implements IGun {
-    /**
-     * @param key Key of text
-     * @param text text
-     */
-    constructor(private readonly key: string,
-                private readonly text: TConstantOrLazy<string>) {}
-
-    *play(state: IFiringState): IterableIterator<void> {
-        state.texts.set(this.key, this.calcText(state));
-    }
-
-    private calcText(state: IFiringState): string {
-        if (typeof this.text === 'string') return this.text;
-        return this.text.calc(state);
-    }
-}
-
-/**
- * Set vector to FiringState.
- */
-export class SetVector implements IGun {
-    /**
-     * @param key key of vector
-     * @param vector vector
-     */
-    constructor(private readonly key: string,
-                private readonly vector: TConstantOrLazy<TVector2D >) {}
-
-    *play(state: IFiringState): IterableIterator<void> {
-        state.vectors.set(this.key, this.calcVector(state));
-    }
-
-    private calcVector(state: IFiringState): TVector2D {
-        if ('x' in this.vector) return this.vector;
-        return this.vector.calc(state);
-    }
-}
-
-/**
- * Add vector to FiringState.
- */
-export class AddVector implements IGun {
-    /**
-     * @param key key of vector
-     * @param vector vector would be added
-     */
-    constructor(private readonly key: string,
-                private readonly vector: TConstantOrLazy<TVector2D >) {}
-
-    *play(state: IFiringState): IterableIterator<void> {
-        const vec = state.vectors.get(this.key);
-        if (vec === undefined) throw new Error(`vector must exist at '${this.key}'`);
-        state.vectors.set(this.key, addVector(vec, this.calcVector(state)));
-    }
-
-    private calcVector(state: IFiringState): TVector2D {
-        if ('x' in this.vector) return this.vector;
-        return this.vector.calc(state);
-    }
-}
-
-const addVector = (vec1: TVector2D, vec2: TVector2D): TVector2D => {
-    return {
-        x: vec1.x + vec2.x,
-        y: vec1.y + vec2.y,
-    };
+export const addVector  = (key: string, vector: TConstantOrLazy<TVector2D>) => {
+    return new modO.AddVector(key, vector);
 };

@@ -1,7 +1,7 @@
 import { range } from 'lodash';
 
 import { IFiringState, IGun } from 'guntree/gun';
-import { Concat } from 'guntree/contents/gun';
+import { Concat } from 'guntree/elements/gun';
 
 const mockGunClass = jest.fn<IGun>((frame: number) => ({
     play: jest.fn().mockImplementation(() => {

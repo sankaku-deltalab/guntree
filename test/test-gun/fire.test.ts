@@ -1,5 +1,5 @@
 import { IFiringState, IBullet } from 'guntree/gun';
-import { Fire } from 'guntree/contents/gun';
+import { Fire } from 'guntree/elements/gun';
 import { IPlayer } from 'guntree/player';
 
 describe('#Fire', () => {

@@ -1,6 +1,6 @@
 import { Parameter } from 'guntree/parameter';
 import { IFiringState } from 'guntree/gun';
-import { MultiplyParameter } from 'guntree/contents/gunModifier';
+import { MultiplyParameter } from 'guntree/elements/gunModifier';
 import { ILazyEvaluative } from 'guntree/lazyEvaluative';
 
 describe('#MultiplyParameter', () => {

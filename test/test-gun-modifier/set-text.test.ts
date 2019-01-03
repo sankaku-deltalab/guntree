@@ -1,5 +1,5 @@
 import { IFiringState } from 'guntree/gun';
-import { SetText } from 'guntree/contents/gunModifier';
+import { SetText } from 'guntree/elements/gunModifier';
 import { ILazyEvaluative } from 'guntree/lazyEvaluative';
 
 describe('#SetText', () => {

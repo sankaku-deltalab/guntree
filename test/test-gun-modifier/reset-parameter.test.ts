@@ -1,6 +1,6 @@
 import { Parameter } from 'guntree/parameter';
 import { IFiringState } from 'guntree/gun';
-import { ResetParameter } from 'guntree/contents/gunModifier';
+import { ResetParameter } from 'guntree/elements/gunModifier';
 import { ILazyEvaluative } from 'guntree/lazyEvaluative';
 
 describe('#ResetParameter', () => {

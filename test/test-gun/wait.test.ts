@@ -1,6 +1,6 @@
 import { IFiringState } from 'guntree/gun';
 import { ILazyEvaluative } from 'guntree/lazyEvaluative';
-import { Wait } from 'guntree/contents/gun';
+import { Wait } from 'guntree/elements/gun';
 
 describe('#Wait', () => {
     test('consume constant input frames', () => {

@@ -1,6 +1,6 @@
 import { IFiringState } from 'guntree/gun';
 import { ILazyEvaluative } from 'guntree/lazyEvaluative';
-import { CenterizedLinear } from 'guntree/contents/lazyEvaluative';
+import { CenterizedLinear } from 'guntree/elements/lazyEvaluative';
 
 describe('#CenterizedLinear', () => {
     test.each`

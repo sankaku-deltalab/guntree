@@ -1,7 +1,7 @@
 import { range } from 'lodash';
 
 import { IFiringState, IGun } from 'guntree/gun';
-import { Parallel } from 'guntree/contents/gun';
+import { Parallel } from 'guntree/elements/gun';
 
 const createFiringStateMocks = (cloneNum: number): [IFiringState, IFiringState[]] => {
     const firingStateClass = jest.fn<IFiringState>(() => ({
