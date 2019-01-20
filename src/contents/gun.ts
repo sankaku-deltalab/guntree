@@ -12,15 +12,15 @@ export const wait = (frames: TConstantOrLazy<number>) => new gunO.Wait(frames);
 
 export const fire = (bullet: IBullet) => new gunO.Fire(bullet);
 
-export const repeat = (option: gunO.RepeatOption, ...guns: IGun[]) => {
+export const repeat = (option: gunO.TRepeatOption, ...guns: IGun[]) => {
     return new gunO.Repeat(option, new gunO.Concat(...guns));
 };
 
-export const parallelRepeat = (option: gunO.RepeatOption, ...guns: IGun[]) => {
+export const parallelRepeat = (option: gunO.TRepeatOption, ...guns: IGun[]) => {
     return new gunO.ParallelRepeat(option, new gunO.Concat(...guns));
 };
 
-export const paraRepeat = (option: gunO.RepeatOption, ...guns: IGun[]) => {
+export const paraRepeat = (option: gunO.TRepeatOption, ...guns: IGun[]) => {
     return parallelRepeat(option, new gunO.Concat(...guns));
 };
 
@@ -36,7 +36,7 @@ export const nWay = (option: TNWayOption, ...guns: IGun[]) => {
                       ...guns);
 };
 
-export type TWhipOption = gunO.RepeatOption & {
+export type TWhipOption = gunO.TRepeatOption & {
     speedRange: [number, number],
 };
 

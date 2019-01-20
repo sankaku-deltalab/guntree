@@ -17,14 +17,14 @@ export class Fire implements IGun {
     }
 }
 
-export type RepeatOption = {
+export type TRepeatOption = {
     times: TConstantOrLazy<number>;
     interval: TConstantOrLazy<number>;
     name?: string;
 };
 
 export class Repeat implements IGun {
-    constructor(private readonly option: RepeatOption,
+    constructor(private readonly option: TRepeatOption,
                 private readonly gun: IGun) {}
 
     *play(state: IFiringState): IterableIterator<void> {
@@ -52,7 +52,7 @@ export class Repeat implements IGun {
 }
 
 export class ParallelRepeat implements IGun {
-    constructor(private readonly option: RepeatOption,
+    constructor(private readonly option: TRepeatOption,
                 private readonly gun: IGun) {}
 
     *play(state: IFiringState): IterableIterator<void> {
