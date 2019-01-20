@@ -68,29 +68,6 @@ describe('#FiringState', () => {
         expect(clone.vectors.get(paramName)).toEqual(vec);
     });
 
-    test('can copy self with repeat state', () => {
-        // Given RepeatStates
-        const rsNum = 6;
-        const rsList = range(rsNum).map(v => ({ finished: v, total: rsNum + 1 }));
-
-        // And firing state
-        const state = new FiringState(createPlayer());
-        for (const rs of rsList) {
-            state.startRepeating(rs);
-        }
-
-        // When copy firing state
-        const clone = state.copy();
-
-        // Then clone has state
-        let idx = 0;
-        for (const rs of rsList.reverse()) {
-            expect(clone.getRepeatState(idx)).toBe(rs);
-            idx += 1;
-        }
-        expect(idx).toBeGreaterThan(0);
-    });
-
     test('can copy self with repeat state and their name', () => {
         // Given RepeatStates
         const rsNum = 6;
@@ -109,7 +86,7 @@ describe('#FiringState', () => {
         // Then clone has state
         let anyNamesRepeatingIsExist = false;
         for (const [rs, name] of rsListAndName.reverse()) {
-            expect(clone.getRepeatStateByName(name)).toBe(rs);
+            expect(clone.getRepeatState(name)).toBe(rs);
             anyNamesRepeatingIsExist = true;
         }
         expect(anyNamesRepeatingIsExist).toBe(true);
@@ -129,41 +106,10 @@ describe('#FiringState', () => {
         state.startRepeating(repeatState);
 
         // And get repeat state
-        const actual = state.getRepeatState(0);
+        const actual = state.getRepeatState();
 
         // Then dealt state is started repeat state
         expect(actual).toBe(repeatState);
-    });
-
-    test.each`
-        position
-        ${0}
-        ${1}
-        ${2}
-    `('can get nested repeat state', ({ position }) => {
-        // Given repeating state list
-        const nest = 10;
-        const repeatStates: IRepeatState[] = [];
-        for (const i of range(nest)) {
-            repeatStates.push({ finished: i * 2, total: nest * 3 });
-        }
-
-        // And Player
-        const player = createPlayer();
-
-        // And firing state
-        const state = new FiringState(player);
-
-        // When start nested repeating
-        for (const rs of repeatStates) {
-            state.startRepeating(rs);
-        }
-
-        // And get repeat state
-        const actual = state.getRepeatState(position);
-
-        // Then dealt state is expected position's state
-        expect(actual).toBe(repeatStates.reverse()[position]);
     });
 
     test('can get repeat state by name', () => {
@@ -178,7 +124,7 @@ describe('#FiringState', () => {
         const rs = state.startRepeating({ finished: 0, total: 10 }, name);
 
         // And get repeating with name
-        const actual = state.getRepeatStateByName(name);
+        const actual = state.getRepeatState(name);
 
         // Then get repeating
         expect(actual).toBe(rs);
@@ -197,7 +143,7 @@ describe('#FiringState', () => {
         state.startRepeating({ finished: 0, total: 10 }, name);
 
         // And get repeating with name
-        const func = () => state.getRepeatStateByName(badName);
+        const func = () => state.getRepeatState(badName);
 
         // Then throw error repeating
         expect(func).toThrowError();
@@ -217,7 +163,7 @@ describe('#FiringState', () => {
 
         for (const rs of [rs2, rs1]) {
             // And get repeating with name
-            const actual = state.getRepeatStateByName(name);
+            const actual = state.getRepeatState(name);
 
             // Then get second repeating
             expect(actual).toBe(rs);
@@ -235,7 +181,7 @@ describe('#FiringState', () => {
         const state = new FiringState(player);
 
         // When get current repeating
-        const actual = state.getRepeatState(0);
+        const actual = state.getRepeatState();
 
         // Then get { finished: 0, total: 1 }
         const expected = { finished: 0, total: 1 };

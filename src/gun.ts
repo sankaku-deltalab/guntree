@@ -26,22 +26,13 @@ export interface IFiringState {
     copy(): IFiringState;
 
     /**
-     * Get repeat state with position.
-     *
-     * e.g.
-     * - getRepeatState(0) return current repeating,
-     * - getRepeatState(1) return previous repeating.
-     *
-     * @param position Repeating position
-     */
-    getRepeatState(position: number): IRepeatState;
-
-    /**
      * Get repeat state with name.
+     * If name is not given, return latest repeat state.
+     * If not repeating, return { finished: 0, total: 1 }.
      *
      * @param name Repeating name
      */
-    getRepeatStateByName(name: string): IRepeatState;
+    getRepeatState(name?: string): IRepeatState;
 
     /**
      * Notify start repeating.
@@ -103,12 +94,14 @@ export class FiringState implements IFiringState {
         return clone;
     }
 
-    getRepeatState(position: number): IRepeatState {
-        const idx = this.repeatStateStack.length - 1 - position;
+    private getLatestRepeatState(): IRepeatState {
+        const idx = this.repeatStateStack.length - 1;
         return this.repeatStateStack[idx];
     }
 
-    getRepeatStateByName(name: string): IRepeatState {
+    getRepeatState(name?: string): IRepeatState {
+        if (name === undefined) return this.getLatestRepeatState();
+
         const rsStack = this.repeatMap.get(name);
         if (rsStack === undefined) throw new Error();
         return rsStack[rsStack.length - 1];
@@ -154,12 +147,6 @@ export class FiringState implements IFiringState {
 
 export interface IGun {
     play(state: IFiringState): IterableIterator<void>;
-}
-
-export function getRepeatStateByTarget(state: IFiringState, target: number | string | undefined): IRepeatState {
-    if (typeof target === 'number') return state.getRepeatState(target);
-    if (typeof target === 'string') return state.getRepeatStateByName(target);
-    return state.getRepeatState(0);
 }
 
 /**

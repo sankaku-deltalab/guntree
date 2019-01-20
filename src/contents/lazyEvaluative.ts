@@ -4,10 +4,10 @@ import * as leO from '../elements/lazyEvaluative';
 
 export const linear = (start: TConstantOrLazy<number>,
                        stop: TConstantOrLazy<number>,
-                       target?: number | string) => new leO.Linear(start, stop, target);
+                       target?: string) => new leO.Linear(start, stop, target);
 
 export const centerizedLinear = (totalRange: TConstantOrLazy<number>,
-                                 target?: number | string) => new leO.CenterizedLinear(totalRange, target);
+                                 target?: string) => new leO.CenterizedLinear(totalRange, target);
 
 export const iterate = (array: (TConstantOrLazy<number>)[],
                         option?: leO.TIterateOption) => new leO.Iterate(array, option);

@@ -78,7 +78,7 @@ describe('#Linear', () => {
         // Given repeating progress
         const [start, stop] = [0, 40];
         const stateClass = jest.fn<IFiringState>(() => ({
-            getRepeatStateByName: jest.fn().mockImplementation((name: string) => {
+            getRepeatState: jest.fn().mockImplementation((name: string) => {
                 if (name === 'a') return { finished: 0, total: 4 };
                 if (name === 'b') return { finished: 1, total: 4 };
                 return { finished: 3, total: 4 };
@@ -98,9 +98,8 @@ describe('#Linear', () => {
         // Given repeating progress
         const [start, stop] = [0, 40];
         const stateClass = jest.fn<IFiringState>(() => ({
-            getRepeatState: jest.fn().mockImplementation((position: number) => {
-                if (position === 0) return { finished: 0, total: 4 };
-                return { finished: 3, total: 4 };
+            getRepeatState: jest.fn().mockImplementation(() => {
+                return { finished: 0, total: 4 };
             }),
         }));
         const state = new stateClass();

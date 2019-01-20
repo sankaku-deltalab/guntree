@@ -60,24 +60,21 @@ describe('#Iterate', () => {
     });
 
     test('use previous repeating if not specified target', () => {
-        for (const idx of range(4)) {
-            // Given repeating progress
-            const stateClass = jest.fn<IFiringState>(() => ({
-                getRepeatState: jest.fn().mockImplementation((position: number) => {
-                    if (position === 0) return { finished: idx, total: 4 };
-                    return { finished: 3, total: 4 };
-                }),
-            }));
-            const state = new stateClass();
+        // Given repeating progress
+        const stateClass = jest.fn<IFiringState>(() => ({
+            getRepeatState: jest.fn().mockImplementation(() => {
+                return { finished: 3, total: 4 };
+            }),
+        }));
+        const state = new stateClass();
 
-            // When eval iterate without target
-            const input = [0, 1, 2, 3];
-            const iterate = new Iterate(input);
-            const actual = iterate.calc(state);
+        // When eval iterate without target
+        const input = [0, 1, 2, 3];
+        const iterate = new Iterate(input);
+        const actual = iterate.calc(state);
 
-            // Then use previous repeating
-            expect(actual).toBeCloseTo(input[idx]);
-        }
+        // Then use previous repeating
+        expect(actual).toBeCloseTo(3);
     });
 
     test('use repeating specified by target with string', () => {
@@ -85,32 +82,9 @@ describe('#Iterate', () => {
         for (const [target, finished] of pairs) {
             // Given repeating progress
             const stateClass = jest.fn<IFiringState>(() => ({
-                getRepeatStateByName: jest.fn().mockImplementation((name: string) => {
+                getRepeatState: jest.fn().mockImplementation((name: string) => {
                     if (name === target) return { finished, total: 4 };
                     if (name === 'c') return { finished: 2, total: 4 };
-                    return { finished: 3, total: 4 };
-                }),
-            }));
-            const state = new stateClass();
-
-            // When eval iterate with target
-            const input = [0, 1, 2, 3];
-            const iterate = new Iterate(input, { target });
-            const actual = iterate.calc(state);
-
-            // Then use specified repeating
-            expect(actual).toBeCloseTo(input[finished]);
-        }
-    });
-
-    test('use repeating specified by target with number', () => {
-        const pairs: [number, number][] = [[1, 0], [3, 1]];
-        for (const [target, finished] of pairs) {
-            // Given repeating progress
-            const stateClass = jest.fn<IFiringState>(() => ({
-                getRepeatState: jest.fn().mockImplementation((position: number) => {
-                    if (position === target) return { finished, total: 4 };
-                    if (position === 2) return { finished: 2, total: 4 };
                     return { finished: 3, total: 4 };
                 }),
             }));

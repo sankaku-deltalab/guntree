@@ -29,33 +29,6 @@ describe('#CenterizedLinear', () => {
     });
 
     test.each`
-    position | expected
-    ${0}     | ${-15}
-    ${1}     | ${-5}
-    ${2}     | ${5}
-    ${3}     | ${15}
-    `('use specified repeating progress with number', ({ position, expected }) => {
-        // Given repeating progress
-        const range = 40;
-        const stateClass = jest.fn<IFiringState>(() => ({
-            getRepeatState: jest.fn().mockImplementation((position: number) => {
-                if (position === 0) return { finished: 0, total: 4 };
-                if (position === 1) return { finished: 1, total: 4 };
-                if (position === 2) return { finished: 2, total: 4 };
-                return { finished: 3, total: 4 };
-            }),
-        }));
-        const state = new stateClass();
-
-        // When eval CenterizedLinear with position
-        const cl = new CenterizedLinear(range, position);
-        const actual = cl.calc(state);
-
-        // Then deal expected
-        expect(actual).toBeCloseTo(expected);
-    });
-
-    test.each`
     target | expected
     ${'a'} | ${-15}
     ${'b'} | ${-5}
@@ -63,7 +36,7 @@ describe('#CenterizedLinear', () => {
         // Given repeating progress
         const range = 40;
         const stateClass = jest.fn<IFiringState>(() => ({
-            getRepeatStateByName: jest.fn().mockImplementation((name: string) => {
+            getRepeatState: jest.fn().mockImplementation((name: string) => {
                 if (name === 'a') return { finished: 0, total: 4 };
                 if (name === 'b') return { finished: 1, total: 4 };
                 return { finished: 3, total: 4 };
@@ -84,8 +57,7 @@ describe('#CenterizedLinear', () => {
         const range = 40;
         const stateClass = jest.fn<IFiringState>(() => ({
             getRepeatState: jest.fn().mockImplementation((position: number) => {
-                if (position === 0) return { finished: 0, total: 4 };
-                return { finished: 3, total: 4 };
+                return { finished: 0, total: 4 };
             }),
         }));
         const state = new stateClass();
@@ -101,9 +73,8 @@ describe('#CenterizedLinear', () => {
     test('use lazyEvaluative totalRange', () => {
         // Given repeating progress
         const stateClass = jest.fn<IFiringState>(() => ({
-            getRepeatState: jest.fn().mockImplementation((position: number) => {
-                if (position === 0) return { finished: 0, total: 4 };
-                return { finished: 3, total: 4 };
+            getRepeatState: jest.fn().mockImplementation(() => {
+                return { finished: 0, total: 4 };
             }),
         }));
         const state = new stateClass();

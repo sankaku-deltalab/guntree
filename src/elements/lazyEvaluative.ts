@@ -1,15 +1,15 @@
-import { IFiringState, TVector2D, getRepeatStateByTarget } from '../gun';
+import { IFiringState, TVector2D } from '../gun';
 import { ILazyEvaluative, TConstantOrLazy } from '../lazyEvaluative';
 
 export class Linear implements ILazyEvaluative<number> {
     constructor(private readonly start: TConstantOrLazy<number>,
                 private readonly stop: TConstantOrLazy<number>,
-                private readonly target?: number | string) {}
+                private readonly target?: string) {}
 
     calc(state: IFiringState): number {
         const start = getNumberFromLazy(state, this.start);
         const stop = getNumberFromLazy(state, this.stop);
-        const repeat = getRepeatStateByTarget(state, this.target);
+        const repeat = state.getRepeatState(this.target);
         const rate = repeat.finished / repeat.total;
         return stop * rate + start * (1 - rate);
     }
@@ -20,7 +20,7 @@ export type TIterateOption = {
     default?: number;
 
     /** Used for specifying repeat */
-    target?: string | number;
+    target?: string;
 };
 
 /**
@@ -37,7 +37,7 @@ export class Iterate implements ILazyEvaluative<number> {
 
     calc(state: IFiringState): number {
         const target = this.option !== undefined ? this.option.target : undefined;
-        const repeat = getRepeatStateByTarget(state, target);
+        const repeat = state.getRepeatState(target);
         if (repeat.finished >= this.array.length) {
             if (this.option !== undefined && this.option.default !== undefined) return this.option.default;
             throw new Error('Iterate expected repeating out of range but default value is not in option');
@@ -126,11 +126,11 @@ export class GlobalizeVector implements ILazyEvaluative<TVector2D> {
  */
 export class CenterizedLinear implements ILazyEvaluative<number> {
     constructor(private readonly totalRange: TConstantOrLazy<number>,
-                private readonly target?: number | string) {}
+                private readonly target?: string) {}
 
     calc(state: IFiringState): number {
         const totalRange = getNumberFromLazy(state, this.totalRange);
-        const repeat = getRepeatStateByTarget(state, this.target);
+        const repeat = state.getRepeatState(this.target);
         const rate = repeat.finished / repeat.total;
         const diff = totalRange / repeat.total;
         return totalRange * rate - (totalRange - diff) / 2;
