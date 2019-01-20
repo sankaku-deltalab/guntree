@@ -1,4 +1,5 @@
 import { IFiringState } from 'guntree/gun';
+import { ILazyEvaluative } from 'guntree/lazyEvaluative';
 import { Linear } from 'guntree/elements/lazyEvaluative';
 
 describe('#Linear', () => {
@@ -17,6 +18,30 @@ describe('#Linear', () => {
 
         // When eval Linear with (start, stop)
         const linear = new Linear(start, stop);
+        const actual = linear.calc(state);
+
+        // Then deal expected
+        expect(actual).toBeCloseTo(expected);
+    });
+
+    test.each`
+    start | stop  | finished | total | expected
+    ${0}  | ${1}  | ${0}     | ${1}  | ${0}
+    ${0}  | ${1}  | ${0}     | ${2}  | ${0}
+    ${0}  | ${1}  | ${1}     | ${2}  | ${0.5}
+    ${10} | ${30} | ${1}     | ${4}  | ${15}
+    `('can use LazyEvaluative to start and stop', async ({ start, stop, finished, total, expected }) => {
+        // Given repeating progress
+        const stateClass = jest.fn<IFiringState>(() => ({
+            getRepeatState: jest.fn().mockReturnValueOnce({ finished, total }),
+        }));
+        const state = new stateClass();
+
+        // When eval Linear with (start, stop)
+        const leClass = jest.fn<ILazyEvaluative<number>>((val: number) => ({
+            calc: jest.fn().mockReturnValueOnce(val),
+        }));
+        const linear = new Linear(new leClass(start), new leClass(stop));
         const actual = linear.calc(state);
 
         // Then deal expected

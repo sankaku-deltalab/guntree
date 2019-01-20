@@ -2,14 +2,16 @@ import { IFiringState, TVector2D, getRepeatStateByTarget } from '../gun';
 import { ILazyEvaluative, TConstantOrLazy } from '../lazyEvaluative';
 
 export class Linear implements ILazyEvaluative<number> {
-    constructor(private readonly start: number,
-                private readonly stop: number,
+    constructor(private readonly start: TConstantOrLazy<number>,
+                private readonly stop: TConstantOrLazy<number>,
                 private readonly target?: number | string) {}
 
     calc(state: IFiringState): number {
+        const start = getNumberFromLazy(state, this.start);
+        const stop = getNumberFromLazy(state, this.stop);
         const repeat = getRepeatStateByTarget(state, this.target);
         const rate = repeat.finished / repeat.total;
-        return this.stop * rate + this.start * (1 - rate);
+        return stop * rate + start * (1 - rate);
     }
 }
 

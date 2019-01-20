@@ -2,8 +2,8 @@ import { TVector2D } from '../gun';
 import { TConstantOrLazy } from '../lazyEvaluative';
 import * as leO from '../elements/lazyEvaluative';
 
-export const linear = (start: number,
-                       stop: number,
+export const linear = (start: TConstantOrLazy<number>,
+                       stop: TConstantOrLazy<number>,
                        target?: number | string) => new leO.Linear(start, stop, target);
 
 export const centerizedLinear = (totalRange: TConstantOrLazy<number>,
