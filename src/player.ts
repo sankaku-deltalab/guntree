@@ -65,7 +65,7 @@ export class Player implements IPlayer {
             initialParameters = initialParameters.concat(additional);
         }
         for (const [key, value] of initialParameters) {
-            state.parameters.set(key, new Parameter(value));
+            state.fireData.parameters.set(key, value);
         }
     }
 
@@ -78,7 +78,7 @@ export class Player implements IPlayer {
             initialTexts = initialTexts.concat(additional);
         }
         for (const [key, value] of initialTexts) {
-            state.texts.set(key, value);
+            state.fireData.texts.set(key, value);
         }
     }
 

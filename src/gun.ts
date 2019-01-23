@@ -12,17 +12,8 @@ export interface IRepeatState {
  * FiringState contains information while firing.
  */
 export interface IFiringState {
-    /** Parameters express real value. */
-    parameters: Map<string, Parameter>;
-
-    /** Bullet spawning transform. */
-    transform: mat.Matrix;
-
-    /** Parameters express string value. */
-    texts: Map<string, string>;
-
-    /** Parameters express vector value. */
-    vectors: Map<string, TVector2D>;
+    /** Contain data used when fired. */
+    fireData: IFireData;
 
     /** Player playing GunTree with this state. */
     player: IPlayer;
@@ -59,40 +50,42 @@ export interface IFiringState {
     finishRepeating(state: IRepeatState, name?: string): void;
 }
 
+/**
+ * IFireData contains data used when bullet was fired.
+ */
+export interface IFireData {
+    /** Bullet spawning transform. */
+    transform: mat.Matrix;
+
+    /** Parameters express real value. */
+    parameters: Map<string, number>;
+
+    /** Parameters express string value. */
+    texts: Map<string, string>;
+
+    /** Copy this data. */
+    copy(): IFireData;
+}
+
 export type TVector2D = {
     x: number,
     y: number,
 };
 
 export class FiringState implements IFiringState {
-    readonly parameters: Map<string, Parameter>;
-    readonly texts: Map<string, string>;
-    readonly vectors: Map<string, TVector2D>;
-    transform: mat.Matrix;
+    fireData: IFireData;
     private readonly repeatStateStack: IRepeatState[];
     private readonly repeatMap: Map<string, IRepeatState[]>;
 
     constructor(readonly player: IPlayer) {
-        this.parameters = new Map();
-        this.texts = new Map();
-        this.transform = mat.translate(0);
+        this.fireData = new FireData();
         this.repeatStateStack = [{ finished: 0, total: 1 }];
         this.repeatMap = new Map();
-        this.vectors = new Map();
     }
 
     copy(): FiringState {
         const clone = new FiringState(this.player);
-        for (const [key, param] of this.parameters) {
-            clone.parameters.set(key, param.copy());
-        }
-        for (const [key, value] of this.texts) {
-            clone.texts.set(key, value);
-        }
-        for (const [name, vec] of this.vectors) {
-            clone.vectors.set(name, Object.assign({}, vec));
-        }
-        clone.transform = mat.transform(this.transform);
+        clone.fireData = this.fireData.copy();
         for (const rs of this.repeatStateStack) {
             clone.repeatStateStack.push(rs);
         }
@@ -152,6 +145,40 @@ export class FiringState implements IFiringState {
         return rs;
     }
 }
+
+export class FireData implements IFireData {
+    /** Bullet spawning transform. */
+    transform: mat.Matrix;
+
+    /** Parameters express real value. */
+    parameters: Map<string, number>;
+
+    /** Parameters express string value. */
+    texts: Map<string, string>;
+
+    constructor() {
+        this.transform = mat.translate(0);
+        this.parameters = new Map();
+        this.texts = new Map();
+    }
+
+    copy(): FireData {
+        const clone = new FireData();
+        clone.transform = mat.transform(this.transform);
+        clone.parameters = copyMap(this.parameters);
+        clone.texts = copyMap(this.texts);
+        return clone;
+    }
+
+}
+
+const copyMap = <T1, T2>(map: Map<T1, T2>): Map<T1, T2> => {
+    const clone = new Map<T1, T2>();
+    for (const [k, v] of map.entries()) {
+        clone.set(k, v);
+    }
+    return clone;
+};
 
 export interface IGun {
     play(state: IFiringState): IterableIterator<void>;
