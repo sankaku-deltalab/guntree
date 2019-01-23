@@ -1,4 +1,5 @@
-import { IFiringState, TVector2D, FiringState, IGun, IBullet } from './gun';
+import { TVector2D, IGun, IBullet } from './gun';
+import { IFiringState, FiringState } from './firing-state';
 import { Parameter } from './parameter';
 
 export interface IPlayer {

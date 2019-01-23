@@ -1,6 +1,7 @@
 import { range } from 'lodash';
 
-import { IFiringState, IGun, IBullet } from 'guntree/gun';
+import { IGun, IBullet } from 'guntree/gun';
+import { IFiringState } from 'guntree/firing-state';
 import { Player, IPlayerOwner } from 'guntree/player';
 
 const createGun = (frames: number): IGun => {

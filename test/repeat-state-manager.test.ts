@@ -1,4 +1,4 @@
-import { RepeatStateManager, IRepeatState } from 'guntree/gun';
+import { RepeatStateManager, IRepeatState } from 'guntree/firing-state';
 
 describe('#RepeatStateManager', () => {
     test('has initial repeating', () => {

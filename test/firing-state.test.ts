@@ -1,7 +1,4 @@
-import { range } from 'lodash';
-
-import { FiringState } from 'guntree/gun';
-import { Parameter } from 'guntree/parameter';
+import { FiringState } from 'guntree/firing-state';
 import { IPlayer } from 'guntree/player';
 
 const mockPlayerClass = jest.fn<IPlayer>(() => ({}));

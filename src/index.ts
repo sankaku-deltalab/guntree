@@ -1,4 +1,5 @@
-import { FiringState, IBullet, IFiringState, IGun, IRepeatState, TVector2D } from './gun';
+import { IBullet, IGun, TVector2D } from './gun';
+import { FiringState, IFiringState, IRepeatState } from './firing-state';
 import { ILazyEvaluative, TConstantOrLazy } from './lazyEvaluative';
 import { Parameter } from './parameter';
 import { IPlayer, IPlayerOwner, Player, TPlayerOption } from './player';

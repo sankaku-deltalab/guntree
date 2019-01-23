@@ -1,6 +1,6 @@
 import * as mat from 'transformation-matrix';
 
-import { FireData } from 'guntree/gun';
+import { FireData } from 'guntree/firing-state';
 
 describe('#FireData', () => {
     test('can copy self with transform', () => {
