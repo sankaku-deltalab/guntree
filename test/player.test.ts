@@ -2,7 +2,6 @@ import { range } from 'lodash';
 
 import { IFiringState, IGun, IBullet } from 'guntree/gun';
 import { Player, IPlayerOwner } from 'guntree/player';
-import { Parameter } from 'guntree/parameter';
 
 const createGun = (frames: number): IGun => {
     const gunClass = jest.fn<IGun>((f: number) => ({
@@ -127,7 +126,7 @@ describe('#Player', () => {
 
         // Then gun was played with state and state parameter was initialized
         const gunState: IFiringState = (<jest.Mock> gunTree.play).mock.calls[0][0];
-        expect(gunState.parameters.get(name)).toEqual(new Parameter(value));
+        expect(gunState.fireData.parameters.get(name)).toEqual(value);
     });
 
     test('can add initial parameter', () => {
@@ -148,7 +147,7 @@ describe('#Player', () => {
         // Then gun was played with state and state parameter was initialized
         const gunState: IFiringState = (<jest.Mock> gunTree.play).mock.calls[0][0];
         for (const [name, value] of Object.entries(additionalParameters)) {
-            expect(gunState.parameters.get(name)).toEqual(new Parameter(value));
+            expect(gunState.fireData.parameters.get(name)).toEqual(value);
         }
 
         // And default parameters are still alive
@@ -157,7 +156,7 @@ describe('#Player', () => {
             ['size', 1],
         ];
         for (const [name, value] of defaultParameters) {
-            expect(gunState.parameters.get(name)).toEqual(new Parameter(value));
+            expect(gunState.fireData.parameters.get(name)).toEqual(value);
         }
     });
 
@@ -175,7 +174,7 @@ describe('#Player', () => {
 
         // Then gun was played with state and state parameter was initialized
         const gunState: IFiringState = (<jest.Mock> gunTree.play).mock.calls[0][0];
-        expect(gunState.texts.get(name)).toBe(value);
+        expect(gunState.fireData.texts.get(name)).toBe(value);
     });
 
     test('can add initial text', () => {
@@ -196,7 +195,7 @@ describe('#Player', () => {
         // Then gun was played with state and state texts was initialized
         const gunState: IFiringState = (<jest.Mock> gunTree.play).mock.calls[0][0];
         for (const [name, value] of Object.entries(additionalTexts)) {
-            expect(gunState.texts.get(name)).toBe(value);
+            expect(gunState.fireData.texts.get(name)).toBe(value);
         }
 
         // And default parameters are still alive
@@ -204,7 +203,7 @@ describe('#Player', () => {
             ['muzzle', '__undefined'],
         ];
         for (const [name, value] of defaultTexts) {
-            expect(gunState.texts.get(name)).toBe(value);
+            expect(gunState.fireData.texts.get(name)).toBe(value);
         }
     });
 });

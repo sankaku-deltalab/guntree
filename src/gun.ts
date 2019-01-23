@@ -124,7 +124,7 @@ export class FireData implements IFireData {
 
     copy(): FireData {
         const clone = new FireData();
-        clone.transform = mat.transform(this.transform);
+        clone.transform = Object.assign({}, this.transform);
         clone.parameters = copyMap(this.parameters);
         clone.texts = copyMap(this.texts);
         return clone;
@@ -137,7 +137,7 @@ export class RepeatStateManager implements IRepeatStateManager {
     private repeatMap: Map<string, IRepeatState[]>;
 
     constructor() {
-        this.repeatStateStack = [];
+        this.repeatStateStack = [{ finished: 0, total: 1 }];
         this.repeatMap = new Map();
     }
 
@@ -194,8 +194,8 @@ export class RepeatStateManager implements IRepeatStateManager {
     /** Copy states with manager. */
     copy(): RepeatStateManager {
         const clone = new RepeatStateManager();
-        clone.repeatStateStack = this.repeatStateStack.map(v => Object.assign({}, v));
-        clone.repeatMap = copyMap(this.repeatMap, v => Object.assign({}, v));
+        clone.repeatStateStack = [...this.repeatStateStack];
+        clone.repeatMap = copyMap(this.repeatMap, rsStack => [...rsStack]);
         return clone;
     }
 }
