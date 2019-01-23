@@ -57,8 +57,6 @@ export class Player implements IPlayer {
 
     private initParameters(state: IFiringState): void {
         let initialParameters: [string, number][] = [
-            ['angle', 0],
-            ['aimAngle', 0],
             ['speed', 1],
             ['size', 1],
         ];

@@ -114,8 +114,6 @@ describe('#Player', () => {
 
     test.each`
         name          | value
-        ${'angle'}    | ${0}
-        ${'aimAngle'} | ${0}
         ${'speed'}    | ${1}
         ${'size'}     | ${1}
     `('initialize parameter `$name` to $value', ({ name, value }) => {
@@ -155,8 +153,6 @@ describe('#Player', () => {
 
         // And default parameters are still alive
         const defaultParameters: [string, number][] = [
-            ['angle', 0],
-            ['aimAngle', 0],
             ['speed', 1],
             ['size', 1],
         ];

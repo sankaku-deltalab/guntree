@@ -1,3 +1,5 @@
+import * as mat from 'transformation-matrix';
+
 import { Parameter } from './parameter';
 import { IPlayer } from './player';
 
@@ -12,6 +14,9 @@ export interface IRepeatState {
 export interface IFiringState {
     /** Parameters express real value. */
     parameters: Map<string, Parameter>;
+
+    /** Bullet spawning transform. */
+    transform: mat.Matrix;
 
     /** Parameters express string value. */
     texts: Map<string, string>;
@@ -63,12 +68,14 @@ export class FiringState implements IFiringState {
     readonly parameters: Map<string, Parameter>;
     readonly texts: Map<string, string>;
     readonly vectors: Map<string, TVector2D>;
+    transform: mat.Matrix;
     private readonly repeatStateStack: IRepeatState[];
     private readonly repeatMap: Map<string, IRepeatState[]>;
 
     constructor(readonly player: IPlayer) {
         this.parameters = new Map();
         this.texts = new Map();
+        this.transform = mat.translate(0);
         this.repeatStateStack = [{ finished: 0, total: 1 }];
         this.repeatMap = new Map();
         this.vectors = new Map();
@@ -85,6 +92,7 @@ export class FiringState implements IFiringState {
         for (const [name, vec] of this.vectors) {
             clone.vectors.set(name, Object.assign({}, vec));
         }
+        clone.transform = mat.transform(this.transform);
         for (const rs of this.repeatStateStack) {
             clone.repeatStateStack.push(rs);
         }
