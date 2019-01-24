@@ -1,6 +1,6 @@
 import { range } from 'lodash';
 
-import { IFiringState } from 'guntree/gun';
+import { IFiringState } from 'guntree/firing-state';
 import { ILazyEvaluative } from 'guntree/lazyEvaluative';
 import { Iterate } from 'guntree/elements/lazyEvaluative';
 

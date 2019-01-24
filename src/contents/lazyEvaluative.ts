@@ -13,8 +13,6 @@ export const iterate = (array: (TConstantOrLazy<number>)[],
 
 export const round = (input: TConstantOrLazy<number>) => new leO.Round(input);
 
-export const getLocation = (name: string) => new leO.GetLocation(name);
-
 export type TAddNWayAngleOption = {
     totalAngle: TConstantOrLazy<number>;
     name?: string;

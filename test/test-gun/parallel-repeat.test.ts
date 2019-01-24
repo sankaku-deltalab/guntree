@@ -1,6 +1,7 @@
 import { range } from 'lodash';
 
-import { IRepeatState, IFiringState, IGun } from 'guntree/gun';
+import { IGun } from 'guntree/gun';
+import { IFiringState, IRepeatState } from 'guntree/firing-state';
 import { ParallelRepeat } from 'guntree/elements/gun';
 import { ILazyEvaluative } from 'guntree/lazyEvaluative';
 
@@ -247,7 +248,7 @@ describe('#ParallelRepeat', () => {
             // Then notify start repeating to state
             if (consumedFrames === 0) {
                 for (const i of range(times)) {
-                    expect(stateClones[i].startRepeating).lastCalledWith({ finished: i, total: times }, name);
+                    expect(stateClones[i].repeatStates.start).lastCalledWith({ finished: i, total: times }, name);
                 }
             }
 
@@ -257,8 +258,8 @@ describe('#ParallelRepeat', () => {
 
         // And notify start and finish repeating only once at each clones
         for (const i of range(times)) {
-            expect(stateClones[i].startRepeating).toBeCalledTimes(1);
-            expect(stateClones[i].finishRepeating).toBeCalledTimes(1);
+            expect(stateClones[i].repeatStates.start).toBeCalledTimes(1);
+            expect(stateClones[i].repeatStates.finish).toBeCalledTimes(1);
         }
     });
 });

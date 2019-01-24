@@ -1,4 +1,4 @@
-import { IFiringState } from 'guntree/gun';
+import { IFiringState } from 'guntree/firing-state';
 import { ILazyEvaluative } from 'guntree/lazyEvaluative';
 import { CenterizedLinear } from 'guntree/elements/lazyEvaluative';
 

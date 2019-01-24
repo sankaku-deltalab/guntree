@@ -94,24 +94,6 @@ describe('#Player', () => {
         expect(owner.notifyFired).toBeCalledWith(player, state, bullet);
     });
 
-    test('get location from owner', () => {
-        // Given player with owner
-        const vec = { x: 1, y: 3, z: 6 };
-        const poClass = jest.fn<IPlayerOwner>((f: number) => ({
-            getLocation: jest.fn().mockReturnValueOnce(vec),
-        }));
-        const owner = new poClass();
-        const player = new Player(owner);
-
-        // When player get location
-        const name = 'vec_name';
-        player.getLocation(name);
-
-        // Then location was dealt from owner
-        expect(owner.getLocation).toBeCalledTimes(1);
-        expect(owner.getLocation).toBeCalledWith(player, name);
-    });
-
     test.each`
         name          | value
         ${'speed'}    | ${1}

@@ -9,7 +9,7 @@ export class Linear implements ILazyEvaluative<number> {
     calc(state: IFiringState): number {
         const start = getNumberFromLazy(state, this.start);
         const stop = getNumberFromLazy(state, this.stop);
-        const repeat = state.getRepeatState(this.target);
+        const repeat = state.repeatStates.get(this.target);
         const rate = repeat.finished / repeat.total;
         return stop * rate + start * (1 - rate);
     }
@@ -37,7 +37,7 @@ export class Iterate implements ILazyEvaluative<number> {
 
     calc(state: IFiringState): number {
         const target = this.option !== undefined ? this.option.target : undefined;
-        const repeat = state.getRepeatState(target);
+        const repeat = state.repeatStates.get(target);
         if (repeat.finished >= this.array.length) {
             if (this.option !== undefined && this.option.default !== undefined) return this.option.default;
             throw new Error('Iterate expected repeating out of range but default value is not in option');
@@ -77,7 +77,7 @@ export class CenterizedLinear implements ILazyEvaluative<number> {
 
     calc(state: IFiringState): number {
         const totalRange = getNumberFromLazy(state, this.totalRange);
-        const repeat = state.getRepeatState(this.target);
+        const repeat = state.repeatStates.get(this.target);
         const rate = repeat.finished / repeat.total;
         const diff = totalRange / repeat.total;
         return totalRange * rate - (totalRange - diff) / 2;

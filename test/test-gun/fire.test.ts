@@ -1,4 +1,5 @@
-import { IFiringState, IBullet } from 'guntree/gun';
+import { IBullet } from 'guntree/gun';
+import { IFiringState } from 'guntree/firing-state';
 import { Fire } from 'guntree/elements/gun';
 import { IPlayer } from 'guntree/player';
 

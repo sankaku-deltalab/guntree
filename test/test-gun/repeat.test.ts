@@ -1,6 +1,7 @@
 import { range } from 'lodash';
 
-import { IRepeatState, IFiringState, IGun } from 'guntree/gun';
+import { IGun } from 'guntree/gun';
+import { IFiringState, IRepeatState } from 'guntree/firing-state';
 import { Repeat } from 'guntree/elements/gun';
 import { ILazyEvaluative } from 'guntree/lazyEvaluative';
 
@@ -235,7 +236,7 @@ describe('#Repeat', () => {
 
             // Then notify start repeating to state
             if (consumedFrames === 0) {
-                expect(stateClone.startRepeating).lastCalledWith({ finished: 0, total: times }, name);
+                expect(stateClone.repeatStates.start).lastCalledWith({ finished: 0, total: times }, name);
             }
 
             // And update repeating state and notify finish repeating
@@ -243,7 +244,7 @@ describe('#Repeat', () => {
                 const expectedRepeated = Math.floor(consumedFrames / interval);
                 expect((<any> stateClone).repeatingStack[0]).toEqual({ finished: expectedRepeated, total: times });
             } else {
-                expect(stateClone.finishRepeating).toBeCalledWith({ finished: times, total: times }, name);
+                expect(stateClone.repeatStates.finish).toBeCalledWith({ finished: times, total: times }, name);
                 expect(r.done).toBe(true);
             }
 
@@ -251,11 +252,11 @@ describe('#Repeat', () => {
             consumedFrames += 1;
 
             // And not notify finish repeating while repeating
-            expect(stateClone.finishRepeating).not.toBeCalled();
+            expect(stateClone.repeatStates.finish).not.toBeCalled();
         }
 
         // And notify start and finish repeating only once
-        expect(stateClone.startRepeating).toBeCalledTimes(1);
-        expect(stateClone.finishRepeating).toBeCalledTimes(1);
+        expect(stateClone.repeatStates.start).toBeCalledTimes(1);
+        expect(stateClone.repeatStates.finish).toBeCalledTimes(1);
     });
 });
