@@ -15,6 +15,16 @@ export interface IFiringState {
     /** Player playing GunTree with this state. */
     player: IPlayer;
 
+    /**
+     * Push function would applied to fireData when fire bullet.
+     *
+     * @param modifier Function would applied when fire bullet
+     */
+    pushModifier(modifier: (state: IFiringState, fireData: IFireData) => void): void;
+
+    /** Calculate modified fire data. */
+    calcModifiedFireData(): IFireData;
+
     /** Copy this state. */
     copy(): IFiringState;
 }
@@ -87,9 +97,29 @@ export class FiringState implements IFiringState {
     /** Manager manage repeating while firing. */
     repeatStates: IRepeatStateManager;
 
+    /** Function would applied to fireData when fire bullet, */
+    private readonly modifiers: ((state: IFiringState, fireData: IFireData) => void)[];
+
     constructor(readonly player: IPlayer) {
         this.fireData = new FireData();
         this.repeatStates = new RepeatStateManager();
+        this.modifiers = [];
+    }
+
+    /**
+     * Push function would applied to fireData when fire bullet.
+     *
+     * @param modifier Function would applied when fire bullet
+     */
+    pushModifier(modifier: (state: IFiringState, fireData: IFireData) => void): void {
+        this.modifiers.push(modifier);
+    }
+
+    /** Calculate modified fire data. */
+    calcModifiedFireData(): IFireData {
+        const fdClone = this.fireData.copy();
+        this.modifiers.reverse().map(mod => mod(this, fdClone));
+        return fdClone;
     }
 
     copy(): FiringState {
