@@ -1,6 +1,5 @@
-import { TVector2D, IGun, IBullet } from './gun';
+import { IGun, IBullet } from './gun';
 import { IFiringState, FiringState } from './firing-state';
-import { Parameter } from './parameter';
 
 export interface IPlayer {
     isRunning: boolean;
@@ -10,12 +9,10 @@ export interface IPlayer {
     tick(): void;
 
     notifyFired(state: IFiringState, bullet: IBullet): void;
-    getLocation(name: string): TVector2D;
 }
 
 export interface IPlayerOwner {
     notifyFired(player: IPlayer, state: IFiringState, bullet: IBullet): void;
-    getLocation(player: IPlayer, name: string): TVector2D;
 }
 
 export type TPlayerOption = {
@@ -95,9 +92,5 @@ export class Player implements IPlayer {
 
     notifyFired(state: IFiringState, bullet: IBullet): void {
         this.owner.notifyFired(this, state, bullet);
-    }
-
-    getLocation(name: string): TVector2D {
-        return this.owner.getLocation(this, name);
     }
 }

@@ -1,5 +1,6 @@
-import { IFiringState, IGun, TVector2D } from '../gun';
-import { ILazyEvaluative, TConstantOrLazy } from '../lazyEvaluative';
+import { IGun } from '../gun';
+import { IFiringState } from '../firing-state';
+import { TConstantOrLazy } from '../lazyEvaluative';
 
 /**
  * Add parameter.
@@ -113,54 +114,3 @@ export class SetText implements IGun {
         return this.text.calc(state);
     }
 }
-
-/**
- * Set vector to FiringState.
- */
-export class SetVector implements IGun {
-    /**
-     * @param key key of vector
-     * @param vector vector
-     */
-    constructor(private readonly key: string,
-                private readonly vector: TConstantOrLazy<TVector2D >) {}
-
-    *play(state: IFiringState): IterableIterator<void> {
-        state.vectors.set(this.key, this.calcVector(state));
-    }
-
-    private calcVector(state: IFiringState): TVector2D {
-        if ('x' in this.vector) return this.vector;
-        return this.vector.calc(state);
-    }
-}
-
-/**
- * Add vector to FiringState.
- */
-export class AddVector implements IGun {
-    /**
-     * @param key key of vector
-     * @param vector vector would be added
-     */
-    constructor(private readonly key: string,
-                private readonly vector: TConstantOrLazy<TVector2D >) {}
-
-    *play(state: IFiringState): IterableIterator<void> {
-        const vec = state.vectors.get(this.key);
-        if (vec === undefined) throw new Error(`vector must exist at '${this.key}'`);
-        state.vectors.set(this.key, addVector(vec, this.calcVector(state)));
-    }
-
-    private calcVector(state: IFiringState): TVector2D {
-        if ('x' in this.vector) return this.vector;
-        return this.vector.calc(state);
-    }
-}
-
-const addVector = (vec1: TVector2D, vec2: TVector2D): TVector2D => {
-    return {
-        x: vec1.x + vec2.x,
-        y: vec1.y + vec2.y,
-    };
-};

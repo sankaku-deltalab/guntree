@@ -1,4 +1,4 @@
-import { IFiringState } from './gun';
+import { IFiringState } from './firing-state';
 
 export interface ILazyEvaluative<T> {
     /**

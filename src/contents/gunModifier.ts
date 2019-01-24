@@ -1,4 +1,3 @@
-import { TVector2D } from '../gun';
 import { TConstantOrLazy } from '../lazyEvaluative';
 import * as modO from '../elements/gunModifier';
 import * as le from '../contents/lazyEvaluative';
@@ -41,11 +40,3 @@ export const setText  = (key: string, text: TConstantOrLazy<string>) => {
 };
 
 export const setMuzzle = (muzzle: string) => setText('muzzle', muzzle);
-
-export const setVector  = (key: string, vector: TConstantOrLazy<TVector2D>) => {
-    return new modO.SetVector(key, vector);
-};
-
-export const addVector  = (key: string, vector: TConstantOrLazy<TVector2D>) => {
-    return new modO.AddVector(key, vector);
-};

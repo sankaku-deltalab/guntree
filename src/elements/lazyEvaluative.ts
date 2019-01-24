@@ -1,4 +1,4 @@
-import { IFiringState, TVector2D } from '../gun';
+import { IFiringState } from '../firing-state';
 import { ILazyEvaluative, TConstantOrLazy } from '../lazyEvaluative';
 
 export class Linear implements ILazyEvaluative<number> {
@@ -65,59 +65,6 @@ export class Round implements ILazyEvaluative<number> {
 }
 
 /**
- * Deal location.
- */
-export class GetLocation implements ILazyEvaluative<TVector2D> {
-    /**
-     *
-     * @param name name of location
-     */
-    constructor(private readonly name: string) {}
-
-    calc(state: IFiringState): TVector2D {
-        return state.player.getLocation(this.name);
-    }
-}
-
-/**
- * Deal direction between to locations.
- */
-export class CalcDirection implements ILazyEvaluative<number> {
-    /**
-     * @param src source of direction
-     * @param dest destination of direction
-     */
-    constructor(private readonly src: TConstantOrLazy<TVector2D >,
-                private readonly dest: TConstantOrLazy<TVector2D >) {}
-
-    calc(state: IFiringState): number {
-        const src = getVectorFromLazy(state, this.src);
-        const dest = getVectorFromLazy(state, this.dest);
-        const direction = [dest.x - src.x, dest.y - src.y];
-        const angleRad = Math.atan2(direction[1], direction[0]);
-        return 360 * angleRad / (2 * Math.PI);
-    }
-}
-
-/**
- * Deal globalized vector.
- */
-export class GlobalizeVector implements ILazyEvaluative<TVector2D> {
-    constructor(private readonly vector: TConstantOrLazy<TVector2D >,
-                private readonly angle: TConstantOrLazy<number>) {}
-
-    calc(state: IFiringState): TVector2D {
-        const vector = getVectorFromLazy(state, this.vector);
-        const angleDeg = getNumberFromLazy(state, this.angle);
-        const angleRad = angleDeg * 2 * Math.PI / 360;
-        return {
-            x: vector.x * Math.cos(angleRad) - vector.y * Math.sin(angleRad),
-            y: vector.x * Math.sin(angleRad) + vector.y * Math.cos(angleRad),
-        };
-    }
-}
-
-/**
  * Deal centerized linear values.
  *
  * example:
@@ -136,11 +83,6 @@ export class CenterizedLinear implements ILazyEvaluative<number> {
         return totalRange * rate - (totalRange - diff) / 2;
     }
 }
-
-const getVectorFromLazy = (state: IFiringState, vector: TConstantOrLazy<TVector2D >): TVector2D => {
-    if ('x' in vector && 'y' in vector) return vector;
-    return vector.calc(state);
-};
 
 const getNumberFromLazy = (state: IFiringState, value: TConstantOrLazy<number>): number => {
     if (typeof value === 'number') return value;
