@@ -35,3 +35,18 @@ export class SetParameterImmediately implements IGun {
         modifyImmediatelyOrLater(state, false, mod);
     }
 }
+
+export class ModifyParameter implements IGun {
+    constructor(private readonly name: string,
+                private readonly modifier: (stateConst: IFiringState, oldValue: number) => number) {}
+
+    *play(state: IFiringState): IterableIterator<void> {
+        const mod = (stateConst: IFiringState, fireData: IFireData) => {
+            const oldValue = fireData.parameters.get(this.name);
+            if (oldValue === undefined) throw new Error(`parameter <${this.name}> was not set`);
+            fireData.parameters.set(this.name, this.modifier(stateConst, oldValue));
+        };
+        modifyImmediatelyOrLater(state, true, mod);
+    }
+}
+
