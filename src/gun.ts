@@ -4,6 +4,9 @@ export interface IGun {
     play(state: IFiringState): IterableIterator<void>;
 }
 
+/**
+ * ModifierGun modify fireData.
+ */
 export class ModifierGun implements IGun {
     constructor(private readonly modifyTiming: 'immediately' | 'later',
                 private readonly modifierGenerator: (state: IFiringState) => TFireDataModifier) {}
