@@ -1,7 +1,21 @@
-import { IFiringState } from './firing-state';
+import { IFiringState, TFireDataModifier } from './firing-state';
 
 export interface IGun {
     play(state: IFiringState): IterableIterator<void>;
+}
+
+export class ModifierGun implements IGun {
+    constructor(private readonly modifyTiming: 'immediately' | 'later',
+                private readonly modifierGenerator: (state: IFiringState) => TFireDataModifier) {}
+
+    *play(state: IFiringState): IterableIterator<void> {
+        const modifier = this.modifierGenerator(state);
+        if (this.modifyTiming === 'immediately') {
+            modifier(state, state.fireData);
+        } else {
+            state.pushModifier(modifier);
+        }
+    }
 }
 
 /**

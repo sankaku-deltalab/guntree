@@ -46,6 +46,8 @@ export interface IFireData {
     copy(): IFireData;
 }
 
+export type TFireDataModifier = (state: IFiringState, fireData: IFireData) => void;
+
 /**
  * IRepeatStateManager manage repeating while firing.
  */
@@ -98,7 +100,7 @@ export class FiringState implements IFiringState {
     repeatStates: IRepeatStateManager;
 
     /** Function would applied to fireData when fire bullet, */
-    private readonly modifiers: ((state: IFiringState, fireData: IFireData) => void)[];
+    private readonly modifiers: TFireDataModifier[];
 
     constructor(readonly player: IPlayer) {
         this.fireData = new FireData();
@@ -111,7 +113,7 @@ export class FiringState implements IFiringState {
      *
      * @param modifier Function would applied when fire bullet
      */
-    pushModifier(modifier: (state: IFiringState, fireData: IFireData) => void): void {
+    pushModifier(modifier: TFireDataModifier): void {
         this.modifiers.push(modifier);
     }
 
