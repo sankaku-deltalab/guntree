@@ -1,8 +1,14 @@
-import { range } from 'lodash';
-
-import { IFiringState } from 'guntree/firing-state';
+import { IFiringState, IRepeatStateManager } from 'guntree/firing-state';
 import { ILazyEvaluative } from 'guntree/lazyEvaluative';
 import { Iterate } from 'guntree/elements/lazyEvaluative';
+
+const repeatStateManagerClass = jest.fn<IRepeatStateManager>((getFunc: jest.Mock) => ({
+    get: getFunc,
+}));
+
+const stateClass = jest.fn<IFiringState>((rsm: IRepeatStateManager) => ({
+    repeatStates: rsm,
+}));
 
 describe('#Iterate', () => {
     test.each`
@@ -12,10 +18,8 @@ describe('#Iterate', () => {
     ${[10, 20, 30]} | ${2}     | ${30}
     `('deal $expected when finished repeating is $finished and input is $input', ({ input, finished, expected }) => {
         // Given repeating progress
-        const stateClass = jest.fn<IFiringState>(() => ({
-            getRepeatState: jest.fn().mockReturnValueOnce({ finished, total: 3 }),
-        }));
-        const state = new stateClass();
+        const rsm = new repeatStateManagerClass(jest.fn().mockReturnValueOnce({ finished, total: 3 }));
+        const state = new stateClass(rsm);
 
         // When eval iterate
         const iterate = new Iterate(input);
@@ -27,10 +31,8 @@ describe('#Iterate', () => {
 
     test('deal default value when finished repeating is out of input', () => {
         // Given repeating progress
-        const stateClass = jest.fn<IFiringState>(() => ({
-            getRepeatState: jest.fn().mockReturnValueOnce({ finished: 2, total: 3 }),
-        }));
-        const state = new stateClass();
+        const rsm = new repeatStateManagerClass(jest.fn().mockReturnValueOnce({ finished: 2, total: 3 }));
+        const state = new stateClass(rsm);
 
         // When eval iterate with one length input and default
         const input = [0];
@@ -44,10 +46,8 @@ describe('#Iterate', () => {
 
     test('throw error if default is not in option and finished repeating is out of input', () => {
         // Given repeating progress
-        const stateClass = jest.fn<IFiringState>(() => ({
-            getRepeatState: jest.fn().mockReturnValueOnce({ finished: 2, total: 3 }),
-        }));
-        const state = new stateClass();
+        const rsm = new repeatStateManagerClass(jest.fn().mockReturnValueOnce({ finished: 2, total: 3 }));
+        const state = new stateClass(rsm);
 
         // When eval iterate with one length input without default
         for (const option of [undefined, {}]) {
@@ -61,12 +61,8 @@ describe('#Iterate', () => {
 
     test('use previous repeating if not specified target', () => {
         // Given repeating progress
-        const stateClass = jest.fn<IFiringState>(() => ({
-            getRepeatState: jest.fn().mockImplementation(() => {
-                return { finished: 3, total: 4 };
-            }),
-        }));
-        const state = new stateClass();
+        const rsm = new repeatStateManagerClass(jest.fn().mockReturnValueOnce({ finished: 3, total: 4 }));
+        const state = new stateClass(rsm);
 
         // When eval iterate without target
         const input = [0, 1, 2, 3];
@@ -81,14 +77,12 @@ describe('#Iterate', () => {
         const pairs: [string, number][] = [['a', 0], ['b', 1]];
         for (const [target, finished] of pairs) {
             // Given repeating progress
-            const stateClass = jest.fn<IFiringState>(() => ({
-                getRepeatState: jest.fn().mockImplementation((name: string) => {
-                    if (name === target) return { finished, total: 4 };
-                    if (name === 'c') return { finished: 2, total: 4 };
-                    return { finished: 3, total: 4 };
-                }),
+            const rsm = new repeatStateManagerClass(jest.fn().mockImplementation((name: string) => {
+                if (name === target) return { finished, total: 4 };
+                if (name === 'c') return { finished: 2, total: 4 };
+                return { finished: 3, total: 4 };
             }));
-            const state = new stateClass();
+            const state = new stateClass(rsm);
 
             // When eval iterate with target
             const input = [0, 1, 2, 3];
@@ -102,10 +96,8 @@ describe('#Iterate', () => {
 
     test('can use lazyEvaluative in array', () => {
         // Given repeating progress
-        const stateClass = jest.fn<IFiringState>(() => ({
-            getRepeatState: jest.fn().mockReturnValueOnce({ finished: 0, total: 3 }),
-        }));
-        const state = new stateClass();
+        const rsm = new repeatStateManagerClass(jest.fn().mockReturnValueOnce({ finished: 0, total: 3 }));
+        const state = new stateClass(rsm);
 
         // And lazyEvaluative
         const value = 1323;
