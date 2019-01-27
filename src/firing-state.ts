@@ -20,7 +20,7 @@ export interface IFiringState {
      *
      * @param modifier Function would applied when fire bullet
      */
-    pushModifier(modifier: (state: IFiringState, fireData: IFireData) => void): void;
+    pushModifier(modifier: TFireDataModifier): void;
 
     /** Calculate modified fire data. */
     calcModifiedFireData(): IFireData;
@@ -46,7 +46,7 @@ export interface IFireData {
     copy(): IFireData;
 }
 
-export type TFireDataModifier = (state: IFiringState, fireData: IFireData) => void;
+export type TFireDataModifier = (stateConst: IFiringState, fireData: IFireData) => void;
 
 /**
  * IRepeatStateManager manage repeating while firing.
