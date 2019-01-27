@@ -47,8 +47,8 @@ describe('#Transform', () => {
         const state = new FiringState(new (jest.fn<IPlayer>()));
 
         // And Transform
-        const leClass = jest.fn<ILazyEvaluative<mat.Matrix>>((trans: mat.Matrix) => ({
-            calc: jest.fn().mockReturnValueOnce(trans),
+        const leClass = jest.fn<ILazyEvaluative<mat.Matrix>>((t: mat.Matrix) => ({
+            calc: jest.fn().mockReturnValueOnce(t),
         }));
         const transRaw = mat.translate(5);
         const trans = new leClass(transRaw);
@@ -61,6 +61,6 @@ describe('#Transform', () => {
         const fireData = state.calcModifiedFireData();
 
         // Then transform in fireData was transformed
-        expect(fireData.transform).toEqual(trans);
+        expect(fireData.transform).toEqual(transRaw);
     });
 });

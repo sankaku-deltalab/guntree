@@ -20,6 +20,6 @@ export const calcValueFromConstantOrLazy = <T = number | string>(
 
 export const calcTransFormFromConstantOrLazy = (
         stateConst: IFiringState, value: TConstantOrLazy<Matrix>): Matrix => {
-    if ('a' in value) return value;
-    return (<ILazyEvaluative<Matrix>>value).calc(stateConst);
+    if ('calc' in value) return value.calc(stateConst);
+    return value;
 };
