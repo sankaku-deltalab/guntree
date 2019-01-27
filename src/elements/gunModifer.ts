@@ -23,3 +23,15 @@ export class Transform implements IGun {
         modifyImmediatelyOrLater(state, true, mod);
     }
 }
+
+export class SetParameterImmediately implements IGun {
+    constructor(private readonly name: string,
+                private readonly value: TConstantOrLazy<number>) {}
+
+    *play(state: IFiringState): IterableIterator<void> {
+        const mod = (stateConst: IFiringState, fireData: IFireData) => {
+            fireData.parameters.set(this.name, calcValueFromConstantOrLazy(stateConst, this.value));
+        };
+        modifyImmediatelyOrLater(state, false, mod);
+    }
+}
