@@ -50,3 +50,15 @@ export class ModifyParameter implements IGun {
     }
 }
 
+export class SetTextImmediately implements IGun {
+    constructor(private readonly name: string,
+                private readonly text: TConstantOrLazy<string>) {}
+
+    *play(state: IFiringState): IterableIterator<void> {
+        const text = calcValueFromConstantOrLazy(state, this.text);
+        const mod = (stateConst: IFiringState, fireData: IFireData) => {
+            fireData.texts.set(this.name, text);
+        };
+        modifyImmediatelyOrLater(state, false, mod);
+    }
+}
