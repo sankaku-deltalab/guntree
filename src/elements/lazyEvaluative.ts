@@ -1,5 +1,5 @@
 import { IFiringState } from '../firing-state';
-import { ILazyEvaluative, TConstantOrLazy } from '../lazyEvaluative';
+import { ILazyEvaluative, TConstantOrLazy, calcValueFromConstantOrLazy } from '../lazyEvaluative';
 
 export class Linear implements ILazyEvaluative<number> {
     constructor(private readonly start: TConstantOrLazy<number>,
@@ -7,8 +7,8 @@ export class Linear implements ILazyEvaluative<number> {
                 private readonly target?: string) {}
 
     calc(state: IFiringState): number {
-        const start = getNumberFromLazy(state, this.start);
-        const stop = getNumberFromLazy(state, this.stop);
+        const start = calcValueFromConstantOrLazy(state, this.start);
+        const stop = calcValueFromConstantOrLazy(state, this.stop);
         const repeat = state.repeatStates.get(this.target);
         const rate = repeat.finished / repeat.total;
         return stop * rate + start * (1 - rate);
@@ -76,15 +76,10 @@ export class CenterizedLinear implements ILazyEvaluative<number> {
                 private readonly target?: string) {}
 
     calc(state: IFiringState): number {
-        const totalRange = getNumberFromLazy(state, this.totalRange);
+        const totalRange = calcValueFromConstantOrLazy(state, this.totalRange);
         const repeat = state.repeatStates.get(this.target);
         const rate = repeat.finished / repeat.total;
         const diff = totalRange / repeat.total;
         return totalRange * rate - (totalRange - diff) / 2;
     }
 }
-
-const getNumberFromLazy = (state: IFiringState, value: TConstantOrLazy<number>): number => {
-    if (typeof value === 'number') return value;
-    return value.calc(state);
-};
