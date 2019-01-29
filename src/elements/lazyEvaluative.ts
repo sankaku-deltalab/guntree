@@ -1,3 +1,5 @@
+import * as mat from 'transformation-matrix';
+
 import { IFiringState } from '../firing-state';
 import { ILazyEvaluative, TConstantOrLazy, calcValueFromConstantOrLazy } from '../lazyEvaluative';
 
@@ -81,5 +83,32 @@ export class CenterizedLinear implements ILazyEvaluative<number> {
         const rate = repeat.finished / repeat.total;
         const diff = totalRange / repeat.total;
         return totalRange * rate - (totalRange - diff) / 2;
+    }
+}
+
+export type TCreateTransformOption = {
+    translate?: [number, number | undefined];
+    rotationDeg?: number;
+    scale?: [number, number | undefined];
+};
+
+export class CreateTransform implements ILazyEvaluative<mat.Matrix> {
+    constructor(private readonly option: TCreateTransformOption) {}
+
+    calc(state: IFiringState): mat.Matrix {
+        const tr = this.option.translate === undefined
+                   ? [0, 0]
+                   : this.option.translate;
+        const rot = this.option.rotationDeg === undefined
+                    ? 0
+                    : this.option.rotationDeg;
+        const sc = this.option.scale === undefined
+                   ? [1, 1]
+                   : this.option.scale;
+        return mat.transform(
+            mat.translate(tr[0], tr[1]),
+            mat.rotateDEG(rot),
+            mat.scale(sc[0], sc[1]),
+        );
     }
 }
