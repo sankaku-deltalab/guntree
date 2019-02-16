@@ -98,9 +98,23 @@ type TCreateTransformOptionFilled = {
     scale: TConstantOrLazy<number> | [TConstantOrLazy<number>, TConstantOrLazy<number>];
 };
 
+/**
+ * Create transform.
+ *
+ * example:
+ *
+ * new CreateTransform({
+ *     translation: [10, 0],
+ *     rotationDeg: 90,
+ *     scale: 1.25,
+ * });
+ */
 export class CreateTransform implements ILazyEvaluative<mat.Matrix> {
     private readonly option: TCreateTransformOptionFilled;
 
+    /**
+     * @param option Translation values
+     */
     constructor(option: TCreateTransformOption) {
         const defaultOption: TCreateTransformOptionFilled = {
             translation: 0,
