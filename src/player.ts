@@ -11,12 +11,10 @@ export interface IPlayer {
     tick(): void;
 
     notifyFired(data: IFireData, bullet: IBullet): void;
-    getMuzzleTransform(muzzle: string): mat.Matrix;
 }
 
 export interface IPlayerOwner {
     notifyFired(player: IPlayer, data: IFireData, bullet: IBullet): void;
-    getMuzzleTransform(muzzle: string): mat.Matrix;
 }
 
 export type TPlayerOption = {
@@ -94,9 +92,5 @@ export class Player implements IPlayer {
 
     notifyFired(data: IFireData, bullet: IBullet): void {
         this.owner.notifyFired(this, data, bullet);
-    }
-
-    getMuzzleTransform(muzzle: string): mat.Matrix {
-        return this.owner.getMuzzleTransform(muzzle);
     }
 }
