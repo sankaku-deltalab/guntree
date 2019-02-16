@@ -1,7 +1,7 @@
 import * as mat from 'transformation-matrix';
 
 import { IGun, IBullet } from './gun';
-import { IFiringState, FiringState } from './firing-state';
+import { IFiringState, FiringState, IFireData } from './firing-state';
 
 export interface IPlayer {
     isRunning: boolean;
@@ -10,12 +10,12 @@ export interface IPlayer {
     start(): void;
     tick(): void;
 
-    notifyFired(state: IFiringState, bullet: IBullet): void;
+    notifyFired(data: IFireData, bullet: IBullet): void;
     getMuzzleTransform(muzzle: string): mat.Matrix;
 }
 
 export interface IPlayerOwner {
-    notifyFired(player: IPlayer, state: IFiringState, bullet: IBullet): void;
+    notifyFired(player: IPlayer, data: IFireData, bullet: IBullet): void;
     getMuzzleTransform(muzzle: string): mat.Matrix;
 }
 
@@ -92,8 +92,8 @@ export class Player implements IPlayer {
         return true;
     }
 
-    notifyFired(state: IFiringState, bullet: IBullet): void {
-        this.owner.notifyFired(this, state, bullet);
+    notifyFired(data: IFireData, bullet: IBullet): void {
+        this.owner.notifyFired(this, data, bullet);
     }
 
     getMuzzleTransform(muzzle: string): mat.Matrix {

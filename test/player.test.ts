@@ -1,7 +1,7 @@
 import { range } from 'lodash';
 
 import { IGun, IBullet } from 'guntree/gun';
-import { IFiringState } from 'guntree/firing-state';
+import { IFiringState, IFireData } from 'guntree/firing-state';
 import { Player, IPlayerOwner } from 'guntree/player';
 
 const createGun = (frames: number): IGun => {
@@ -85,13 +85,13 @@ describe('#Player', () => {
         const player = new Player(owner);
 
         // When player notified fired
-        const state = createEmptyMock<IFiringState>();
+        const data = createEmptyMock<IFireData>();
         const bullet = createEmptyMock<IBullet>();
-        player.notifyFired(state, bullet);
+        player.notifyFired(data, bullet);
 
         // Then owner notified fired
         expect(owner.notifyFired).toBeCalledTimes(1);
-        expect(owner.notifyFired).toBeCalledWith(player, state, bullet);
+        expect(owner.notifyFired).toBeCalledWith(player, data, bullet);
     });
 
     test.each`

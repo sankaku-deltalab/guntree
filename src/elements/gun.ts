@@ -14,7 +14,7 @@ export class Fire implements IGun {
     constructor(private readonly bullet: IBullet) {}
 
     *play(state: IFiringState): IterableIterator<void> {
-        state.player.notifyFired(state, this.bullet);
+        state.player.notifyFired(state.calcModifiedFireData(), this.bullet);
     }
 }
 
