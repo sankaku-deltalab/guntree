@@ -87,13 +87,13 @@ export class CenterizedLinear implements ILazyEvaluative<number> {
 }
 
 export type TCreateTransformOption = {
-    translate?: TConstantOrLazy<number> | [TConstantOrLazy<number>, TConstantOrLazy<number>];
+    translation?: TConstantOrLazy<number> | [TConstantOrLazy<number>, TConstantOrLazy<number>];
     rotationDeg?: TConstantOrLazy<number>;
     scale?: TConstantOrLazy<number> | [TConstantOrLazy<number>, TConstantOrLazy<number>];
 };
 
 type TCreateTransformOptionFilled = {
-    translate: TConstantOrLazy<number> | [TConstantOrLazy<number>, TConstantOrLazy<number>];
+    translation: TConstantOrLazy<number> | [TConstantOrLazy<number>, TConstantOrLazy<number>];
     rotationDeg: TConstantOrLazy<number>;
     scale: TConstantOrLazy<number> | [TConstantOrLazy<number>, TConstantOrLazy<number>];
 };
@@ -103,7 +103,7 @@ export class CreateTransform implements ILazyEvaluative<mat.Matrix> {
 
     constructor(option: TCreateTransformOption) {
         const defaultOption: TCreateTransformOptionFilled = {
-            translate: 0,
+            translation: 0,
             rotationDeg: 0,
             scale: 1,
         };
@@ -112,9 +112,9 @@ export class CreateTransform implements ILazyEvaluative<mat.Matrix> {
 
     calc(state: IFiringState): mat.Matrix {
         const tr: [number, number | undefined] =
-            Array.isArray(this.option.translate)
-            ? calcTupleLe(state, this.option.translate)
-            : [calcValueFromConstantOrLazy(state, this.option.translate), undefined];
+            Array.isArray(this.option.translation)
+            ? calcTupleLe(state, this.option.translation)
+            : [calcValueFromConstantOrLazy(state, this.option.translation), undefined];
         const rot = calcValueFromConstantOrLazy(state, this.option.rotationDeg);
         const sc: [number, number | undefined] =
             Array.isArray(this.option.scale)

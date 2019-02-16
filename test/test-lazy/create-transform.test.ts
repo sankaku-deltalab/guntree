@@ -14,51 +14,51 @@ const matKeys: ['a', 'b', 'c', 'd', 'e', 'f'] = ['a', 'b', 'c', 'd', 'e', 'f'];
 
 describe('#CreateTransform', () => {
     test.each`
-    translate
+    translation
     ${-1}
     ${0}
     ${0.5}
     ${1}
     ${1.2}
-    `('can use translate with single value', ({ translate }) => {
+    `('can use translation with single value', ({ translation }) => {
         // Given repeating progress
         const state = new stateClass();
 
-        // And CreateTransform with translate
-        const createTrans = new CreateTransform({ translate });
+        // And CreateTransform with translation
+        const createTrans = new CreateTransform({ translation });
 
         // When eval CreateTransform
         const actual = createTrans.calc(state);
 
         // Then translated matrix was dealt
-        const expected = mat.translate(translate);
+        const expected = mat.translate(translation);
         for (const key of matKeys) {
             expect(actual[key]).toBeCloseTo(expected[key]);
         }
     });
 
     test.each`
-    translate
+    translation
     ${-1}
     ${0}
     ${0.5}
     ${1}
     ${1.2}
-    `('can use translate with single lazyEvaluative value', ({ translate }) => {
+    `('can use translation with single lazyEvaluative value', ({ translation }) => {
         // Given repeating progress
         const state = new stateClass();
 
-        // And translate as lazyEvaluative
-        const translateLe = new leClassCalcValueOnce(translate);
+        // And translation as lazyEvaluative
+        const translationLe = new leClassCalcValueOnce(translation);
 
-        // And CreateTransform with translate
-        const createTrans = new CreateTransform({ translate: translateLe });
+        // And CreateTransform with translation
+        const createTrans = new CreateTransform({ translation: translationLe });
 
         // When eval CreateTransform
         const actual = createTrans.calc(state);
 
         // Then translated matrix was dealt
-        const expected = mat.translate(translate);
+        const expected = mat.translate(translation);
         for (const key of matKeys) {
             expect(actual[key]).toBeCloseTo(expected[key]);
         }
@@ -69,12 +69,12 @@ describe('#CreateTransform', () => {
     ${-1}   | ${0}
     ${0}    | ${8}
     ${0.5}  | ${10}
-    `('can use translate with double value', ({ tx, ty }) => {
+    `('can use translation with double value', ({ tx, ty }) => {
         // Given repeating progress
         const state = new stateClass();
 
-        // And CreateTransform with translate
-        const createTrans = new CreateTransform({ translate: [tx, ty] });
+        // And CreateTransform with translation
+        const createTrans = new CreateTransform({ translation: [tx, ty] });
 
         // When eval CreateTransform
         const actual = createTrans.calc(state);
@@ -91,16 +91,16 @@ describe('#CreateTransform', () => {
     ${-1}   | ${0}
     ${0}    | ${8}
     ${0.5}  | ${10}
-    `('can use translate with double lazyEvaluative values', ({ tx, ty }) => {
+    `('can use translation with double lazyEvaluative values', ({ tx, ty }) => {
         // Given repeating progress
         const state = new stateClass();
 
-        // And translate as lazyEvaluative
+        // And translation as lazyEvaluative
         const txLe = new leClassCalcValueOnce(tx);
         const tyLe = new leClassCalcValueOnce(ty);
 
-        // And CreateTransform with translate
-        const createTrans = new CreateTransform({ translate: [txLe, tyLe] });
+        // And CreateTransform with translation
+        const createTrans = new CreateTransform({ translation: [txLe, tyLe] });
 
         // When eval CreateTransform
         const actual = createTrans.calc(state);
