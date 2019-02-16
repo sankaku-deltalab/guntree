@@ -10,13 +10,65 @@ const matKeys: ['a', 'b', 'c', 'd', 'e', 'f'] = ['a', 'b', 'c', 'd', 'e', 'f'];
 
 describe('#CreateTransform', () => {
     test.each`
+    translate
+    ${-1}
+    ${0}
+    ${0.5}
+    ${1}
+    ${1.2}
+    `('can use translate with single value', ({ translate }) => {
+        // Given repeating progress
+        const state = new stateClass();
+
+        // And CreateTransform with translate
+        const createTrans = new CreateTransform({ translate });
+
+        // When eval CreateTransform
+        const actual = createTrans.calc(state);
+
+        // Then translated matrix was dealt
+        const expected = mat.translate(translate);
+        for (const key of matKeys) {
+            expect(actual[key]).toBeCloseTo(expected[key]);
+        }
+    });
+
+    test.each`
+    translate
+    ${-1}
+    ${0}
+    ${0.5}
+    ${1}
+    ${1.2}
+    `('can use translate with single lazyEvaluative value', ({ translate }) => {
+        // Given repeating progress
+        const state = new stateClass();
+
+        // And translate as lazyEvaluative
+        const leClass = jest.fn<ILazyEvaluative<number>>((val: number) => ({
+            calc: jest.fn().mockReturnValueOnce(val),
+        }));
+        const translateLe = new leClass(translate);
+
+        // And CreateTransform with translate
+        const createTrans = new CreateTransform({ translate: translateLe });
+
+        // When eval CreateTransform
+        const actual = createTrans.calc(state);
+
+        // Then translated matrix was dealt
+        const expected = mat.translate(translate);
+        for (const key of matKeys) {
+            expect(actual[key]).toBeCloseTo(expected[key]);
+        }
+    });
+
+    test.each`
     tx      | ty
     ${-1}   | ${0}
     ${0}    | ${8}
     ${0.5}  | ${10}
-    ${1}    | ${undefined}
-    ${1.2}  | ${undefined}
-    `('can use translate', ({ tx, ty }) => {
+    `('can use translate with double value', ({ tx, ty }) => {
         // Given repeating progress
         const state = new stateClass();
 
@@ -32,14 +84,13 @@ describe('#CreateTransform', () => {
             expect(actual[key]).toBeCloseTo(expected[key]);
         }
     });
+
     test.each`
     tx      | ty
     ${-1}   | ${0}
     ${0}    | ${8}
     ${0.5}  | ${10}
-    ${1}    | ${undefined}
-    ${1.2}  | ${undefined}
-    `('can use translate with lazyEvaluative numbers', ({ tx, ty }) => {
+    `('can use translate with double lazyEvaluative values', ({ tx, ty }) => {
         // Given repeating progress
         const state = new stateClass();
 
@@ -48,7 +99,7 @@ describe('#CreateTransform', () => {
             calc: jest.fn().mockReturnValueOnce(val),
         }));
         const txLe = new leClass(tx);
-        const tyLe = ty === undefined ? undefined : new leClass(ty);
+        const tyLe = new leClass(ty);
 
         // And CreateTransform with translate
         const createTrans = new CreateTransform({ translate: [txLe, tyLe] });
@@ -116,15 +167,66 @@ describe('#CreateTransform', () => {
             expect(actual[key]).toBeCloseTo(expected[key]);
         }
     });
+    test.each`
+    scale
+    ${-1}
+    ${0}
+    ${0.5}
+    ${1}
+    ${1.2}
+    `('can use scale with single value', ({ scale }) => {
+        // Given repeating progress
+        const state = new stateClass();
+
+        // And CreateTransform with scale
+        const createTrans = new CreateTransform({ scale });
+
+        // When eval CreateTransform
+        const actual = createTrans.calc(state);
+
+        // Then scale matrix was dealt
+        const expected = mat.scale(scale);
+        for (const key of matKeys) {
+            expect(actual[key]).toBeCloseTo(expected[key]);
+        }
+    });
+
+    test.each`
+    scale
+    ${-1}
+    ${0}
+    ${0.5}
+    ${1}
+    ${1.2}
+    `('can use scale with single lazyEvaluative value', ({ scale }) => {
+        // Given repeating progress
+        const state = new stateClass();
+
+        // And scale as lazyEvaluative
+        const leClass = jest.fn<ILazyEvaluative<number>>((val: number) => ({
+            calc: jest.fn().mockReturnValueOnce(val),
+        }));
+        const scaleLe = new leClass(scale);
+
+        // And CreateTransform with scale
+        const createTrans = new CreateTransform({ scale: scaleLe });
+
+        // When eval CreateTransform
+        const actual = createTrans.calc(state);
+
+        // Then scale matrix was dealt
+        const expected = mat.scale(scale);
+        for (const key of matKeys) {
+            expect(actual[key]).toBeCloseTo(expected[key]);
+        }
+    });
 
     test.each`
     sx      | sy
     ${-1}   | ${0}
     ${0}    | ${8}
     ${0.5}  | ${10}
-    ${1}    | ${undefined}
-    ${1.2}  | ${undefined}
-    `('can use scale', ({ sx, sy }) => {
+    `('can use scale with double value', ({ sx, sy }) => {
         // Given repeating progress
         const state = new stateClass();
 
@@ -146,9 +248,7 @@ describe('#CreateTransform', () => {
     ${-1}   | ${0}
     ${0}    | ${8}
     ${0.5}  | ${10}
-    ${1}    | ${undefined}
-    ${1.2}  | ${undefined}
-    `('can use scale with lazyEvaluative numbers', ({ sx, sy }) => {
+    `('can use scale with single lazyEvaluative value', ({ sx, sy }) => {
         // Given repeating progress
         const state = new stateClass();
 
@@ -157,7 +257,7 @@ describe('#CreateTransform', () => {
             calc: jest.fn().mockReturnValueOnce(val),
         }));
         const sxLe = new leClass(sx);
-        const syLe = sy === undefined ? undefined : new leClass(sy);
+        const syLe = new leClass(sy);
 
         // And CreateTransform with scale
         const createTrans = new CreateTransform({ scale: [sxLe, syLe] });
