@@ -6,6 +6,10 @@ import { CreateTransform } from 'guntree/elements/lazyEvaluative';
 
 const stateClass = jest.fn<IFiringState>();
 
+const leClassCalcValueOnce = jest.fn<ILazyEvaluative<number>>((val: number) => ({
+    calc: jest.fn().mockReturnValueOnce(val),
+}));
+
 const matKeys: ['a', 'b', 'c', 'd', 'e', 'f'] = ['a', 'b', 'c', 'd', 'e', 'f'];
 
 describe('#CreateTransform', () => {
@@ -45,10 +49,7 @@ describe('#CreateTransform', () => {
         const state = new stateClass();
 
         // And translate as lazyEvaluative
-        const leClass = jest.fn<ILazyEvaluative<number>>((val: number) => ({
-            calc: jest.fn().mockReturnValueOnce(val),
-        }));
-        const translateLe = new leClass(translate);
+        const translateLe = new leClassCalcValueOnce(translate);
 
         // And CreateTransform with translate
         const createTrans = new CreateTransform({ translate: translateLe });
@@ -95,11 +96,8 @@ describe('#CreateTransform', () => {
         const state = new stateClass();
 
         // And translate as lazyEvaluative
-        const leClass = jest.fn<ILazyEvaluative<number>>((val: number) => ({
-            calc: jest.fn().mockReturnValueOnce(val),
-        }));
-        const txLe = new leClass(tx);
-        const tyLe = new leClass(ty);
+        const txLe = new leClassCalcValueOnce(tx);
+        const tyLe = new leClassCalcValueOnce(ty);
 
         // And CreateTransform with translate
         const createTrans = new CreateTransform({ translate: [txLe, tyLe] });
@@ -150,10 +148,7 @@ describe('#CreateTransform', () => {
         const state = new stateClass();
 
         // And angle as lazyEvaluative
-        const leClass = jest.fn<ILazyEvaluative<number>>((val: number) => ({
-            calc: jest.fn().mockReturnValueOnce(val),
-        }));
-        const leRot = new leClass(rotationDeg);
+        const leRot = new leClassCalcValueOnce(rotationDeg);
 
         // And CreateTransform with angleDeg
         const createTrans = new CreateTransform({ rotationDeg: leRot });
@@ -203,10 +198,7 @@ describe('#CreateTransform', () => {
         const state = new stateClass();
 
         // And scale as lazyEvaluative
-        const leClass = jest.fn<ILazyEvaluative<number>>((val: number) => ({
-            calc: jest.fn().mockReturnValueOnce(val),
-        }));
-        const scaleLe = new leClass(scale);
+        const scaleLe = new leClassCalcValueOnce(scale);
 
         // And CreateTransform with scale
         const createTrans = new CreateTransform({ scale: scaleLe });
@@ -253,11 +245,8 @@ describe('#CreateTransform', () => {
         const state = new stateClass();
 
         // And scale as lazyEvaluative
-        const leClass = jest.fn<ILazyEvaluative<number>>((val: number) => ({
-            calc: jest.fn().mockReturnValueOnce(val),
-        }));
-        const sxLe = new leClass(sx);
-        const syLe = new leClass(sy);
+        const sxLe = new leClassCalcValueOnce(sx);
+        const syLe = new leClassCalcValueOnce(sy);
 
         // And CreateTransform with scale
         const createTrans = new CreateTransform({ scale: [sxLe, syLe] });
