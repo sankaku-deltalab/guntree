@@ -92,27 +92,34 @@ export type TCreateTransformOption = {
     scale?: [TConstantOrLazy<number>, TConstantOrLazy<number> | undefined];
 };
 
+type TCreateTransformOptionFilled = {
+    translate: [TConstantOrLazy<number>, TConstantOrLazy<number> | undefined];
+    rotationDeg: TConstantOrLazy<number>;
+    scale: [TConstantOrLazy<number>, TConstantOrLazy<number> | undefined];
+};
+
 export class CreateTransform implements ILazyEvaluative<mat.Matrix> {
-    constructor(private readonly option: TCreateTransformOption) {}
+    private readonly option: TCreateTransformOptionFilled;
+
+    constructor(option: TCreateTransformOption) {
+        const defaultOption: TCreateTransformOptionFilled = {
+            translate: [0, 0],
+            rotationDeg: 0,
+            scale: [1, 1],
+        };
+        this.option = Object.assign(defaultOption, option);
+    }
 
     calc(state: IFiringState): mat.Matrix {
-        const tr = this.option.translate === undefined
-                   ? [0, 0]
-                   : this.option.translate;
-        const rot = this.option.rotationDeg === undefined
-                    ? 0
-                    : calcValueFromConstantOrLazy(state, this.option.rotationDeg);
-        const sc = this.option.scale === undefined
-                   ? [1, 1]
-                   : this.option.scale;
-        const tr0 = calcValueFromConstantOrLazy(state, tr[0]);
-        const tr1 = tr[1] === undefined
+        const tr0 = calcValueFromConstantOrLazy(state, this.option.translate[0]);
+        const tr1 = this.option.translate[1] === undefined
                     ? undefined
-                    : calcValueFromConstantOrLazy(state, tr[1]);
-        const sc0 = calcValueFromConstantOrLazy(state, sc[0]);
-        const sc1 = sc[1] === undefined
+                    : calcValueFromConstantOrLazy(state, this.option.translate[1]);
+        const rot = calcValueFromConstantOrLazy(state, this.option.rotationDeg);
+        const sc0 = calcValueFromConstantOrLazy(state, this.option.scale[0]);
+        const sc1 = this.option.scale[1] === undefined
                     ? undefined
-                    : calcValueFromConstantOrLazy(state, sc[1]);
+                    : calcValueFromConstantOrLazy(state, this.option.scale[1]);
         return mat.transform(
             mat.translate(tr0, tr1),
             mat.rotateDEG(rot),
