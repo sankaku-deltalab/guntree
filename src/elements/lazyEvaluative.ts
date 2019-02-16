@@ -87,7 +87,7 @@ export class CenterizedLinear implements ILazyEvaluative<number> {
 }
 
 export type TCreateTransformOption = {
-    translate?: [number, number | undefined];
+    translate?: [TConstantOrLazy<number>, TConstantOrLazy<number> | undefined];
     rotationDeg?: number;
     scale?: [number, number | undefined];
 };
@@ -105,8 +105,12 @@ export class CreateTransform implements ILazyEvaluative<mat.Matrix> {
         const sc = this.option.scale === undefined
                    ? [1, 1]
                    : this.option.scale;
+        const tr0 = calcValueFromConstantOrLazy(state, tr[0]);
+        const tr1 = tr[1] === undefined
+                    ? undefined
+                    : calcValueFromConstantOrLazy(state, tr[1]);
         return mat.transform(
-            mat.translate(tr[0], tr[1]),
+            mat.translate(tr0, tr1),
             mat.rotateDEG(rot),
             mat.scale(sc[0], sc[1]),
         );

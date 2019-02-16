@@ -1,6 +1,7 @@
 import * as mat from 'transformation-matrix';
 
 import { IFiringState } from 'guntree/firing-state';
+import { ILazyEvaluative } from 'guntree/lazyEvaluative';
 import { CreateTransform } from 'guntree/elements/lazyEvaluative';
 
 const stateClass = jest.fn<IFiringState>();
@@ -21,6 +22,36 @@ describe('#CreateTransform', () => {
 
         // And CreateTransform with translate
         const createTrans = new CreateTransform({ translate: [tx, ty] });
+
+        // When eval CreateTransform
+        const actual = createTrans.calc(state);
+
+        // Then translated matrix was dealt
+        const expected = mat.translate(tx, ty);
+        for (const key of matKeys) {
+            expect(actual[key]).toBeCloseTo(expected[key]);
+        }
+    });
+    test.each`
+    tx      | ty
+    ${-1}   | ${0}
+    ${0}    | ${8}
+    ${0.5}  | ${10}
+    ${1}    | ${undefined}
+    ${1.2}  | ${undefined}
+    `('can use translate with lazyEvaluative numbers', ({ tx, ty }) => {
+        // Given repeating progress
+        const state = new stateClass();
+
+        // And translate as lazyEvaluative
+        const leClass = jest.fn<ILazyEvaluative<number>>((val: number) => ({
+            calc: jest.fn().mockReturnValueOnce(val),
+        }));
+        const txLe = new leClass(tx);
+        const tyLe = ty === undefined ? undefined : new leClass(ty);
+
+        // And CreateTransform with translate
+        const createTrans = new CreateTransform({ translate: [txLe, tyLe] });
 
         // When eval CreateTransform
         const actual = createTrans.calc(state);
