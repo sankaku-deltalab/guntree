@@ -1,3 +1,5 @@
+import * as mat from 'transformation-matrix';
+
 import { IGun, IBullet } from './gun';
 import { IFiringState, FiringState } from './firing-state';
 
@@ -9,10 +11,12 @@ export interface IPlayer {
     tick(): void;
 
     notifyFired(state: IFiringState, bullet: IBullet): void;
+    getMuzzleTransform(muzzle: string): mat.Matrix;
 }
 
 export interface IPlayerOwner {
     notifyFired(player: IPlayer, state: IFiringState, bullet: IBullet): void;
+    getMuzzleTransform(muzzle: string): mat.Matrix;
 }
 
 export type TPlayerOption = {
@@ -92,5 +96,9 @@ export class Player implements IPlayer {
 
     notifyFired(state: IFiringState, bullet: IBullet): void {
         this.owner.notifyFired(this, state, bullet);
+    }
+
+    getMuzzleTransform(muzzle: string): mat.Matrix {
+        return this.owner.getMuzzleTransform(muzzle);
     }
 }

@@ -19,3 +19,7 @@ export type TAddNWayAngleOption = {
 };
 
 export const nWayAngle = (option: TAddNWayAngleOption) => new leO.CenterizedLinear(option.totalAngle, option.name);
+
+export const createTransform = (option: leO.TCreateTransformOption) => new leO.CreateTransform(option);
+
+export const getMuzzleTransform = () => new leO.GetMuzzleTransform();
