@@ -88,6 +88,36 @@ describe('#CreateTransform', () => {
     });
 
     test.each`
+    rotationDeg
+    ${0}
+    ${30}
+    ${90}
+    ${-45}
+    ${720}
+    `('can use rotate as degrees with lazyEvaluative number', ({ rotationDeg }) => {
+        // Given repeating progress
+        const state = new stateClass();
+
+        // And angle as lazyEvaluative
+        const leClass = jest.fn<ILazyEvaluative<number>>((val: number) => ({
+            calc: jest.fn().mockReturnValueOnce(val),
+        }));
+        const leRot = new leClass(rotationDeg);
+
+        // And CreateTransform with angleDeg
+        const createTrans = new CreateTransform({ rotationDeg: leRot });
+
+        // When eval CreateTransform
+        const actual = createTrans.calc(state);
+
+        // Then rotated matrix was dealt
+        const expected = mat.rotateDEG(rotationDeg);
+        for (const key of matKeys) {
+            expect(actual[key]).toBeCloseTo(expected[key]);
+        }
+    });
+
+    test.each`
     sx      | sy
     ${-1}   | ${0}
     ${0}    | ${8}
