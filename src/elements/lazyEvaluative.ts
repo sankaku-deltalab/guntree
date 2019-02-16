@@ -142,19 +142,6 @@ export class CreateTransform implements ILazyEvaluative<mat.Matrix> {
     }
 }
 
-/**
- * Get muzzle transform from player owner.
- */
-export class GetMuzzleTransform implements ILazyEvaluative<mat.Matrix> {
-    constructor() {}
-
-    calc(state: IFiringState): mat.Matrix {
-        const muzzle = state.fireData.texts.get('muzzle');
-        if (muzzle === undefined) throw new Error('muzzle is not defined');
-        return state.player.getMuzzleTransform(muzzle);
-    }
-}
-
 const calcTupleLe = (
         state: IFiringState,
         tuple: [TConstantOrLazy<number>, TConstantOrLazy<number>]): [number, number | undefined] => {

@@ -36,6 +36,9 @@ export interface IFireData {
     /** Bullet spawning transform. */
     transform: mat.Matrix;
 
+    /** Muzzle name fire bullet */
+    muzzle: string | null;
+
     /** Parameters express real value. */
     parameters: Map<string, number>;
 
@@ -136,6 +139,9 @@ export class FireData implements IFireData {
     /** Bullet spawning transform. */
     transform: mat.Matrix;
 
+    /** Muzzle name fire bullet */
+    muzzle: string | null;
+
     /** Parameters express real value. */
     parameters: Map<string, number>;
 
@@ -144,6 +150,7 @@ export class FireData implements IFireData {
 
     constructor() {
         this.transform = mat.translate(0);
+        this.muzzle = null;
         this.parameters = new Map();
         this.texts = new Map();
     }

@@ -72,9 +72,7 @@ export class Player implements IPlayer {
     }
 
     private initTexts(state: IFiringState): void {
-        let initialTexts: [string, string][] = [
-            ['muzzle', '__undefined'],
-        ];
+        let initialTexts: [string, string][] = [];
         if (this.option.additionalTexts !== undefined) {
             const additional = Object.entries(this.option.additionalTexts);
             initialTexts = initialTexts.concat(additional);
