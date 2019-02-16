@@ -140,4 +140,35 @@ describe('#CreateTransform', () => {
             expect(actual[key]).toBeCloseTo(expected[key]);
         }
     });
+
+    test.each`
+    sx      | sy
+    ${-1}   | ${0}
+    ${0}    | ${8}
+    ${0.5}  | ${10}
+    ${1}    | ${undefined}
+    ${1.2}  | ${undefined}
+    `('can use scale with lazyEvaluative numbers', ({ sx, sy }) => {
+        // Given repeating progress
+        const state = new stateClass();
+
+        // And scale as lazyEvaluative
+        const leClass = jest.fn<ILazyEvaluative<number>>((val: number) => ({
+            calc: jest.fn().mockReturnValueOnce(val),
+        }));
+        const sxLe = new leClass(sx);
+        const syLe = sy === undefined ? undefined : new leClass(sy);
+
+        // And CreateTransform with scale
+        const createTrans = new CreateTransform({ scale: [sxLe, syLe] });
+
+        // When eval CreateTransform
+        const actual = createTrans.calc(state);
+
+        // Then rotated matrix was dealt
+        const expected = mat.scale(sx, sy);
+        for (const key of matKeys) {
+            expect(actual[key]).toBeCloseTo(expected[key]);
+        }
+    });
 });
