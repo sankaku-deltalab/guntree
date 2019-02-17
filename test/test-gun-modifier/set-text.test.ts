@@ -1,49 +1,66 @@
-import { IFiringState } from 'guntree/gun';
-import { SetText } from 'guntree/elements/gunModifier';
+import { IFiringState } from 'guntree/firing-state';
+import { SetTextImmediately } from 'guntree/elements/gunModifer';
 import { ILazyEvaluative } from 'guntree/lazyEvaluative';
 
-describe('#SetText', () => {
-    test('set text with string', () => {
-        // Given SetText gun
-        const key = 'a';
-        const text = 'b';
-        const setText = new SetText(key, text);
-
-        // And FiringState
-        const firingStateClass = jest.fn<IFiringState>(() => ({
-            texts: new Map(),
+describe('#SetTextImmediately', () => {
+    test('can set text with unset name', () => {
+        // Given firing state
+        const stateClass = jest.fn<IFiringState>(() => ({
+            fireData: { texts: new Map() },
         }));
-        const state = new firingStateClass();
+        const state = new stateClass();
 
-        // When play SetText
+        // And SetTextImmediately
+        const name = 'a';
+        const text = 'aa';
+        const setText = new SetTextImmediately(name, text);
+
+        // When play SetTextImmediately
         setText.play(state).next();
 
-        // Then FiringState has text
-        expect(state.texts.get(key)).toBe(text);
+        // Then text was set
+        expect(state.fireData.texts.get(name)).toBe(text);
     });
 
-    test('set text with lazyEvaluative deal string', () => {
-        // Given lazyEvaluative
-        const text = 'b';
-        const leClass = jest.fn<ILazyEvaluative<string>>((value: string) => ({
-            calc: jest.fn().mockReturnValue(value),
+    test('can set text with already set name', () => {
+        // Given firing state
+        const name = 'a';
+        const text = 'aa';
+        const stateClass = jest.fn<IFiringState>(() => ({
+            fireData: { texts: new Map([[name, `${text}b`]]) },
         }));
-        const le = new leClass(text);
+        const state = new stateClass();
 
-        // And SetText gun
-        const key = 'a';
-        const setText = new SetText(key, le);
+        // And SetTextImmediately
+        const setText = new SetTextImmediately(name, text);
 
-        // And FiringState
-        const firingStateClass = jest.fn<IFiringState>(() => ({
-            texts: new Map(),
-        }));
-        const state = new firingStateClass();
-
-        // When play SetText
+        // When play SetTextImmediately
         setText.play(state).next();
 
-        // Then FiringState has text
-        expect(state.texts.get(key)).toBe(text);
+        // Then text was set
+        expect(state.fireData.texts.get(name)).toBe(text);
+    });
+
+    test('can set text with lazyEvaluative text', () => {
+        // Given firing state
+        const stateClass = jest.fn<IFiringState>(() => ({
+            fireData: { texts: new Map() },
+        }));
+        const state = new stateClass();
+
+        // And SetTextImmediately
+        const leClass = jest.fn<ILazyEvaluative<string>>((t: string) => ({
+            calc: jest.fn().mockReturnValueOnce(t),
+        }));
+        const name = 'a';
+        const text = 'aa';
+        const textLe = new leClass(text);
+        const setText = new SetTextImmediately(name, textLe);
+
+        // When play SetTextImmediately
+        setText.play(state).next();
+
+        // Then text was set
+        expect(state.fireData.texts.get(name)).toBe(text);
     });
 });

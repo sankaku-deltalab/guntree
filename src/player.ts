@@ -1,5 +1,7 @@
-import { IFiringState, TVector2D, FiringState, IGun, IBullet } from './gun';
-import { Parameter } from './parameter';
+import * as mat from 'transformation-matrix';
+
+import { IGun, IBullet } from './gun';
+import { IFiringState, FiringState, IFireData } from './firing-state';
 
 export interface IPlayer {
     isRunning: boolean;
@@ -8,13 +10,11 @@ export interface IPlayer {
     start(): void;
     tick(): void;
 
-    notifyFired(state: IFiringState, bullet: IBullet): void;
-    getLocation(name: string): TVector2D;
+    notifyFired(data: IFireData, bullet: IBullet): void;
 }
 
 export interface IPlayerOwner {
-    notifyFired(player: IPlayer, state: IFiringState, bullet: IBullet): void;
-    getLocation(player: IPlayer, name: string): TVector2D;
+    notifyFired(player: IPlayer, data: IFireData, bullet: IBullet): void;
 }
 
 export type TPlayerOption = {
@@ -65,20 +65,18 @@ export class Player implements IPlayer {
             initialParameters = initialParameters.concat(additional);
         }
         for (const [key, value] of initialParameters) {
-            state.parameters.set(key, new Parameter(value));
+            state.fireData.parameters.set(key, value);
         }
     }
 
     private initTexts(state: IFiringState): void {
-        let initialTexts: [string, string][] = [
-            ['muzzle', '__undefined'],
-        ];
+        let initialTexts: [string, string][] = [];
         if (this.option.additionalTexts !== undefined) {
             const additional = Object.entries(this.option.additionalTexts);
             initialTexts = initialTexts.concat(additional);
         }
         for (const [key, value] of initialTexts) {
-            state.texts.set(key, value);
+            state.fireData.texts.set(key, value);
         }
     }
 
@@ -92,11 +90,7 @@ export class Player implements IPlayer {
         return true;
     }
 
-    notifyFired(state: IFiringState, bullet: IBullet): void {
-        this.owner.notifyFired(this, state, bullet);
-    }
-
-    getLocation(name: string): TVector2D {
-        return this.owner.getLocation(this, name);
+    notifyFired(data: IFireData, bullet: IBullet): void {
+        this.owner.notifyFired(this, data, bullet);
     }
 }

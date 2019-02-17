@@ -1,231 +1,67 @@
-import { range } from 'lodash';
-
-import { IRepeatState, FiringState } from 'guntree/gun';
-import { Parameter } from 'guntree/parameter';
+import { FiringState } from 'guntree/firing-state';
 import { IPlayer } from 'guntree/player';
 
-const createPlayer = (): IPlayer => {
-    const plClass = jest.fn<IPlayer>();
-    return new plClass();
-};
+const mockPlayerClass = jest.fn<IPlayer>(() => ({}));
 
 describe('#FiringState', () => {
-    test('can copy self with parameter', () => {
-        // Given Parameter and clone
-        const paramClass = jest.fn<Parameter>((cloned: Parameter) => ({
-            copy: jest.fn().mockReturnValueOnce(cloned),
-        }));
-        const paramClone = new paramClass();
-        const param = new paramClass(paramClone);
+    test('can add modifier and apply their', () => {
+        // Given FiringState
+        const state = new FiringState(new mockPlayerClass());
+        const fireDataClone = jest.fn();
+        state.fireData.copy = jest.fn().mockReturnValueOnce(fireDataClone);
 
-        // And Player
-        const player = createPlayer();
+        // And modifiers are pushed to FiringState
+        const calledModifiers: jest.Mock[] = [];
+        const genMod = () => {
+            const mod = jest.fn().mockImplementationOnce(() => calledModifiers.push(mod));
+            return mod;
+        };
+        const modifiers = [
+            genMod(),
+            genMod(),
+        ];
+        modifiers.map(m => state.pushModifier(m));
 
-        // And firing state with parameter
-        const paramName = 'a';
-        const state = new FiringState(player);
-        state.parameters.set(paramName, param);
+        // When calc modified fireData
+        state.calcModifiedFireData();
 
-        // When copy firing state
+        // Then modifiers are called with fireData copy
+        modifiers.map((mod) => {
+            expect(mod).toBeCalledWith(state, fireDataClone);
+            expect(mod).toBeCalledTimes(1);
+        });
+
+        // And modifiers are called as reversed order
+        expect(calledModifiers).toEqual(modifiers.reverse());
+    });
+
+    test('can copy with fireData', () => {
+        // Given FiringState
+        const state = new FiringState(new mockPlayerClass());
+
+        // And FiringState's fireData's copy was pre-defined
+        const dataClone = jest.fn();
+        state.fireData.copy = jest.fn().mockReturnValueOnce(dataClone);
+
+        // When copy FiringState
         const clone = state.copy();
 
-        // Then clone has cloned parameter
-        expect(clone.parameters.get(paramName)).toBe(paramClone);
+        // Then copy's fireData is original's clone
+        expect(clone.fireData).toBe(dataClone);
     });
 
-    test('can copy self with texts', () => {
-        // Given Player
-        const player = createPlayer();
+    test('can copy with repeatStates', () => {
+        // Given FiringState
+        const state = new FiringState(new mockPlayerClass());
 
-        // And firing state with parameter
-        const paramName = 'a';
-        const text = 'abc';
-        const state = new FiringState(player);
-        state.texts.set(paramName, text);
+        // And FiringState's repeatStates's copy was pre-defined
+        const rsClone = jest.fn();
+        state.repeatStates.copy = jest.fn().mockReturnValueOnce(rsClone);
 
-        // When copy firing state
+        // When copy FiringState
         const clone = state.copy();
 
-        // Then clone has cloned parameter
-        expect(clone.texts.get(paramName)).toBe(text);
-    });
-
-    test('can copy self with vectors', () => {
-        // Given Player
-        const player = createPlayer();
-
-        // And firing state with parameter
-        const paramName = 'a';
-        const vec = { x: 1, y: 2, z: 3 };
-        const state = new FiringState(player);
-        state.vectors.set(paramName, vec);
-
-        // When copy firing state
-        const clone = state.copy();
-
-        // Then clone has cloned parameter
-        expect(clone.vectors.get(paramName)).not.toBe(vec);
-        expect(clone.vectors.get(paramName)).toEqual(vec);
-    });
-
-    test('can copy self with repeat state and their name', () => {
-        // Given RepeatStates
-        const rsNum = 6;
-        const rsListAndName = range(rsNum).map<[IRepeatState, string]>(
-            v => [{ finished: v, total: rsNum + 1 }, v.toString()]);
-
-        // And firing state
-        const state = new FiringState(createPlayer());
-        for (const [rs, name] of rsListAndName) {
-            state.startRepeating(rs, name);
-        }
-
-        // When copy firing state
-        const clone = state.copy();
-
-        // Then clone has state
-        let anyNamesRepeatingIsExist = false;
-        for (const [rs, name] of rsListAndName.reverse()) {
-            expect(clone.getRepeatState(name)).toBe(rs);
-            anyNamesRepeatingIsExist = true;
-        }
-        expect(anyNamesRepeatingIsExist).toBe(true);
-    });
-
-    test('can get current repeat state', () => {
-        // Given repeating state
-        const repeatState: IRepeatState = { finished: 0, total: 10 };
-
-        // And Player
-        const player = createPlayer();
-
-        // And firing state
-        const state = new FiringState(player);
-
-        // When start repeating
-        state.startRepeating(repeatState);
-
-        // And get repeat state
-        const actual = state.getRepeatState();
-
-        // Then dealt state is started repeat state
-        expect(actual).toBe(repeatState);
-    });
-
-    test('can get repeat state by name', () => {
-        // Given Player
-        const player = createPlayer();
-
-        // And firing state
-        const state = new FiringState(player);
-
-        // When start repeating with name
-        const name = 'a';
-        const rs = state.startRepeating({ finished: 0, total: 10 }, name);
-
-        // And get repeating with name
-        const actual = state.getRepeatState(name);
-
-        // Then get repeating
-        expect(actual).toBe(rs);
-    });
-
-    test('throw error if get repeat state by name and not contain repeating with that name', () => {
-        // Given Player
-        const player = createPlayer();
-
-        // And firing state
-        const state = new FiringState(player);
-
-        // When start repeating with name
-        const name = 'a';
-        const badName = 'b';
-        state.startRepeating({ finished: 0, total: 10 }, name);
-
-        // And get repeating with name
-        const func = () => state.getRepeatState(badName);
-
-        // Then throw error repeating
-        expect(func).toThrowError();
-    });
-
-    test('can get repeat state by name with nested repeating', () => {
-        // Given Player
-        const player = createPlayer();
-
-        // And firing state
-        const state = new FiringState(player);
-
-        // When start repeating with name twice
-        const name = 'a';
-        const rs1 = state.startRepeating({ finished: 0, total: 10 }, name);
-        const rs2 = state.startRepeating({ finished: 1, total: 10 }, name);
-
-        for (const rs of [rs2, rs1]) {
-            // And get repeating with name
-            const actual = state.getRepeatState(name);
-
-            // Then get second repeating
-            expect(actual).toBe(rs);
-
-            // finish repeating for next loop
-            state.finishRepeating(rs, name);
-        }
-    });
-
-    test('has initial repeating', () => {
-        // Given Player
-        const player = createPlayer();
-
-        // And firing state
-        const state = new FiringState(player);
-
-        // When get current repeating
-        const actual = state.getRepeatState();
-
-        // Then get { finished: 0, total: 1 }
-        const expected = { finished: 0, total: 1 };
-        expect(actual).toEqual(expected);
-    });
-
-    test('throw error if finish repeating if repeating was completed', () => {
-        // Given repeating state
-        const repeatState: IRepeatState = { finished: 0, total: 10 };
-
-        // And Player
-        const player = createPlayer();
-
-        // And firing state
-        const state = new FiringState(player);
-
-        // When start repeating
-        state.startRepeating(repeatState);
-
-        // And finish repeating
-        state.finishRepeating(repeatState);
-
-        // And finish repeating again
-        // Then throw error
-        expect(() => state.finishRepeating({ finished: 0, total: 10 })).toThrowError();
-    });
-
-    test('throw error when finish repeating if finishing repeating is not current repeating', () => {
-        // Given repeating state
-        const rs1: IRepeatState = { finished: 0, total: 10 };
-        const rs2: IRepeatState = { finished: 1, total: 10 };
-
-        // And Player
-        const player = createPlayer();
-
-        // And firing state
-        const state = new FiringState(player);
-
-        // When start repeating twice
-        state.startRepeating(rs1);
-        state.startRepeating(rs2);
-
-        // And finish first repeating
-        // Then throw error
-        expect(() => state.finishRepeating(rs1)).toThrowError();
+        // Then copy's repeatStates is original's clone
+        expect(clone.repeatStates).toBe(rsClone);
     });
 });

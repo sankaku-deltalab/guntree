@@ -1,7 +1,6 @@
 import { IGun, IBullet } from '../gun';
 import { TConstantOrLazy } from '../lazyEvaluative';
 import * as gunO from '../elements/gun';
-import * as mod from '../contents/gunModifier';
 import * as le from '../contents/lazyEvaluative';
 
 export const concat = (...guns: IGun[]) => new gunO.Concat(...guns);
@@ -30,29 +29,11 @@ export type TNWayOption = {
     name?: string;
 };
 
-export const nWay = (option: TNWayOption, ...guns: IGun[]) => {
-    return paraRepeat({ times: option.ways, interval: 0, name: option.name },
-                      mod.addNWayAngle({ totalAngle: option.totalAngle, name: option.name }),
-                      ...guns);
-};
-
 export type TWhipOption = gunO.TRepeatOption & {
     speedRange: [number, number],
-};
-
-export const whip = (option: TWhipOption, ...guns: IGun[]) => {
-    return repeat(option,
-                  mod.addSpeed(le.linear(option.speedRange[0], option.speedRange[1])),
-                  ...guns);
 };
 
 export type TSpreadOption = {
     times: TConstantOrLazy<number>,
     speedRange: [number, number],
-};
-
-export const spread = (option: TWhipOption, ...guns: IGun[]) => {
-    return paraRepeat(option,
-                      mod.addSpeed(le.linear(option.speedRange[0], option.speedRange[1])),
-                      ...guns);
 };

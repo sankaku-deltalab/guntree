@@ -1,6 +1,7 @@
 import { range } from 'lodash';
 
-import { IFiringState, IRepeatState, IGun, IBullet } from '../gun';
+import { IGun, IBullet } from '../gun';
+import { IFiringState, IRepeatState } from '../firing-state';
 import { TConstantOrLazy } from '../lazyEvaluative';
 
 /**
@@ -13,7 +14,7 @@ export class Fire implements IGun {
     constructor(private readonly bullet: IBullet) {}
 
     *play(state: IFiringState): IterableIterator<void> {
-        state.player.notifyFired(state, this.bullet);
+        state.player.notifyFired(state.calcModifiedFireData(), this.bullet);
     }
 }
 
@@ -31,13 +32,13 @@ export class Repeat implements IGun {
         const repeatTimes = this.calcRepeatTimes(state);
         const stateClone = state.copy();
 
-        const repeatState = stateClone.startRepeating({ finished: 0, total: repeatTimes }, this.option.name);
+        const repeatState = stateClone.repeatStates.start({ finished: 0, total: repeatTimes }, this.option.name);
         for (const _ of range(repeatTimes)) {
             yield* this.gun.play(stateClone);
             yield* wait(this.calcInterval(stateClone));
             repeatState.finished += 1;
         }
-        stateClone.finishRepeating(repeatState, this.option.name);
+        stateClone.repeatStates.finish(repeatState, this.option.name);
     }
 
     private calcRepeatTimes(state: IFiringState) {
@@ -64,7 +65,7 @@ export class ParallelRepeat implements IGun {
 
         const stateClones = range(repeatTimes).map(_ => state.copy());
         const repeatStates = stateClones.map(
-            (clone, i) => clone.startRepeating({ finished: i, total: repeatTimes }, name));
+            (clone, i) => clone.repeatStates.start({ finished: i, total: repeatTimes }, name));
         const intervals = stateClones.map(s => getNumberFromLazy(s, this.option.interval));
         const bootTimes = intervals.map((_, idx, ary) => {
             let cum = 0;
@@ -82,7 +83,7 @@ export class ParallelRepeat implements IGun {
             yield* wait(boot);
             yield* gun.play(st);
             yield* wait(interval);
-            st.finishRepeating(rs, name);
+            st.repeatStates.finish(rs, name);
         }
 
         const playProgresses = range(repeatTimes).map((i) => {

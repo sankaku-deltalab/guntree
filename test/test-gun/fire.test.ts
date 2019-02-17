@@ -1,4 +1,5 @@
-import { IFiringState, IBullet } from 'guntree/gun';
+import { IBullet } from 'guntree/gun';
+import { IFiringState } from 'guntree/firing-state';
 import { Fire } from 'guntree/elements/gun';
 import { IPlayer } from 'guntree/player';
 
@@ -9,8 +10,10 @@ describe('#Fire', () => {
             notifyFired: jest.fn(),
         }));
         const player = new playerClass();
+        const modifiedFireData = jest.fn();
         const firingStateClass = jest.fn<IFiringState>(() => ({
             player,
+            calcModifiedFireData: jest.fn().mockReturnValueOnce(modifiedFireData),
         }));
         const state = new firingStateClass();
 
@@ -27,7 +30,7 @@ describe('#Fire', () => {
 
         // Then parameter has added only once
         expect(state.player.notifyFired).toBeCalledTimes(1);
-        expect(state.player.notifyFired).toBeCalledWith(state, bullet);
+        expect(state.player.notifyFired).toBeCalledWith(modifiedFireData, bullet);
 
         // And progress was finished
         expect(result.done).toBe(true);

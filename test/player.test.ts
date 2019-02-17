@@ -1,8 +1,8 @@
 import { range } from 'lodash';
 
-import { IFiringState, IGun, IBullet } from 'guntree/gun';
+import { IGun, IBullet } from 'guntree/gun';
+import { IFiringState, IFireData } from 'guntree/firing-state';
 import { Player, IPlayerOwner } from 'guntree/player';
-import { Parameter } from 'guntree/parameter';
 
 const createGun = (frames: number): IGun => {
     const gunClass = jest.fn<IGun>((f: number) => ({
@@ -85,31 +85,13 @@ describe('#Player', () => {
         const player = new Player(owner);
 
         // When player notified fired
-        const state = createEmptyMock<IFiringState>();
+        const data = createEmptyMock<IFireData>();
         const bullet = createEmptyMock<IBullet>();
-        player.notifyFired(state, bullet);
+        player.notifyFired(data, bullet);
 
         // Then owner notified fired
         expect(owner.notifyFired).toBeCalledTimes(1);
-        expect(owner.notifyFired).toBeCalledWith(player, state, bullet);
-    });
-
-    test('get location from owner', () => {
-        // Given player with owner
-        const vec = { x: 1, y: 3, z: 6 };
-        const poClass = jest.fn<IPlayerOwner>((f: number) => ({
-            getLocation: jest.fn().mockReturnValueOnce(vec),
-        }));
-        const owner = new poClass();
-        const player = new Player(owner);
-
-        // When player get location
-        const name = 'vec_name';
-        player.getLocation(name);
-
-        // Then location was dealt from owner
-        expect(owner.getLocation).toBeCalledTimes(1);
-        expect(owner.getLocation).toBeCalledWith(player, name);
+        expect(owner.notifyFired).toBeCalledWith(player, data, bullet);
     });
 
     test.each`
@@ -127,7 +109,7 @@ describe('#Player', () => {
 
         // Then gun was played with state and state parameter was initialized
         const gunState: IFiringState = (<jest.Mock> gunTree.play).mock.calls[0][0];
-        expect(gunState.parameters.get(name)).toEqual(new Parameter(value));
+        expect(gunState.fireData.parameters.get(name)).toEqual(value);
     });
 
     test('can add initial parameter', () => {
@@ -148,7 +130,7 @@ describe('#Player', () => {
         // Then gun was played with state and state parameter was initialized
         const gunState: IFiringState = (<jest.Mock> gunTree.play).mock.calls[0][0];
         for (const [name, value] of Object.entries(additionalParameters)) {
-            expect(gunState.parameters.get(name)).toEqual(new Parameter(value));
+            expect(gunState.fireData.parameters.get(name)).toEqual(value);
         }
 
         // And default parameters are still alive
@@ -157,25 +139,8 @@ describe('#Player', () => {
             ['size', 1],
         ];
         for (const [name, value] of defaultParameters) {
-            expect(gunState.parameters.get(name)).toEqual(new Parameter(value));
+            expect(gunState.fireData.parameters.get(name)).toEqual(value);
         }
-    });
-
-    test.each`
-        name        | value
-        ${'muzzle'} | ${'__undefined'}
-    `('initialize text `$name` to $value', ({ name, value }) => {
-        // Given Player with gun tree
-        const gunTree = createGun(0);
-        const player = new Player(createEmptyMock());
-        player.setGunTree(gunTree);
-
-        // When start player
-        player.start();
-
-        // Then gun was played with state and state parameter was initialized
-        const gunState: IFiringState = (<jest.Mock> gunTree.play).mock.calls[0][0];
-        expect(gunState.texts.get(name)).toBe(value);
     });
 
     test('can add initial text', () => {
@@ -196,15 +161,7 @@ describe('#Player', () => {
         // Then gun was played with state and state texts was initialized
         const gunState: IFiringState = (<jest.Mock> gunTree.play).mock.calls[0][0];
         for (const [name, value] of Object.entries(additionalTexts)) {
-            expect(gunState.texts.get(name)).toBe(value);
-        }
-
-        // And default parameters are still alive
-        const defaultTexts: [string, string][] = [
-            ['muzzle', '__undefined'],
-        ];
-        for (const [name, value] of defaultTexts) {
-            expect(gunState.texts.get(name)).toBe(value);
+            expect(gunState.fireData.texts.get(name)).toBe(value);
         }
     });
 });
