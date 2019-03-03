@@ -2,22 +2,44 @@ import * as mat from 'transformation-matrix';
 
 import { IGun, IBullet } from './gun';
 import { IFiringState, FiringState, IFireData } from './firing-state';
+import { IMuzzle } from './muzzle';
 
+/**
+ * Player play guntree.
+ */
 export interface IPlayer {
+    /** Is playing guntree. */
     isRunning: boolean;
 
+    /**
+     * Get muzzle by name.
+     * Muzzles owned by player should be defined by user.
+     *
+     * @param muzzleName Muzzle name
+     */
+    getMuzzle(muzzleName: string): IMuzzle;
+
+    /**
+     * Set guntree.
+     *
+     * @param gunTree Setting guntree. Guntree can used by multiple player.
+     */
     setGunTree(gunTree: IGun): void;
+
+    /**
+     * Start playing guntree.
+     */
     start(): void;
+
+    /**
+     * Continue playing guntree.
+     * Someone call this function every frames.
+     */
     tick(): void;
-
-    notifyFired(data: IFireData, bullet: IBullet): void;
-}
-
-export interface IPlayerOwner {
-    notifyFired(player: IPlayer, data: IFireData, bullet: IBullet): void;
 }
 
 export type TPlayerOption = {
+    muzzle: {[key: string]: IMuzzle};
     additionalParameters?: {[key: string]: number};
     additionalTexts?: {[key: string]: string};
 };
@@ -25,10 +47,8 @@ export type TPlayerOption = {
 export class Player implements IPlayer {
     private gunTree: IGun | null;
     private firingProgress: IterableIterator<void> | null;
-    private readonly option: TPlayerOption;
 
-    constructor(private readonly owner: IPlayerOwner,
-                option?: TPlayerOption) {
+    constructor(private readonly option: TPlayerOption) {
         this.gunTree = null;
         this.firingProgress = null;
         this.option = option || {};
@@ -36,6 +56,11 @@ export class Player implements IPlayer {
 
     get isRunning(): boolean {
         return this.firingProgress !== null;
+    }
+
+    getMuzzle(muzzleName: string): IMuzzle {
+        if (!(muzzleName in this.option.muzzle)) throw new Error(`muzzle ${muzzleName} is not set`);
+        return this.option.muzzle[muzzleName];
     }
 
     setGunTree(gunTree: IGun): void {
@@ -88,9 +113,5 @@ export class Player implements IPlayer {
 
         this.firingProgress = null;
         return true;
-    }
-
-    notifyFired(data: IFireData, bullet: IBullet): void {
-        this.owner.notifyFired(this, data, bullet);
     }
 }
