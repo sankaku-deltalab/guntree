@@ -64,4 +64,25 @@ describe('#FiringState', () => {
         // Then copy's repeatStates is original's clone
         expect(clone.repeatStates).toBe(rsClone);
     });
+
+    test('can get current using muzzle', () => {
+        // Given Player
+        const muzzle = jest.fn();
+        const playerClass = jest.fn<IPlayer>(() => ({
+            getMuzzle: jest.fn().mockReturnValueOnce(muzzle),
+        }));
+        const player = new playerClass();
+
+        // And FiringState
+        const state = new FiringState(player);
+
+        // When set muzzle name to FiringState's fireData
+        state.fireData.muzzle = 'a';
+
+        // And get current muzzle from FiringState
+        const currentMuzzle = state.getCurrentMuzzle();
+
+        // Then gotten muzzle is Player's muzzle
+        expect(currentMuzzle).toBe(muzzle);
+    });
 });

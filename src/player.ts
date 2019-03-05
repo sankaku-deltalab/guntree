@@ -1,7 +1,5 @@
-import * as mat from 'transformation-matrix';
-
-import { IGun, IBullet } from './gun';
-import { IFiringState, FiringState, IFireData } from './firing-state';
+import { IGun } from './gun';
+import { IFiringState, FiringState } from './firing-state';
 import { IMuzzle } from './muzzle';
 
 /**
