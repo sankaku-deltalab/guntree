@@ -2,6 +2,7 @@ import * as mat from 'transformation-matrix';
 
 import { IPlayer } from './player';
 import { IMuzzle } from './muzzle';
+import { IBullet } from '.';
 
 /**
  * FiringState contains information while firing.
@@ -29,6 +30,14 @@ export interface IFiringState {
      * If muzzle name was not set, throw error.
      */
     getCurrentMuzzle(): IMuzzle;
+
+    /**
+     * Fire bullet.
+     * This function is called by guns.
+     *
+     * @param bullet Firing bullet
+     */
+    fire(bullet: IBullet): void;
 
     /** Copy this state. */
     copy(): IFiringState;
@@ -140,6 +149,18 @@ export class FiringState implements IFiringState {
     getCurrentMuzzle(): IMuzzle {
         if (this.fireData.muzzle === null) throw new Error('Muzzle was not used.');
         return this.player.getMuzzle(this.fireData.muzzle);
+    }
+
+    /**
+     * Fire bullet.
+     * This function is called by guns.
+     *
+     * @param bullet Firing bullet
+     */
+    fire(bullet: IBullet): void {
+        const muzzle = this.getCurrentMuzzle();
+        const data = this.calcModifiedFireData();
+        muzzle.fire(data, bullet);
     }
 
     copy(): FiringState {

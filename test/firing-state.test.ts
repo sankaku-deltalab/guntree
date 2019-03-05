@@ -1,5 +1,6 @@
-import { FiringState } from 'guntree/firing-state';
+import { FiringState, IFireData } from 'guntree/firing-state';
 import { IPlayer } from 'guntree/player';
+import { IBullet } from 'guntree/gun';
 
 const mockPlayerClass = jest.fn<IPlayer>(() => ({}));
 
@@ -84,5 +85,32 @@ describe('#FiringState', () => {
 
         // Then gotten muzzle is Player's muzzle
         expect(currentMuzzle).toBe(muzzle);
+    });
+
+    test('can call fire and pass firing to muzzle', () => {
+        // Given FiringState with fake getCurrentMuzzle() and calcModifiedFireData().
+        const state = new FiringState(new mockPlayerClass());
+        const muzzleClass = jest.fn(() => ({
+            fire: jest.fn(),
+        }));
+        const muzzle = new muzzleClass();
+        const fireDataClass = jest.fn<IFireData>();
+        const modifiedFireData = new fireDataClass();
+        state.getCurrentMuzzle = jest.fn().mockReturnValueOnce(muzzle);
+        state.calcModifiedFireData = jest.fn().mockReturnValueOnce(modifiedFireData);
+
+        // And Bullet
+        const bulletClass = jest.fn<IBullet>(() => ({}));
+        const bullet = new bulletClass();
+
+        // And FiringState's repeatStates's copy was pre-defined
+        const rsClone = jest.fn();
+        state.repeatStates.copy = jest.fn().mockReturnValueOnce(rsClone);
+
+        // When fire
+        state.fire(bullet);
+
+        // Then FiringState pass firing to muzzle with modified fire data
+        expect(muzzle.fire).toBeCalledWith(modifiedFireData, bullet);
     });
 });
