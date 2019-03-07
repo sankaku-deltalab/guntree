@@ -64,13 +64,13 @@ export class SetTextImmediately implements IGun {
 }
 
 /**
- * Set muzzle name.
+ * Set muzzle.
  */
-export class SetMuzzleNameImmediately implements IGun {
+export class SetMuzzleImmediately implements IGun {
     constructor(private readonly name: TConstantOrLazy<string>) {}
 
     *play(state: IFiringState): IterableIterator<void> {
-        const muzzle = calcValueFromConstantOrLazy(state, this.name);
-        state.fireData.muzzle = muzzle;
+        const muzzleName = calcValueFromConstantOrLazy(state, this.name);
+        state.fireData.muzzle = state.getMuzzleByName(muzzleName);
     }
 }

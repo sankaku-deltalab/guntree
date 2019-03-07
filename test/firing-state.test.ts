@@ -1,6 +1,7 @@
 import { FiringState, IFireData } from 'guntree/firing-state';
 import { IPlayer } from 'guntree/player';
 import { IBullet } from 'guntree/gun';
+import { IMuzzle } from 'guntree/muzzle';
 
 const mockPlayerClass = jest.fn<IPlayer>(() => ({}));
 
@@ -66,9 +67,26 @@ describe('#FiringState', () => {
         expect(clone.repeatStates).toBe(rsClone);
     });
 
-    test('can get current using muzzle', () => {
-        // Given Player
-        const muzzle = jest.fn();
+    test('can get current using muzzle from fireData', () => {
+        // Given FiringState
+        const state = new FiringState(new (jest.fn<IPlayer>()));
+
+        // When fireData's muzzle was set
+        const muzzleClass = jest.fn<IMuzzle>();
+        const muzzle = new muzzleClass();
+        state.fireData.muzzle = muzzle;
+
+        // And get current muzzle from FiringState
+        const currentMuzzle = state.getCurrentMuzzle();
+
+        // Then gotten muzzle is Player's muzzle
+        expect(currentMuzzle).toBe(muzzle);
+    });
+
+    test('can get muzzle by name', () => {
+        // Given Player with muzzle
+        const muzzleClass = jest.fn<IMuzzle>();
+        const muzzle = new muzzleClass();
         const playerClass = jest.fn<IPlayer>(() => ({
             getMuzzle: jest.fn().mockReturnValueOnce(muzzle),
         }));
@@ -77,14 +95,13 @@ describe('#FiringState', () => {
         // And FiringState
         const state = new FiringState(player);
 
-        // When set muzzle name to FiringState's fireData
-        state.fireData.muzzle = 'a';
+        // When get muzzle by name
+        const muzzleName = 'a';
+        const currentMuzzle = state.getMuzzleByName(muzzleName);
 
-        // And get current muzzle from FiringState
-        const currentMuzzle = state.getCurrentMuzzle();
-
-        // Then gotten muzzle is Player's muzzle
+        // Then gotten muzzle is Player's muzzle from player
         expect(currentMuzzle).toBe(muzzle);
+        expect(player.getMuzzle).toBeCalledWith(muzzleName);
     });
 
     test('can call fire and pass firing to muzzle', () => {

@@ -32,6 +32,13 @@ export interface IFiringState {
     getCurrentMuzzle(): IMuzzle;
 
     /**
+     * Get muzzle by name.
+     *
+     * @param muzzleName Searching muzzle name
+     */
+    getMuzzleByName(muzzleName: string): IMuzzle;
+
+    /**
      * Fire bullet.
      * This function is called by guns.
      *
@@ -50,8 +57,8 @@ export interface IFireData {
     /** Bullet spawning transform. */
     transform: mat.Matrix;
 
-    /** Muzzle name fire bullet */
-    muzzle: string | null;
+    /** Muzzle fire bullet */
+    muzzle: IMuzzle | null;
 
     /** Parameters express real value. */
     parameters: Map<string, number>;
@@ -148,7 +155,16 @@ export class FiringState implements IFiringState {
      */
     getCurrentMuzzle(): IMuzzle {
         if (this.fireData.muzzle === null) throw new Error('Muzzle was not used.');
-        return this.player.getMuzzle(this.fireData.muzzle);
+        return this.fireData.muzzle;
+    }
+
+    /**
+     * Get muzzle by name.
+     *
+     * @param muzzleName Searching muzzle name
+     */
+    getMuzzleByName(muzzleName: string): IMuzzle {
+        return this.player.getMuzzle(muzzleName);
     }
 
     /**
@@ -176,7 +192,7 @@ export class FireData implements IFireData {
     transform: mat.Matrix;
 
     /** Muzzle name fire bullet */
-    muzzle: string | null;
+    muzzle: IMuzzle | null;
 
     /** Parameters express real value. */
     parameters: Map<string, number>;
