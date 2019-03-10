@@ -11,6 +11,9 @@ export interface IFiringState {
     /** Contain data used when fired. */
     fireData: IFireData;
 
+    /** Muzzle fire bullet */
+    muzzle: IMuzzle | null;
+
     /** Manager manage repeating while firing. */
     repeatStates: IRepeatStateManager;
 
@@ -23,13 +26,6 @@ export interface IFiringState {
 
     /** Calculate modified fire data. */
     calcModifiedFireData(): IFireData;
-
-    /**
-     * Get current using muzzle.
-     * Muzzle name was defined in fireData.
-     * If muzzle name was not set, throw error.
-     */
-    getCurrentMuzzle(): IMuzzle;
 
     /**
      * Get muzzle by name.
@@ -56,9 +52,6 @@ export interface IFiringState {
 export interface IFireData {
     /** Bullet spawning transform. */
     transform: mat.Matrix;
-
-    /** Muzzle fire bullet */
-    muzzle: IMuzzle | null;
 
     /** Parameters express real value. */
     parameters: Map<string, number>;
@@ -120,6 +113,9 @@ export class FiringState implements IFiringState {
     /** Contain data used when fired. */
     fireData: IFireData;
 
+    /** Muzzle fire bullet */
+    muzzle: IMuzzle | null;
+
     /** Manager manage repeating while firing. */
     repeatStates: IRepeatStateManager;
 
@@ -128,6 +124,7 @@ export class FiringState implements IFiringState {
 
     constructor(private readonly player: IPlayer) {
         this.fireData = new FireData();
+        this.muzzle = null;
         this.repeatStates = new RepeatStateManager();
         this.modifiers = [];
     }
@@ -149,16 +146,6 @@ export class FiringState implements IFiringState {
     }
 
     /**
-     * Get current using muzzle.
-     * Muzzle name was defined in fireData.
-     * If muzzle name was not set, throw error.
-     */
-    getCurrentMuzzle(): IMuzzle {
-        if (this.fireData.muzzle === null) throw new Error('Muzzle was not used.');
-        return this.fireData.muzzle;
-    }
-
-    /**
      * Get muzzle by name.
      *
      * @param muzzleName Searching muzzle name
@@ -174,9 +161,9 @@ export class FiringState implements IFiringState {
      * @param bullet Firing bullet
      */
     fire(bullet: IBullet): void {
-        const muzzle = this.getCurrentMuzzle();
+        if (this.muzzle === null) throw new Error('Muzzle was not set');
         const data = this.calcModifiedFireData();
-        muzzle.fire(data, bullet);
+        this.muzzle.fire(data, bullet);
     }
 
     copy(): FiringState {

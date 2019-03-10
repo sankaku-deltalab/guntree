@@ -71,6 +71,6 @@ export class SetMuzzleImmediately implements IGun {
 
     *play(state: IFiringState): IterableIterator<void> {
         const muzzleName = calcValueFromConstantOrLazy(state, this.name);
-        state.fireData.muzzle = state.getMuzzleByName(muzzleName);
+        state.muzzle = state.getMuzzleByName(muzzleName);
     }
 }

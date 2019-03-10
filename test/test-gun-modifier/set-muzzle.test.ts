@@ -24,7 +24,7 @@ describe('#SetMuzzleImmediately', () => {
         setMuzzle.play(state).next();
 
         // Then muzzle was set
-        expect(state.fireData.muzzle).toBe(muzzle);
+        expect(state.muzzle).toBe(muzzle);
 
         // And set muzzle was gotten from state.getMuzzleByName
         expect(state.getMuzzleByName).toBeCalledWith(name);
@@ -48,6 +48,6 @@ describe('#SetMuzzleImmediately', () => {
         setMuzzle.play(state).next();
 
         // Then muzzle was set
-        expect(state.fireData.muzzle).toBe(muzzle);
+        expect(state.muzzle).toBe(muzzle);
     });
 });

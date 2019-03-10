@@ -67,22 +67,6 @@ describe('#FiringState', () => {
         expect(clone.repeatStates).toBe(rsClone);
     });
 
-    test('can get current using muzzle from fireData', () => {
-        // Given FiringState
-        const state = new FiringState(new (jest.fn<IPlayer>()));
-
-        // When fireData's muzzle was set
-        const muzzleClass = jest.fn<IMuzzle>();
-        const muzzle = new muzzleClass();
-        state.fireData.muzzle = muzzle;
-
-        // And get current muzzle from FiringState
-        const currentMuzzle = state.getCurrentMuzzle();
-
-        // Then gotten muzzle is Player's muzzle
-        expect(currentMuzzle).toBe(muzzle);
-    });
-
     test('can get muzzle by name', () => {
         // Given Player with muzzle
         const muzzleClass = jest.fn<IMuzzle>();
@@ -105,15 +89,15 @@ describe('#FiringState', () => {
     });
 
     test('can call fire and pass firing to muzzle', () => {
-        // Given FiringState with fake getCurrentMuzzle() and calcModifiedFireData().
-        const state = new FiringState(new mockPlayerClass());
-        const muzzleClass = jest.fn(() => ({
+        // Given FiringState with muzzle.
+        const muzzleClass = jest.fn<IMuzzle>(() => ({
             fire: jest.fn(),
         }));
-        const muzzle = new muzzleClass();
         const fireDataClass = jest.fn<IFireData>();
+        const state = new FiringState(new mockPlayerClass());
+        const muzzle = new muzzleClass();
         const modifiedFireData = new fireDataClass();
-        state.getCurrentMuzzle = jest.fn().mockReturnValueOnce(muzzle);
+        state.muzzle = muzzle;
         state.calcModifiedFireData = jest.fn().mockReturnValueOnce(modifiedFireData);
 
         // And Bullet
