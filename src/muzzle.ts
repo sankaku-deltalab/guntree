@@ -25,3 +25,29 @@ export interface IMuzzle {
      */
     getEnemyTransform(): mat.Matrix;
 }
+
+/**
+ * VirtualMuzzle is used instead of real muzzle.
+ * Real muzzle is defined by user and exist in game.
+ * VirtualMuzzle exist in only guntree firing progress.
+ * And VirtualMuzzle is based on another muzzle (real or virtual).
+ * When use VirtualMuzzle in guntree, Must used through VirtualMuzzleGenerator.
+ */
+export interface IVirtualMuzzle extends IMuzzle {
+    /**
+     * Set basing muzzle.
+     *
+     * @param baseMuzzle basing muzzle
+     */
+    basedOn(baseMuzzle: IMuzzle): void;
+}
+
+/**
+ * Generate VirtualMuzzle.
+ */
+export interface IVirtualMuzzleGenerator {
+    /**
+     * Generate virtual muzzle.
+     */
+    generate(): IVirtualMuzzle;
+}
