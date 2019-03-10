@@ -1,27 +1,5 @@
-import { TNWayOption,
-         TSpreadOption,
-         TWhipOption,
-         concat,
-         fire,
-         paraRepeat,
-         parallel,
-         parallelRepeat,
-         repeat,
-         sequential,
-         wait} from './gun';
+export * from './gun';
 import * as lazyEvaluative from './lazyEvaluative';
+import * as virtualMuzzle from './virtual-muzzle';
 
-export {
-    TNWayOption,
-    TSpreadOption,
-    TWhipOption,
-    concat,
-    fire,
-    paraRepeat,
-    parallel,
-    parallelRepeat,
-    repeat,
-    sequential,
-    wait,
-    lazyEvaluative,
-};
+export { lazyEvaluative, virtualMuzzle };

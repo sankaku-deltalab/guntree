@@ -1,7 +1,5 @@
-import { Concat, Fire, Parallel, ParallelRepeat, Repeat, TRepeatOption, Sequential, Wait } from './gun';
+export * from './gun';
 import * as lazyEvaluative from './lazyEvaluative';
+import * as virtualMuzzle from './virtual-muzzle';
 
-export {
-    Concat, Fire, Parallel, ParallelRepeat, Repeat, TRepeatOption as RepeatOption, Sequential, Wait,
-    lazyEvaluative,
-};
+export { lazyEvaluative, virtualMuzzle };
