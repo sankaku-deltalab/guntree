@@ -140,8 +140,18 @@ export class FiringState implements IFiringState {
 
     /** Calculate modified fire data. */
     calcModifiedFireData(): IFireData {
+        if (this.muzzle === null) throw new Error('Muzzle was not set');
         const fdClone = this.fireData.copy();
+
+        // Apply modifiers
         this.modifiers.reverse().map(mod => mod(this, fdClone));
+
+        // Apply muzzle transform
+        fdClone.transform = mat.transform(
+            fdClone.transform,
+            this.muzzle.getMuzzleTransform(),
+        );
+
         return fdClone;
     }
 

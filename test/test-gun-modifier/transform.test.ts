@@ -4,6 +4,8 @@ import { IFiringState, FiringState } from 'guntree/firing-state';
 import { Transform } from 'guntree/elements/gunModifer';
 import { IPlayer } from 'guntree/player';
 import { ILazyEvaluative } from 'guntree/lazyEvaluative';
+import { IMuzzle } from 'guntree/muzzle';
+import { simpleMock } from '../util';
 
 describe('#Transform', () => {
     test('push modifier when played', () => {
@@ -25,8 +27,11 @@ describe('#Transform', () => {
     });
 
     test('generate modifier transform fireData', () => {
-        // Given firing state
-        const state = new FiringState(new (jest.fn<IPlayer>()));
+        // Given firing state with muzzle
+        const state = new FiringState(simpleMock<IPlayer>());
+        const muzzle = simpleMock<IMuzzle>();
+        muzzle.getMuzzleTransform = jest.fn().mockReturnValueOnce(mat.translate(0));
+        state.muzzle = muzzle;
 
         // And Transform
         const trans = mat.translate(5);
@@ -43,8 +48,11 @@ describe('#Transform', () => {
     });
 
     test('can use lazyEvaluative transform', () => {
-        // Given firing state
-        const state = new FiringState(new (jest.fn<IPlayer>()));
+        // Given firing state with muzzle
+        const state = new FiringState(simpleMock<IPlayer>());
+        const muzzle = simpleMock<IMuzzle>();
+        muzzle.getMuzzleTransform = jest.fn().mockReturnValueOnce(mat.translate(0));
+        state.muzzle = muzzle;
 
         // And Transform
         const leClass = jest.fn<ILazyEvaluative<mat.Matrix>>((t: mat.Matrix) => ({

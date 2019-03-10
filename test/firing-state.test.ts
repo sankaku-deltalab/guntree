@@ -1,15 +1,20 @@
+import * as mat from 'transformation-matrix';
+
 import { FiringState, IFireData } from 'guntree/firing-state';
 import { IPlayer } from 'guntree/player';
 import { IBullet } from 'guntree/gun';
 import { IMuzzle } from 'guntree/muzzle';
-
-const mockPlayerClass = jest.fn<IPlayer>(() => ({}));
+import { simpleMock } from './util';
 
 describe('#FiringState', () => {
     test('can add modifier and apply their', () => {
-        // Given FiringState
-        const state = new FiringState(new mockPlayerClass());
-        const fireDataClone = jest.fn();
+        // Given firing state with muzzle and FireData clone
+        const state = new FiringState(simpleMock<IPlayer>());
+        const muzzle = simpleMock<IMuzzle>();
+        muzzle.getMuzzleTransform = jest.fn().mockReturnValueOnce(mat.translate(0));
+        const fireDataClone = simpleMock<IFireData>();
+        fireDataClone.transform = mat.translate(0);
+        state.muzzle = muzzle;
         state.fireData.copy = jest.fn().mockReturnValueOnce(fireDataClone);
 
         // And modifiers are pushed to FiringState
@@ -39,7 +44,7 @@ describe('#FiringState', () => {
 
     test('can copy with fireData', () => {
         // Given FiringState
-        const state = new FiringState(new mockPlayerClass());
+        const state = new FiringState(simpleMock<IPlayer>());
 
         // And FiringState's fireData's copy was pre-defined
         const dataClone = jest.fn();
@@ -54,7 +59,7 @@ describe('#FiringState', () => {
 
     test('can copy with repeatStates', () => {
         // Given FiringState
-        const state = new FiringState(new mockPlayerClass());
+        const state = new FiringState(simpleMock<IPlayer>());
 
         // And FiringState's repeatStates's copy was pre-defined
         const rsClone = jest.fn();
@@ -94,7 +99,7 @@ describe('#FiringState', () => {
             fire: jest.fn(),
         }));
         const fireDataClass = jest.fn<IFireData>();
-        const state = new FiringState(new mockPlayerClass());
+        const state = new FiringState(simpleMock<IPlayer>());
         const muzzle = new muzzleClass();
         const modifiedFireData = new fireDataClass();
         state.muzzle = muzzle;
@@ -113,5 +118,22 @@ describe('#FiringState', () => {
 
         // Then FiringState pass firing to muzzle with modified fire data
         expect(muzzle.fire).toBeCalledWith(modifiedFireData, bullet);
+    });
+
+    test('use muzzle transform in calcModifiedFireData', () => {
+        // Given muzzle
+        const muzzle = simpleMock<IMuzzle>();
+        const muzzleTrans = mat.translate(1.2, 5.3);
+        muzzle.getMuzzleTransform = jest.fn().mockReturnValueOnce(muzzleTrans);
+
+        // And firing state with muzzle and FireData clone
+        const state = new FiringState(simpleMock<IPlayer>());
+        state.muzzle = muzzle;
+
+        // When calc modified fireData
+        const modifiedFD = state.calcModifiedFireData();
+
+        // Then
+        expect(modifiedFD.transform).toEqual(muzzleTrans);
     });
 });
