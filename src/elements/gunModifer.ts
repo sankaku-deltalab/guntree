@@ -3,6 +3,7 @@ import * as mat from 'transformation-matrix';
 import { IGun } from '../gun';
 import { IFiringState, TFireDataModifier, IFireData } from '../firing-state';
 import { TConstantOrLazy, calcValueFromConstantOrLazy, calcTransFormFromConstantOrLazy } from '../lazyEvaluative';
+import { IVirtualMuzzleGenerator } from 'guntree/muzzle';
 
 const modifyImmediatelyOrLater = (state: IFiringState, modifyLater: boolean, modifier: TFireDataModifier): void => {
     if (modifyLater) {
@@ -72,5 +73,19 @@ export class SetMuzzleImmediately implements IGun {
     *play(state: IFiringState): IterableIterator<void> {
         const muzzleName = calcValueFromConstantOrLazy(state, this.name);
         state.muzzle = state.getMuzzleByName(muzzleName);
+    }
+}
+
+/**
+ * Attach virtual muzzle to current muzzle.
+ */
+export class AttachVirtualMuzzleImmediately implements IGun {
+    constructor(private readonly virtualMuzzleGenerator: IVirtualMuzzleGenerator) {}
+
+    *play(state: IFiringState): IterableIterator<void> {
+        if (state.muzzle === null) throw new Error('Muzzle was not set at FiringState');
+        const muzzle = this.virtualMuzzleGenerator.generate();
+        muzzle.basedOn(state.muzzle);
+        state.muzzle = muzzle;
     }
 }
