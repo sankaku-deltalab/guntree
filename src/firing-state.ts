@@ -1,6 +1,8 @@
 import * as mat from 'transformation-matrix';
 
 import { IPlayer } from './player';
+import { IMuzzle } from './muzzle';
+import { IBullet } from '.';
 
 /**
  * FiringState contains information while firing.
@@ -9,11 +11,11 @@ export interface IFiringState {
     /** Contain data used when fired. */
     fireData: IFireData;
 
+    /** Muzzle fire bullet */
+    muzzle: IMuzzle | null;
+
     /** Manager manage repeating while firing. */
     repeatStates: IRepeatStateManager;
-
-    /** Player playing GunTree with this state. */
-    player: IPlayer;
 
     /**
      * Push function would applied to fireData when fire bullet.
@@ -25,6 +27,21 @@ export interface IFiringState {
     /** Calculate modified fire data. */
     calcModifiedFireData(): IFireData;
 
+    /**
+     * Get muzzle by name.
+     *
+     * @param muzzleName Searching muzzle name
+     */
+    getMuzzleByName(muzzleName: string): IMuzzle;
+
+    /**
+     * Fire bullet.
+     * This function is called by guns.
+     *
+     * @param bullet Firing bullet
+     */
+    fire(bullet: IBullet): void;
+
     /** Copy this state. */
     copy(): IFiringState;
 }
@@ -35,9 +52,6 @@ export interface IFiringState {
 export interface IFireData {
     /** Bullet spawning transform. */
     transform: mat.Matrix;
-
-    /** Muzzle name fire bullet */
-    muzzle: string | null;
 
     /** Parameters express real value. */
     parameters: Map<string, number>;
@@ -99,14 +113,18 @@ export class FiringState implements IFiringState {
     /** Contain data used when fired. */
     fireData: IFireData;
 
+    /** Muzzle fire bullet */
+    muzzle: IMuzzle | null;
+
     /** Manager manage repeating while firing. */
     repeatStates: IRepeatStateManager;
 
     /** Function would applied to fireData when fire bullet, */
     private readonly modifiers: TFireDataModifier[];
 
-    constructor(readonly player: IPlayer) {
+    constructor(private readonly player: IPlayer) {
         this.fireData = new FireData();
+        this.muzzle = null;
         this.repeatStates = new RepeatStateManager();
         this.modifiers = [];
     }
@@ -122,9 +140,40 @@ export class FiringState implements IFiringState {
 
     /** Calculate modified fire data. */
     calcModifiedFireData(): IFireData {
+        if (this.muzzle === null) throw new Error('Muzzle was not set');
         const fdClone = this.fireData.copy();
+
+        // Apply modifiers
         this.modifiers.reverse().map(mod => mod(this, fdClone));
+
+        // Apply muzzle transform
+        fdClone.transform = mat.transform(
+            fdClone.transform,
+            this.muzzle.getMuzzleTransform(),
+        );
+
         return fdClone;
+    }
+
+    /**
+     * Get muzzle by name.
+     *
+     * @param muzzleName Searching muzzle name
+     */
+    getMuzzleByName(muzzleName: string): IMuzzle {
+        return this.player.getMuzzle(muzzleName);
+    }
+
+    /**
+     * Fire bullet.
+     * This function is called by guns.
+     *
+     * @param bullet Firing bullet
+     */
+    fire(bullet: IBullet): void {
+        if (this.muzzle === null) throw new Error('Muzzle was not set');
+        const data = this.calcModifiedFireData();
+        this.muzzle.fire(data, bullet);
     }
 
     copy(): FiringState {
@@ -140,7 +189,7 @@ export class FireData implements IFireData {
     transform: mat.Matrix;
 
     /** Muzzle name fire bullet */
-    muzzle: string | null;
+    muzzle: IMuzzle | null;
 
     /** Parameters express real value. */
     parameters: Map<string, number>;

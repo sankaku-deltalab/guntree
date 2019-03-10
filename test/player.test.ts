@@ -2,7 +2,8 @@ import { range } from 'lodash';
 
 import { IGun, IBullet } from 'guntree/gun';
 import { IFiringState, IFireData } from 'guntree/firing-state';
-import { Player, IPlayerOwner } from 'guntree/player';
+import { Player } from 'guntree/player';
+import { IMuzzle } from 'guntree/muzzle';
 
 const createGun = (frames: number): IGun => {
     const gunClass = jest.fn<IGun>((f: number) => ({
@@ -76,24 +77,6 @@ describe('#Player', () => {
         expect(player.isRunning).toBe(false);
     });
 
-    test('notify firing to owner', () => {
-        // Given player with owner
-        const poClass = jest.fn<IPlayerOwner>((f: number) => ({
-            notifyFired: jest.fn(),
-        }));
-        const owner = new poClass();
-        const player = new Player(owner);
-
-        // When player notified fired
-        const data = createEmptyMock<IFireData>();
-        const bullet = createEmptyMock<IBullet>();
-        player.notifyFired(data, bullet);
-
-        // Then owner notified fired
-        expect(owner.notifyFired).toBeCalledTimes(1);
-        expect(owner.notifyFired).toBeCalledWith(player, data, bullet);
-    });
-
     test.each`
         name          | value
         ${'speed'}    | ${1}
@@ -112,6 +95,21 @@ describe('#Player', () => {
         expect(gunState.fireData.parameters.get(name)).toEqual(value);
     });
 
+    test('can set muzzle at constructed and get there', () => {
+        // Given parameter name and value
+        const muzzleClass = jest.fn<IMuzzle>(() => ({}));
+        const muzzle = new muzzleClass();
+
+        // And Player with muzzle
+        const player = new Player({ muzzle: { a: muzzle } });
+
+        // When get muzzle from player
+        const gottenMuzzle = player.getMuzzle('a');
+
+        // Then gotten muzzle be set muzzle
+        expect(gottenMuzzle).toBe(muzzle);
+    });
+
     test('can add initial parameter', () => {
         // Given parameter name and value
         const additionalParameters = {
@@ -121,7 +119,7 @@ describe('#Player', () => {
 
         // And Player with gun tree and parameter
         const gunTree = createGun(0);
-        const player = new Player(createEmptyMock(), { additionalParameters });
+        const player = new Player({ additionalParameters, muzzle: {} });
         player.setGunTree(gunTree);
 
         // When start player
@@ -152,7 +150,7 @@ describe('#Player', () => {
 
         // And Player with gun tree and parameter
         const gunTree = createGun(0);
-        const player = new Player(createEmptyMock(), { additionalTexts });
+        const player = new Player({ additionalTexts, muzzle: {} });
         player.setGunTree(gunTree);
 
         // When start player
