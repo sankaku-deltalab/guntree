@@ -1,5 +1,4 @@
 export * from './gun';
-import * as lazyEvaluative from './lazyEvaluative';
-import * as virtualMuzzle from './virtual-muzzle';
-
-export { lazyEvaluative, virtualMuzzle };
+export * from './gunModifier';
+export * from './lazyEvaluative';
+export * from './virtual-muzzle';

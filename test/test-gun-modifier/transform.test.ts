@@ -1,7 +1,7 @@
 import * as mat from 'transformation-matrix';
 
 import { IFiringState, FiringState } from 'guntree/firing-state';
-import { Transform } from 'guntree/elements/gunModifer';
+import { Transform } from 'guntree/elements/gunModifier';
 import { IPlayer } from 'guntree/player';
 import { ILazyEvaluative } from 'guntree/lazyEvaluative';
 import { IMuzzle } from 'guntree/muzzle';

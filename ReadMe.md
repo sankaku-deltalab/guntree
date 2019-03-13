@@ -6,9 +6,9 @@ GunTree is readable and extendable Danmaku describing package for shmups.
 
 ```javascript
 const guntree = repeat({ times: 2, interval: 30 },  // Repeat 2 times ...
+    setMuzzle('centerMuzzle'),  // From centerMuzzle ...
     repeat({ times: 3, interval: 5 },  // Three round burst ...
         nWay({ ways: 5, totalAngle: 45 }  // 5-way ...
-            setMuzzle('centerMuzzle'),  // From centerMuzzle ...
             fire({}),  // Fire!!
         ),
     ),
@@ -35,32 +35,44 @@ GunTree control only firing progress.
 GunTree don't create bullets with collision and shape.
 
 ```javascript
-import { Player, contents } from 'guntree';
+import * as mat from 'transformation-matrix';
+import { Player, contents as ct, decomposeTransform } from 'guntree';
 
-const yourCharacterWeapon = {
-    notifyFired(player, state, bullet) {
-        const aimAngle = state.parameters.get('baseAngle').getValue();
-        const angle = state.parameters.get('angle').getValue();
-        const speed = state.parameters.get('speed').getValue();
-        const size = state.parameters.get('size').getValue();
-        const muzzle = state.texts.get('size');
+const muzzle = {
+    fire(data, bullet) {
+        const [location, angleDeg, scale] = decomposeTransform(data.transform);
+        const speed = data.parameters.get('speed');
+        const size = state.parameters.get('size');
 
-        // Create bullet to your game.
+        // Create bullet in your game.
         // ...
     }
-    getLocation(player, name) {
-        // Return global location from name
-        if (name === 'centerMuzzle') {
-            return { x: 2, y: 2 };
-        }
-        return { x: 0, y: 0 };
+
+    getMuzzleTransform() {
+        // Return global transform of muzzle
+        return mat.transform(
+            mat.translate(1.0, 0.25),
+            mat.rotateDEG(35),
+        );
+    }
+
+    getEnemyTransform() {
+        // Return global transform of enemy
+        return mat.transform(
+            mat.translate(1.0, 0.25),
+            mat.rotateDEG(35),
+        );
     }
 };
 
-const player = new Player(yourCharacterWeapon);  // Create player per weapons
-const guntree = contents.fire({});  // GunTree can used multiple weapons
+const player = new Player({ 'centerMuzzle': muzzle });  // Create player per weapons
+const guntree = ct.concat(
+    ct.setMuzzle('centerMuzzle'),
+    ct.fire({}),
+);  // GunTree can used multiple weapons
 player.setGuntree(guntree);
-player.start();
+
+player.start();  // Start firing
 while (player.isRunning()) {
     player.tick();  // Play 1 frame
 }

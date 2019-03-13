@@ -1,5 +1,5 @@
 import { IFiringState } from 'guntree/firing-state';
-import { SetMuzzleImmediately } from 'guntree/elements/gunModifer';
+import { SetMuzzleImmediately } from 'guntree/elements/gunModifier';
 import { ILazyEvaluative } from 'guntree/lazyEvaluative';
 import { IMuzzle } from 'guntree/muzzle';
 

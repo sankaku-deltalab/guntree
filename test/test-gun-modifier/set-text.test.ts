@@ -1,5 +1,5 @@
 import { IFiringState } from 'guntree/firing-state';
-import { SetTextImmediately } from 'guntree/elements/gunModifer';
+import { SetTextImmediately } from 'guntree/elements/gunModifier';
 import { ILazyEvaluative } from 'guntree/lazyEvaluative';
 
 describe('#SetTextImmediately', () => {

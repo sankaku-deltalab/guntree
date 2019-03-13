@@ -1,5 +1,5 @@
 import { IFiringState, FiringState, IFireData } from 'guntree/firing-state';
-import { ModifyParameter } from 'guntree/elements/gunModifer';
+import { ModifyParameter } from 'guntree/elements/gunModifier';
 import { IPlayer } from 'guntree/player';
 
 describe('#ModifyParameter', () => {
