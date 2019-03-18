@@ -2,6 +2,17 @@ import * as mat from 'transformation-matrix';
 
 import { decomposeTransform } from 'guntree/transform-util';
 
+const normalizeAngleDeg = (angleDeg: number) => {
+    let r = angleDeg;
+    while (r >= 180) {
+        r -= 360;
+    }
+    while (r < -180) {
+        r += 360;
+    }
+    return r;
+};
+
 describe('#decomposeTransform', () => {
     test('can decompose transform', () => {
         // Given transform matrix has translate, rotateDeg and scale.
@@ -24,4 +35,33 @@ describe('#decomposeTransform', () => {
         expect(s.x).toBeCloseTo(scale.x);
         expect(s.y).toBeCloseTo(scale.y);
     });
+
+    test.each`
+    angleDeg
+    ${0}
+    ${0.1}
+    ${1}
+    ${13}
+    ${45}
+    ${90}
+    ${160}
+    ${180}
+    ${-13}
+    ${-45}
+    ${-90}
+    ${-160}
+    ${-180}
+    `('can decompose angle $angleDeg', ({ angleDeg }) => {
+        // Given transform matrix has rotateDeg
+        const trans = mat.transform(
+            mat.rotateDEG(angleDeg),
+        );
+
+        // When decompose trans
+        const [_, r, __] = decomposeTransform(trans);
+
+        // Then get original angle
+        expect(normalizeAngleDeg(r)).toBeCloseTo(normalizeAngleDeg(angleDeg));
+    });
+
 });
