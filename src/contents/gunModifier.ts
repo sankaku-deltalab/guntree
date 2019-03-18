@@ -87,3 +87,7 @@ export const mltSize = (multiplier: TConstantOrLazy<number>) => mltParameter('si
 
 export const resetSpeed = (newValue: TConstantOrLazy<number>) => resetParameter('speed', newValue);
 export const resetSize = (newValue: TConstantOrLazy<number>) => resetParameter('size', newValue);
+
+export const invert = (option: modO.TInvertTransformOption) => {
+    return new modO.ModifierGun(true, new modO.InvertTransformModifier(option));
+};

@@ -4,6 +4,7 @@ import { IGun } from '../gun';
 import { IFiringState, IFireDataModifier, IFireData } from '../firing-state';
 import { TConstantOrLazy, calcValueFromConstantOrLazy, calcTransFormFromConstantOrLazy } from '../lazyEvaluative';
 import { IVirtualMuzzleGenerator } from 'guntree/muzzle';
+import { decomposeTransform } from 'guntree/transform-util';
 
 /**
  * ModifierGun update FireData when fired or immediately.
@@ -39,6 +40,33 @@ export class TransformModifier implements IFireDataModifier {
     modifyFireData(stateConst: IFiringState, fireData: IFireData): void {
         const transConst = calcTransFormFromConstantOrLazy(stateConst, this.trans);
         fireData.transform = mat.transform(fireData.transform, transConst);
+    }
+}
+
+export type TInvertTransformOption = {
+    angle?: true,
+    translationX?: true,
+    translationY?: true,
+};
+
+/**
+ * Invert transform matrix.
+ */
+export class InvertTransformModifier implements IFireDataModifier {
+    constructor(private readonly option: TInvertTransformOption) {}
+
+    modifyFireData(stateConst: IFiringState, fireData: IFireData): void {
+        const [t, angleDeg, scale] = decomposeTransform(fireData.transform);
+        const xRate = this.option.translationX ? -1 : 1;
+        const yRate = this.option.translationY ? -1 : 1;
+        const angleRate = this.option.angle ? -1 : 1;
+        const translateNew = { x: t.x * xRate, y: t.y * yRate };
+        const angleDegNew = angleDeg * angleRate;
+        fireData.transform = mat.transform(
+            mat.translate(translateNew.x, translateNew.y),
+            mat.rotateDEG(angleDegNew),
+            mat.scale(scale.x, scale.y),
+        );
     }
 }
 
