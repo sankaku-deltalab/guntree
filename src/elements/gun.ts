@@ -3,6 +3,7 @@ import { range } from 'lodash';
 import { IGun, IBullet } from '../gun';
 import { IFiringState, IRepeatState } from '../firing-state';
 import { TConstantOrLazy } from '../lazyEvaluative';
+import { InvertTransformModifier, ModifierGun, SetMuzzleImmediatelyModifier } from './gunModifier';
 
 /**
  * Fire bullet.
@@ -166,6 +167,48 @@ export class Wait implements IGun {
 
     *play(state: IFiringState): IterableIterator<void> {
         yield* wait(getNumberFromLazy(state, this.frames));
+    }
+}
+
+export type TMirrorOption = {
+    invertedMuzzleName?: string,
+    mirrorTranslationX?: true,
+    mirrorTranslationY?: true,
+};
+
+/**
+ * Mirror play gun and inverted gun as parallel.
+ * Mirror can use another muzzle for inverted gun.
+ */
+export class Mirror implements IGun {
+    private readonly parallel: IGun;
+
+    constructor(option: TMirrorOption, gun: IGun) {
+        const invert = new ModifierGun(true, new InvertTransformModifier({
+            angle: true,
+            translationX: option.mirrorTranslationX,
+            translationY: option.mirrorTranslationY,
+        }));
+        const mirroredChild = [];
+        // Set muzzle if name was specified
+        if (option.invertedMuzzleName !== undefined) {
+            mirroredChild.push(
+                new ModifierGun(
+                    false,
+                    new SetMuzzleImmediatelyModifier(option.invertedMuzzleName),
+                ));
+        }
+        mirroredChild.push(invert);
+        mirroredChild.push(gun);
+
+        this.parallel = new Parallel(
+            gun,
+            new Concat(...mirroredChild),
+        );
+    }
+
+    *play(state: IFiringState): IterableIterator<void> {
+        yield* this.parallel.play(state);
     }
 }
 
