@@ -212,6 +212,42 @@ export class Mirror implements IGun {
     }
 }
 
+/**
+ * Alternate play gun and inverted gun as sequential.
+ * Alternate can use another muzzle for inverted gun.
+ */
+export class Alternate implements IGun {
+    private readonly parallel: IGun;
+
+    constructor(option: TMirrorOption, gun: IGun) {
+        const invert = new ModifierGun(true, new InvertTransformModifier({
+            angle: true,
+            translationX: option.mirrorTranslationX,
+            translationY: option.mirrorTranslationY,
+        }));
+        const mirroredChild = [];
+        // Set muzzle if name was specified
+        if (option.invertedMuzzleName !== undefined) {
+            mirroredChild.push(
+                new ModifierGun(
+                    false,
+                    new SetMuzzleImmediatelyModifier(option.invertedMuzzleName),
+                ));
+        }
+        mirroredChild.push(invert);
+        mirroredChild.push(gun);
+
+        this.parallel = new Sequential(
+            gun,
+            new Concat(...mirroredChild),
+        );
+    }
+
+    *play(state: IFiringState): IterableIterator<void> {
+        yield* this.parallel.play(state);
+    }
+}
+
 const getNumberFromLazy = (state: IFiringState,
                            numberOrLazy: TConstantOrLazy<number>): number => {
     if (typeof numberOrLazy === 'number') return numberOrLazy;
