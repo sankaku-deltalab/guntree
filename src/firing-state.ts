@@ -20,9 +20,9 @@ export interface IFiringState {
     /**
      * Push function would applied to fireData when fire bullet.
      *
-     * @param modifier Function would applied when fire bullet
+     * @param modifier modifier would applied when fire bullet
      */
-    pushModifier(modifier: TFireDataModifier): void;
+    pushModifier(modifier: IFireDataModifier): void;
 
     /** Calculate modified fire data. */
     calcModifiedFireData(): IFireData;
@@ -63,7 +63,12 @@ export interface IFireData {
     copy(): IFireData;
 }
 
-export type TFireDataModifier = (stateConst: IFiringState, fireData: IFireData) => void;
+/**
+ * IFireDataModifier modify FireData.
+ */
+export interface IFireDataModifier {
+    modifyFireData(stateConst: IFiringState, fireData: IFireData): void;
+}
 
 /**
  * IRepeatStateManager manage repeating while firing.
@@ -120,7 +125,7 @@ export class FiringState implements IFiringState {
     repeatStates: IRepeatStateManager;
 
     /** Function would applied to fireData when fire bullet, */
-    private readonly modifiers: TFireDataModifier[];
+    private readonly modifiers: IFireDataModifier[];
 
     constructor(private readonly player: IPlayer) {
         this.fireData = new FireData();
@@ -134,7 +139,7 @@ export class FiringState implements IFiringState {
      *
      * @param modifier Function would applied when fire bullet
      */
-    pushModifier(modifier: TFireDataModifier): void {
+    pushModifier(modifier: IFireDataModifier): void {
         this.modifiers.push(modifier);
     }
 
@@ -144,7 +149,7 @@ export class FiringState implements IFiringState {
         const fdClone = this.fireData.copy();
 
         // Apply modifiers
-        this.modifiers.reverse().map(mod => mod(this, fdClone));
+        this.modifiers.reverse().map(mod => mod.modifyFireData(this, fdClone));
 
         // Apply muzzle transform
         fdClone.transform = mat.transform(

@@ -67,3 +67,11 @@ export const spread = (option: TWhipOption, ...guns: IGun[]) => {
         ...guns,
     );
 };
+
+export const mirror = (option: gunO.TMirrorOption, ...guns: IGun[]) => {
+    return new gunO.Mirror(option, concat(...guns));
+};
+
+export const alternate = (option: gunO.TMirrorOption, ...guns: IGun[]) => {
+    return new gunO.Alternate(option, concat(...guns));
+};

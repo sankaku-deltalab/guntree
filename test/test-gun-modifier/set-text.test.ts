@@ -1,66 +1,68 @@
-import { IFiringState } from 'guntree/firing-state';
-import { SetTextImmediately } from 'guntree/elements/gunModifier';
-import { ILazyEvaluative } from 'guntree/lazyEvaluative';
+import { IFiringState, IFireData } from 'guntree/firing-state';
+import { SetTextImmediatelyModifier } from 'guntree/elements/gunModifier';
+import { simpleMock, leOnce } from '../util';
 
-describe('#SetTextImmediately', () => {
+const fireDataClass = jest.fn<IFireData>((texts: Map<string, string>) => ({
+    texts,
+}));
+
+describe('#SetTextImmediatelyModifier', () => {
     test('can set text with unset name', () => {
         // Given firing state
-        const stateClass = jest.fn<IFiringState>(() => ({
-            fireData: { texts: new Map() },
-        }));
-        const state = new stateClass();
+        const state = simpleMock<IFiringState>();
 
-        // And SetTextImmediately
+        // And FireData
+        const fd = new fireDataClass(new Map());
+
+        // And SetTextImmediatelyModifier
         const name = 'a';
         const text = 'aa';
-        const setText = new SetTextImmediately(name, text);
+        const setTextMod = new SetTextImmediatelyModifier(name, text);
 
-        // When play SetTextImmediately
-        setText.play(state).next();
+        // When modify SetTextImmediately
+        setTextMod.modifyFireData(state, fd);
 
         // Then text was set
-        expect(state.fireData.texts.get(name)).toBe(text);
+        expect(fd.texts).toEqual(new Map([[name, text]]));
     });
 
     test('can set text with already set name', () => {
         // Given firing state
+        const state = simpleMock<IFiringState>();
+
+        // And FireData
         const name = 'a';
-        const text = 'aa';
-        const stateClass = jest.fn<IFiringState>(() => ({
-            fireData: { texts: new Map([[name, `${text}b`]]) },
-        }));
-        const state = new stateClass();
+        const initialText = 'aa';
+        const fd = new fireDataClass(new Map([[name, initialText]]));
 
-        // And SetTextImmediately
-        const setText = new SetTextImmediately(name, text);
+        // And SetTextImmediatelyModifier
+        const text = 'bb';
+        const setTextMod = new SetTextImmediatelyModifier(name, text);
 
-        // When play SetTextImmediately
-        setText.play(state).next();
+        // When modify SetTextImmediately
+        setTextMod.modifyFireData(state, fd);
 
         // Then text was set
-        expect(state.fireData.texts.get(name)).toBe(text);
+        expect(fd.texts).toEqual(new Map([[name, text]]));
     });
 
     test('can set text with lazyEvaluative text', () => {
         // Given firing state
-        const stateClass = jest.fn<IFiringState>(() => ({
-            fireData: { texts: new Map() },
-        }));
-        const state = new stateClass();
+        const state = simpleMock<IFiringState>();
 
-        // And SetTextImmediately
-        const leClass = jest.fn<ILazyEvaluative<string>>((t: string) => ({
-            calc: jest.fn().mockReturnValueOnce(t),
-        }));
+        // And FireData
+        const fd = new fireDataClass(new Map());
+
+        // And SetTextImmediatelyModifier
         const name = 'a';
-        const text = 'aa';
-        const textLe = new leClass(text);
-        const setText = new SetTextImmediately(name, textLe);
+        const textConst = 'aa';
+        const textLe = leOnce(textConst);
+        const setTextMod = new SetTextImmediatelyModifier(name, textLe);
 
-        // When play SetTextImmediately
-        setText.play(state).next();
+        // When modify SetTextImmediately
+        setTextMod.modifyFireData(state, fd);
 
         // Then text was set
-        expect(state.fireData.texts.get(name)).toBe(text);
+        expect(fd.texts).toEqual(new Map([[name, textConst]]));
     });
 });

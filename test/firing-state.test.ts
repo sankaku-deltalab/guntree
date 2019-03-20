@@ -1,6 +1,7 @@
+import { range } from 'lodash';
 import * as mat from 'transformation-matrix';
 
-import { FiringState, IFireData } from 'guntree/firing-state';
+import { FiringState, IFireData, IFireDataModifier } from 'guntree/firing-state';
 import { IPlayer } from 'guntree/player';
 import { IBullet } from 'guntree/gun';
 import { IMuzzle } from 'guntree/muzzle';
@@ -8,34 +9,37 @@ import { simpleMock } from './util';
 
 describe('#FiringState', () => {
     test('can add modifier and apply their', () => {
-        // Given firing state with muzzle and FireData clone
-        const state = new FiringState(simpleMock<IPlayer>());
-        const muzzle = simpleMock<IMuzzle>();
-        muzzle.getMuzzleTransform = jest.fn().mockReturnValueOnce(mat.translate(0));
+        // Given FireData as clone
         const fireDataClone = simpleMock<IFireData>();
         fireDataClone.transform = mat.translate(0);
+
+        // And muzzle with transform
+        const muzzle = simpleMock<IMuzzle>();
+        muzzle.getMuzzleTransform = jest.fn().mockReturnValueOnce(mat.translate(0));
+
+        // And FiringState with muzzle and FireData clone
+        const state = new FiringState(simpleMock<IPlayer>());
         state.muzzle = muzzle;
         state.fireData.copy = jest.fn().mockReturnValueOnce(fireDataClone);
 
-        // And modifiers are pushed to FiringState
-        const calledModifiers: jest.Mock[] = [];
-        const genMod = () => {
-            const mod = jest.fn().mockImplementationOnce(() => calledModifiers.push(mod));
+        // And modifiers
+        const calledModifiers: IFireDataModifier[] = [];
+        const modifiers = range(3).map(() => {
+            const mod = simpleMock<IFireDataModifier>();
+            mod.modifyFireData = jest.fn().mockImplementation(() => calledModifiers.push(mod));
             return mod;
-        };
-        const modifiers = [
-            genMod(),
-            genMod(),
-        ];
+        });
+
+        // When push modifiers to FiringState
         modifiers.map(m => state.pushModifier(m));
 
-        // When calc modified fireData
+        // And calc modified fireData
         state.calcModifiedFireData();
 
         // Then modifiers are called with fireData copy
         modifiers.map((mod) => {
-            expect(mod).toBeCalledWith(state, fireDataClone);
-            expect(mod).toBeCalledTimes(1);
+            expect(mod.modifyFireData).toBeCalledWith(state, fireDataClone);
+            expect(mod.modifyFireData).toBeCalledTimes(1);
         });
 
         // And modifiers are called as reversed order
