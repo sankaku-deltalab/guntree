@@ -1,166 +1,135 @@
-import { IFiringState, IGun, TVector2D } from '../gun';
-import { ILazyEvaluative, TConstantOrLazy } from '../lazyEvaluative';
+import * as mat from 'transformation-matrix';
+
+import { IGun } from '../gun';
+import { IFiringState, IFireDataModifier, IFireData } from '../firing-state';
+import { TConstantOrLazy, calcValueFromConstantOrLazy, calcTransFormFromConstantOrLazy } from '../lazyEvaluative';
+import { IVirtualMuzzleGenerator } from 'guntree/muzzle';
+import { decomposeTransform } from 'guntree/transform-util';
 
 /**
- * Add parameter.
+ * ModifierGun update FireData when fired or immediately.
  */
-export class AddParameter implements IGun {
+export class ModifierGun implements IGun {
     /**
-     * @param name paramter name
-     * @param adding adding value or lazyEvaluative deal adding value
+     * @param modifyLater Use modifier later or immediately
+     * @param modifier Used modifier
      */
-    constructor(private readonly name: string,
-                private readonly adding: TConstantOrLazy<number>) {}
+    constructor(private readonly modifyLater: boolean,
+                private readonly modifier: IFireDataModifier) {}
 
     *play(state: IFiringState): IterableIterator<void> {
-        const param = state.parameters.get(this.name);
-        if (param === undefined) throw new Error(`Parameter ${this.name} is not exist`);
-        param.add(this.calcAdding(state));
+        ModifierGun.modifyImmediatelyOrLater(state, this.modifyLater, this.modifier);
     }
 
-    private calcAdding(state: IFiringState): number {
-        if (typeof this.adding === 'number') return this.adding;
-        return this.adding.calc(state);
+    private static modifyImmediatelyOrLater(
+            state: IFiringState, modifyLater: boolean, modifier: IFireDataModifier): void {
+        if (modifyLater) {
+            state.pushModifier(modifier);
+        } else {
+            modifier.modifyFireData(state, state.fireData);
+        }
     }
 }
 
 /**
- * Multiply parameter.
+ * Transform matrix.
  */
-export class MultiplyParameter implements IGun {
-    /**
-     * @param name paramter name
-     * @param multiplier multiplier value or lazyEvaluative deal multiplier value
-     */
-    constructor(private readonly name: string,
-                private readonly multiplier: TConstantOrLazy<number>) {}
+export class TransformModifier implements IFireDataModifier {
+    constructor(private readonly trans: TConstantOrLazy<mat.Matrix>) {}
 
-    *play(state: IFiringState): IterableIterator<void> {
-        const param = state.parameters.get(this.name);
-        if (param === undefined) throw new Error(`Parameter ${this.name} is not exist`);
-        param.multiply(this.calcMultiplier(state));
+    modifyFireData(stateConst: IFiringState, fireData: IFireData): void {
+        const transConst = calcTransFormFromConstantOrLazy(stateConst, this.trans);
+        fireData.transform = mat.transform(fireData.transform, transConst);
     }
+}
 
-    private calcMultiplier(state: IFiringState): number {
-        if (typeof this.multiplier === 'number') return this.multiplier;
-        return this.multiplier.calc(state);
+export type TInvertTransformOption = {
+    angle?: true,
+    translationX?: true,
+    translationY?: true,
+};
+
+/**
+ * Invert transform matrix.
+ */
+export class InvertTransformModifier implements IFireDataModifier {
+    constructor(private readonly option: TInvertTransformOption) {}
+
+    modifyFireData(stateConst: IFiringState, fireData: IFireData): void {
+        const [t, angleDeg, scale] = decomposeTransform(fireData.transform);
+        const xRate = this.option.translationX ? -1 : 1;
+        const yRate = this.option.translationY ? -1 : 1;
+        const angleRate = this.option.angle ? -1 : 1;
+        const translateNew = { x: t.x * xRate, y: t.y * yRate };
+        const angleDegNew = angleDeg * angleRate;
+        fireData.transform = mat.transform(
+            mat.translate(translateNew.x, translateNew.y),
+            mat.rotateDEG(angleDegNew),
+            mat.scale(scale.x, scale.y),
+        );
     }
 }
 
 /**
- * Multiply later adding value to parameter.
+ * Set parameter in FireData when played.
  */
-export class MultiplyLaterAddingParameter implements IGun {
-    /**
-     * @param name paramter name
-     * @param multiplier multiplier value or lazyEvaluative deal multiplier value
-     */
+export class SetParameterImmediatelyModifier implements IFireDataModifier {
     constructor(private readonly name: string,
-                private readonly multiplier: TConstantOrLazy<number>) {}
+                private readonly value: TConstantOrLazy<number>) {}
 
-    *play(state: IFiringState): IterableIterator<void> {
-        const param = state.parameters.get(this.name);
-        if (param === undefined) throw new Error(`Parameter ${this.name} is not exist`);
-        param.multiplyLaterAdding(this.calcMultiplier(state));
-    }
-
-    private calcMultiplier(state: IFiringState): number {
-        if (typeof this.multiplier === 'number') return this.multiplier;
-        return this.multiplier.calc(state);
+    modifyFireData(stateConst: IFiringState, fireData: IFireData): void {
+        fireData.parameters.set(this.name, calcValueFromConstantOrLazy(stateConst, this.value));
     }
 }
 
 /**
- * Reset value to parameter.
+ * Modify parameter with given function later.
  */
-export class ResetParameter implements IGun {
-    /**
-     * @param name paramter name
-     * @param newValue new value value or lazyEvaluative deal multiplier value
-     */
+export class ModifyParameterModifier implements IFireDataModifier {
     constructor(private readonly name: string,
-                private readonly newValue: TConstantOrLazy<number>) {}
+                private readonly modifier: (stateConst: IFiringState, oldValue: number) => number) {}
 
-    *play(state: IFiringState): IterableIterator<void> {
-        const param = state.parameters.get(this.name);
-        if (param === undefined) throw new Error(`Parameter ${this.name} is not exist`);
-        param.reset(this.calcNewValue(state));
-    }
-
-    private calcNewValue(state: IFiringState): number {
-        if (typeof this.newValue === 'number') return this.newValue;
-        return this.newValue.calc(state);
+    modifyFireData(stateConst: IFiringState, fireData: IFireData): void {
+        const oldValue = fireData.parameters.get(this.name);
+        if (oldValue === undefined) throw new Error(`parameter <${this.name}> was not set`);
+        fireData.parameters.set(this.name, this.modifier(stateConst, oldValue));
     }
 }
 
 /**
- * Fire bullet.
+ * Set text in FireData when played.
  */
-export class SetText implements IGun {
-    /**
-     * @param key Key of text
-     * @param text text
-     */
-    constructor(private readonly key: string,
+export class SetTextImmediatelyModifier implements IFireDataModifier {
+    constructor(private readonly name: string,
                 private readonly text: TConstantOrLazy<string>) {}
 
-    *play(state: IFiringState): IterableIterator<void> {
-        state.texts.set(this.key, this.calcText(state));
-    }
-
-    private calcText(state: IFiringState): string {
-        if (typeof this.text === 'string') return this.text;
-        return this.text.calc(state);
+    modifyFireData(stateConst: IFiringState, fireData: IFireData): void {
+        fireData.texts.set(this.name, calcValueFromConstantOrLazy(stateConst, this.text));
     }
 }
 
 /**
- * Set vector to FiringState.
+ * Set muzzle in FireData when played.
  */
-export class SetVector implements IGun {
-    /**
-     * @param key key of vector
-     * @param vector vector
-     */
-    constructor(private readonly key: string,
-                private readonly vector: TConstantOrLazy<TVector2D >) {}
+export class SetMuzzleImmediatelyModifier implements IFireDataModifier {
+    constructor(private readonly name: TConstantOrLazy<string>) {}
 
-    *play(state: IFiringState): IterableIterator<void> {
-        state.vectors.set(this.key, this.calcVector(state));
-    }
-
-    private calcVector(state: IFiringState): TVector2D {
-        if ('x' in this.vector) return this.vector;
-        return this.vector.calc(state);
+    modifyFireData(stateConst: IFiringState, fireData: IFireData): void {
+        const muzzleName = calcValueFromConstantOrLazy(stateConst, this.name);
+        stateConst.muzzle = stateConst.getMuzzleByName(muzzleName);
     }
 }
 
 /**
- * Add vector to FiringState.
+ * Attach virtual muzzle to current muzzle.
  */
-export class AddVector implements IGun {
-    /**
-     * @param key key of vector
-     * @param vector vector would be added
-     */
-    constructor(private readonly key: string,
-                private readonly vector: TConstantOrLazy<TVector2D >) {}
+export class AttachVirtualMuzzleImmediatelyModifier implements IFireDataModifier {
+    constructor(private readonly virtualMuzzleGenerator: IVirtualMuzzleGenerator) {}
 
-    *play(state: IFiringState): IterableIterator<void> {
-        const vec = state.vectors.get(this.key);
-        if (vec === undefined) throw new Error(`vector must exist at '${this.key}'`);
-        state.vectors.set(this.key, addVector(vec, this.calcVector(state)));
-    }
-
-    private calcVector(state: IFiringState): TVector2D {
-        if ('x' in this.vector) return this.vector;
-        return this.vector.calc(state);
+    modifyFireData(stateConst: IFiringState, fireData: IFireData): void {
+        if (stateConst.muzzle === null) throw new Error('Muzzle was not set at FiringState');
+        const muzzle = this.virtualMuzzleGenerator.generate();
+        muzzle.basedOn(stateConst.muzzle);
+        stateConst.muzzle = muzzle;
     }
 }
-
-const addVector = (vec1: TVector2D, vec2: TVector2D): TVector2D => {
-    return {
-        x: vec1.x + vec2.x,
-        y: vec1.y + vec2.y,
-    };
-};

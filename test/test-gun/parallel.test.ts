@@ -1,6 +1,7 @@
 import { range } from 'lodash';
 
-import { IFiringState, IGun } from 'guntree/gun';
+import { IGun } from 'guntree/gun';
+import { IFiringState } from 'guntree/firing-state';
 import { Parallel } from 'guntree/elements/gun';
 
 const createFiringStateMocks = (cloneNum: number): [IFiringState, IFiringState[]] => {

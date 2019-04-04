@@ -1,5 +1,7 @@
-import { IFiringState, TVector2D } from '../gun';
-import { ILazyEvaluative, TConstantOrLazy } from '../lazyEvaluative';
+import * as mat from 'transformation-matrix';
+
+import { IFiringState } from '../firing-state';
+import { ILazyEvaluative, TConstantOrLazy, calcValueFromConstantOrLazy } from '../lazyEvaluative';
 
 export class Linear implements ILazyEvaluative<number> {
     constructor(private readonly start: TConstantOrLazy<number>,
@@ -7,9 +9,9 @@ export class Linear implements ILazyEvaluative<number> {
                 private readonly target?: string) {}
 
     calc(state: IFiringState): number {
-        const start = getNumberFromLazy(state, this.start);
-        const stop = getNumberFromLazy(state, this.stop);
-        const repeat = state.getRepeatState(this.target);
+        const start = calcValueFromConstantOrLazy(state, this.start);
+        const stop = calcValueFromConstantOrLazy(state, this.stop);
+        const repeat = state.repeatStates.get(this.target);
         const rate = repeat.finished / repeat.total;
         return stop * rate + start * (1 - rate);
     }
@@ -37,7 +39,7 @@ export class Iterate implements ILazyEvaluative<number> {
 
     calc(state: IFiringState): number {
         const target = this.option !== undefined ? this.option.target : undefined;
-        const repeat = state.getRepeatState(target);
+        const repeat = state.repeatStates.get(target);
         if (repeat.finished >= this.array.length) {
             if (this.option !== undefined && this.option.default !== undefined) return this.option.default;
             throw new Error('Iterate expected repeating out of range but default value is not in option');
@@ -65,59 +67,6 @@ export class Round implements ILazyEvaluative<number> {
 }
 
 /**
- * Deal location.
- */
-export class GetLocation implements ILazyEvaluative<TVector2D> {
-    /**
-     *
-     * @param name name of location
-     */
-    constructor(private readonly name: string) {}
-
-    calc(state: IFiringState): TVector2D {
-        return state.player.getLocation(this.name);
-    }
-}
-
-/**
- * Deal direction between to locations.
- */
-export class CalcDirection implements ILazyEvaluative<number> {
-    /**
-     * @param src source of direction
-     * @param dest destination of direction
-     */
-    constructor(private readonly src: TConstantOrLazy<TVector2D >,
-                private readonly dest: TConstantOrLazy<TVector2D >) {}
-
-    calc(state: IFiringState): number {
-        const src = getVectorFromLazy(state, this.src);
-        const dest = getVectorFromLazy(state, this.dest);
-        const direction = [dest.x - src.x, dest.y - src.y];
-        const angleRad = Math.atan2(direction[1], direction[0]);
-        return 360 * angleRad / (2 * Math.PI);
-    }
-}
-
-/**
- * Deal globalized vector.
- */
-export class GlobalizeVector implements ILazyEvaluative<TVector2D> {
-    constructor(private readonly vector: TConstantOrLazy<TVector2D >,
-                private readonly angle: TConstantOrLazy<number>) {}
-
-    calc(state: IFiringState): TVector2D {
-        const vector = getVectorFromLazy(state, this.vector);
-        const angleDeg = getNumberFromLazy(state, this.angle);
-        const angleRad = angleDeg * 2 * Math.PI / 360;
-        return {
-            x: vector.x * Math.cos(angleRad) - vector.y * Math.sin(angleRad),
-            y: vector.x * Math.sin(angleRad) + vector.y * Math.cos(angleRad),
-        };
-    }
-}
-
-/**
  * Deal centerized linear values.
  *
  * example:
@@ -129,20 +78,75 @@ export class CenterizedLinear implements ILazyEvaluative<number> {
                 private readonly target?: string) {}
 
     calc(state: IFiringState): number {
-        const totalRange = getNumberFromLazy(state, this.totalRange);
-        const repeat = state.getRepeatState(this.target);
+        const totalRange = calcValueFromConstantOrLazy(state, this.totalRange);
+        const repeat = state.repeatStates.get(this.target);
         const rate = repeat.finished / repeat.total;
         const diff = totalRange / repeat.total;
         return totalRange * rate - (totalRange - diff) / 2;
     }
 }
 
-const getVectorFromLazy = (state: IFiringState, vector: TConstantOrLazy<TVector2D >): TVector2D => {
-    if ('x' in vector && 'y' in vector) return vector;
-    return vector.calc(state);
+export type TCreateTransformOption = {
+    translation?: TConstantOrLazy<number> | [TConstantOrLazy<number>, TConstantOrLazy<number>];
+    rotationDeg?: TConstantOrLazy<number>;
+    scale?: TConstantOrLazy<number> | [TConstantOrLazy<number>, TConstantOrLazy<number>];
 };
 
-const getNumberFromLazy = (state: IFiringState, value: TConstantOrLazy<number>): number => {
-    if (typeof value === 'number') return value;
-    return value.calc(state);
+type TCreateTransformOptionFilled = {
+    translation: TConstantOrLazy<number> | [TConstantOrLazy<number>, TConstantOrLazy<number>];
+    rotationDeg: TConstantOrLazy<number>;
+    scale: TConstantOrLazy<number> | [TConstantOrLazy<number>, TConstantOrLazy<number>];
+};
+
+/**
+ * Create transform.
+ *
+ * example:
+ *
+ * new CreateTransform({
+ *     translation: [10, 0],
+ *     rotationDeg: 90,
+ *     scale: 1.25,
+ * });
+ */
+export class CreateTransform implements ILazyEvaluative<mat.Matrix> {
+    private readonly option: TCreateTransformOptionFilled;
+
+    /**
+     * @param option Translation values
+     */
+    constructor(option: TCreateTransformOption) {
+        const defaultOption: TCreateTransformOptionFilled = {
+            translation: 0,
+            rotationDeg: 0,
+            scale: 1,
+        };
+        this.option = Object.assign(defaultOption, option);
+    }
+
+    calc(state: IFiringState): mat.Matrix {
+        const tr: [number, number | undefined] =
+            Array.isArray(this.option.translation)
+            ? calcTupleLe(state, this.option.translation)
+            : [calcValueFromConstantOrLazy(state, this.option.translation), undefined];
+        const rot = calcValueFromConstantOrLazy(state, this.option.rotationDeg);
+        const sc: [number, number | undefined] =
+            Array.isArray(this.option.scale)
+            ? calcTupleLe(state, this.option.scale)
+            : [calcValueFromConstantOrLazy(state, this.option.scale), undefined];
+        return mat.transform(
+            mat.translate(tr[0], tr[1]),
+            mat.rotateDEG(rot),
+            mat.scale(sc[0], sc[1]),
+        );
+    }
+}
+
+const calcTupleLe = (
+        state: IFiringState,
+        tuple: [TConstantOrLazy<number>, TConstantOrLazy<number>]): [number, number | undefined] => {
+    return [
+        calcValueFromConstantOrLazy(state, tuple[0]),
+        calcValueFromConstantOrLazy(state, tuple[1]),
+    ];
 };

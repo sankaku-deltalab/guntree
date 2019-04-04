@@ -1,16 +1,12 @@
-import { IFiringState, IBullet } from 'guntree/gun';
+import { IBullet } from 'guntree/gun';
+import { IFiringState } from 'guntree/firing-state';
 import { Fire } from 'guntree/elements/gun';
-import { IPlayer } from 'guntree/player';
 
 describe('#Fire', () => {
-    test('notify fired to firing state', () => {
-        // Given repeating progress
-        const playerClass = jest.fn<IPlayer>(() => ({
-            notifyFired: jest.fn(),
-        }));
-        const player = new playerClass();
+    test('notify firing to firing state', () => {
+        // Given FiringState
         const firingStateClass = jest.fn<IFiringState>(() => ({
-            player,
+            fire: jest.fn(),
         }));
         const state = new firingStateClass();
 
@@ -21,15 +17,34 @@ describe('#Fire', () => {
         // And Fire
         const fire = new Fire(bullet);
 
-        // When play Add with one frame
+        // When play Fire with one frame
+        const progress = fire.play(state);
+        progress.next();
+
+        // Then parameter has added only once
+        expect(state.fire).toBeCalledTimes(1);
+        expect(state.fire).toBeCalledWith(bullet);
+    });
+
+    test('do not consume frames', () => {
+        // Given FiringState
+        const firingStateClass = jest.fn<IFiringState>(() => ({
+            fire: jest.fn(),
+        }));
+        const state = new firingStateClass();
+
+        // And Bullet
+        const bulletClass = jest.fn<IBullet>(() => ({}));
+        const bullet = new bulletClass();
+
+        // And Fire
+        const fire = new Fire(bullet);
+
+        // When play Fire with one frame
         const progress = fire.play(state);
         const result = progress.next();
 
-        // Then parameter has added only once
-        expect(state.player.notifyFired).toBeCalledTimes(1);
-        expect(state.player.notifyFired).toBeCalledWith(state, bullet);
-
-        // And progress was finished
+        // Then progress was finished
         expect(result.done).toBe(true);
     });
 });

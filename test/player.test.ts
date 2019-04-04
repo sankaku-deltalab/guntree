@@ -1,8 +1,9 @@
 import { range } from 'lodash';
 
-import { IFiringState, IGun, IBullet } from 'guntree/gun';
-import { Player, IPlayerOwner } from 'guntree/player';
-import { Parameter } from 'guntree/parameter';
+import { IGun, IBullet } from 'guntree/gun';
+import { IFiringState, IFireData } from 'guntree/firing-state';
+import { Player } from 'guntree/player';
+import { IMuzzle } from 'guntree/muzzle';
 
 const createGun = (frames: number): IGun => {
     const gunClass = jest.fn<IGun>((f: number) => ({
@@ -76,46 +77,8 @@ describe('#Player', () => {
         expect(player.isRunning).toBe(false);
     });
 
-    test('notify firing to owner', () => {
-        // Given player with owner
-        const poClass = jest.fn<IPlayerOwner>((f: number) => ({
-            notifyFired: jest.fn(),
-        }));
-        const owner = new poClass();
-        const player = new Player(owner);
-
-        // When player notified fired
-        const state = createEmptyMock<IFiringState>();
-        const bullet = createEmptyMock<IBullet>();
-        player.notifyFired(state, bullet);
-
-        // Then owner notified fired
-        expect(owner.notifyFired).toBeCalledTimes(1);
-        expect(owner.notifyFired).toBeCalledWith(player, state, bullet);
-    });
-
-    test('get location from owner', () => {
-        // Given player with owner
-        const vec = { x: 1, y: 3, z: 6 };
-        const poClass = jest.fn<IPlayerOwner>((f: number) => ({
-            getLocation: jest.fn().mockReturnValueOnce(vec),
-        }));
-        const owner = new poClass();
-        const player = new Player(owner);
-
-        // When player get location
-        const name = 'vec_name';
-        player.getLocation(name);
-
-        // Then location was dealt from owner
-        expect(owner.getLocation).toBeCalledTimes(1);
-        expect(owner.getLocation).toBeCalledWith(player, name);
-    });
-
     test.each`
         name          | value
-        ${'angle'}    | ${0}
-        ${'aimAngle'} | ${0}
         ${'speed'}    | ${1}
         ${'size'}     | ${1}
     `('initialize parameter `$name` to $value', ({ name, value }) => {
@@ -129,7 +92,22 @@ describe('#Player', () => {
 
         // Then gun was played with state and state parameter was initialized
         const gunState: IFiringState = (<jest.Mock> gunTree.play).mock.calls[0][0];
-        expect(gunState.parameters.get(name)).toEqual(new Parameter(value));
+        expect(gunState.fireData.parameters.get(name)).toEqual(value);
+    });
+
+    test('can set muzzle at constructed and get there', () => {
+        // Given parameter name and value
+        const muzzleClass = jest.fn<IMuzzle>(() => ({}));
+        const muzzle = new muzzleClass();
+
+        // And Player with muzzle
+        const player = new Player({ muzzle: { a: muzzle } });
+
+        // When get muzzle from player
+        const gottenMuzzle = player.getMuzzle('a');
+
+        // Then gotten muzzle be set muzzle
+        expect(gottenMuzzle).toBe(muzzle);
     });
 
     test('can add initial parameter', () => {
@@ -141,7 +119,7 @@ describe('#Player', () => {
 
         // And Player with gun tree and parameter
         const gunTree = createGun(0);
-        const player = new Player(createEmptyMock(), { additionalParameters });
+        const player = new Player({ additionalParameters, muzzle: {} });
         player.setGunTree(gunTree);
 
         // When start player
@@ -150,36 +128,17 @@ describe('#Player', () => {
         // Then gun was played with state and state parameter was initialized
         const gunState: IFiringState = (<jest.Mock> gunTree.play).mock.calls[0][0];
         for (const [name, value] of Object.entries(additionalParameters)) {
-            expect(gunState.parameters.get(name)).toEqual(new Parameter(value));
+            expect(gunState.fireData.parameters.get(name)).toEqual(value);
         }
 
         // And default parameters are still alive
         const defaultParameters: [string, number][] = [
-            ['angle', 0],
-            ['aimAngle', 0],
             ['speed', 1],
             ['size', 1],
         ];
         for (const [name, value] of defaultParameters) {
-            expect(gunState.parameters.get(name)).toEqual(new Parameter(value));
+            expect(gunState.fireData.parameters.get(name)).toEqual(value);
         }
-    });
-
-    test.each`
-        name        | value
-        ${'muzzle'} | ${'__undefined'}
-    `('initialize text `$name` to $value', ({ name, value }) => {
-        // Given Player with gun tree
-        const gunTree = createGun(0);
-        const player = new Player(createEmptyMock());
-        player.setGunTree(gunTree);
-
-        // When start player
-        player.start();
-
-        // Then gun was played with state and state parameter was initialized
-        const gunState: IFiringState = (<jest.Mock> gunTree.play).mock.calls[0][0];
-        expect(gunState.texts.get(name)).toBe(value);
     });
 
     test('can add initial text', () => {
@@ -191,7 +150,7 @@ describe('#Player', () => {
 
         // And Player with gun tree and parameter
         const gunTree = createGun(0);
-        const player = new Player(createEmptyMock(), { additionalTexts });
+        const player = new Player({ additionalTexts, muzzle: {} });
         player.setGunTree(gunTree);
 
         // When start player
@@ -200,15 +159,7 @@ describe('#Player', () => {
         // Then gun was played with state and state texts was initialized
         const gunState: IFiringState = (<jest.Mock> gunTree.play).mock.calls[0][0];
         for (const [name, value] of Object.entries(additionalTexts)) {
-            expect(gunState.texts.get(name)).toBe(value);
-        }
-
-        // And default parameters are still alive
-        const defaultTexts: [string, string][] = [
-            ['muzzle', '__undefined'],
-        ];
-        for (const [name, value] of defaultTexts) {
-            expect(gunState.texts.get(name)).toBe(value);
+            expect(gunState.fireData.texts.get(name)).toBe(value);
         }
     });
 });

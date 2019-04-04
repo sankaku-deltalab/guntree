@@ -1,51 +1,93 @@
-import { TVector2D } from '../gun';
-import { TConstantOrLazy } from '../lazyEvaluative';
+import * as mat from 'transformation-matrix';
+
+import { TConstantOrLazy, calcValueFromConstantOrLazy } from '../lazyEvaluative';
 import * as modO from '../elements/gunModifier';
 import * as le from '../contents/lazyEvaluative';
+import { IVirtualMuzzleGenerator } from 'guntree/muzzle';
+import { IFiringState } from 'guntree/firing-state';
+
+/**
+ * Transform matrix.
+ */
+export const transform = (trans: TConstantOrLazy<mat.Matrix>): modO.ModifierGun => {
+    return new modO.ModifierGun(true, new modO.TransformModifier(trans));
+};
+
+/**
+ * Set parameter in FireData when played.
+ */
+export const useParameter = (
+        name: string,
+        value: TConstantOrLazy<number>) => {
+    return new modO.ModifierGun(false, new modO.SetParameterImmediatelyModifier(name, value));
+};
+
+/**
+ * Set parameter in FireData when played.
+ */
+export const modifyParameter = (
+        name: string,
+        modifier: (stateConst: IFiringState, oldValue: number) => number) => {
+    return new modO.ModifierGun(true, new modO.ModifyParameterModifier(name, modifier));
+};
+
+/**
+ * Set muzzle in FireData when played.
+ */
+export const useMuzzle = (
+        name: TConstantOrLazy<string>) => {
+    return new modO.ModifierGun(false, new modO.SetMuzzleImmediatelyModifier(name));
+};
+
+/**
+ * Attach virtual muzzle to current muzzle.
+ */
+export const useVirtualMuzzle = (
+        virtualMuzzleGenerator: IVirtualMuzzleGenerator) => {
+    return new modO.ModifierGun(false, new modO.AttachVirtualMuzzleImmediatelyModifier(virtualMuzzleGenerator));
+};
+
+/**
+ * Set text in FireData when played.
+ */
+export const useText = (
+        name: string,
+        text: TConstantOrLazy<string>) => {
+    return new modO.ModifierGun(false, new modO.SetTextImmediatelyModifier(name, text));
+};
+
+export const addAngle = (angleDeg: TConstantOrLazy<number>) => {
+    return transform(le.createTransform({ rotationDeg: angleDeg }));
+};
 
 export const addParameter  = (name: string, adding: TConstantOrLazy<number>) => {
-    return new modO.AddParameter(name, adding);
+    return modifyParameter(name, (stateConst, oldValue) => {
+        return oldValue + calcValueFromConstantOrLazy<number>(stateConst, adding);
+    });
 };
 
-export const mltParameter  = (name: string, multiplier: TConstantOrLazy<number>) => {
-    return new modO.MultiplyParameter(name, multiplier);
-};
-
-export const mltLaterAddingParameter  = (name: string, multiplier: TConstantOrLazy<number>) => {
-    return new modO.MultiplyLaterAddingParameter(name, multiplier);
+export const mltParameter  = (name: string, adding: TConstantOrLazy<number>) => {
+    return modifyParameter(name, (stateConst, oldValue) => {
+        return oldValue * calcValueFromConstantOrLazy<number>(stateConst, adding);
+    });
 };
 
 export const resetParameter  = (name: string, newValue: TConstantOrLazy<number>) => {
-    return new modO.ResetParameter(name, newValue);
+    return modifyParameter(name, (stateConst, oldValue) => {
+        return calcValueFromConstantOrLazy<number>(stateConst, newValue);
+    });
 };
 
-export const addAngle = (adding: TConstantOrLazy<number>) => addParameter('angle', adding);
 export const addSpeed = (adding: TConstantOrLazy<number>) => addParameter('speed', adding);
 export const addSize = (adding: TConstantOrLazy<number>) => addParameter('size', adding);
 export const addNWayAngle = (option: le.TAddNWayAngleOption) => addAngle(le.nWayAngle(option));
 
-export const mltAngle = (multiplier: TConstantOrLazy<number>) => mltParameter('angle', multiplier);
 export const mltSpeed = (multiplier: TConstantOrLazy<number>) => mltParameter('speed', multiplier);
 export const mltSize = (multiplier: TConstantOrLazy<number>) => mltParameter('size', multiplier);
 
-export const mltLaterAngle = (multiplier: TConstantOrLazy<number>) => mltLaterAddingParameter('angle', multiplier);
-export const mltLaterSpeed = (multiplier: TConstantOrLazy<number>) => mltLaterAddingParameter('speed', multiplier);
-export const mltLaterSize = (multiplier: TConstantOrLazy<number>) => mltLaterAddingParameter('size', multiplier);
-
-export const resetAngle = (newValue: TConstantOrLazy<number>) => resetParameter('angle', newValue);
 export const resetSpeed = (newValue: TConstantOrLazy<number>) => resetParameter('speed', newValue);
 export const resetSize = (newValue: TConstantOrLazy<number>) => resetParameter('size', newValue);
 
-export const setText  = (key: string, text: TConstantOrLazy<string>) => {
-    return new modO.SetText(key, text);
-};
-
-export const setMuzzle = (muzzle: string) => setText('muzzle', muzzle);
-
-export const setVector  = (key: string, vector: TConstantOrLazy<TVector2D>) => {
-    return new modO.SetVector(key, vector);
-};
-
-export const addVector  = (key: string, vector: TConstantOrLazy<TVector2D>) => {
-    return new modO.AddVector(key, vector);
+export const invert = (option: modO.TInvertTransformOption) => {
+    return new modO.ModifierGun(true, new modO.InvertTransformModifier(option));
 };

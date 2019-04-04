@@ -1,7 +1,9 @@
 import { range } from 'lodash';
 
-import { IFiringState, IRepeatState, IGun, IBullet } from '../gun';
+import { IGun, IBullet } from '../gun';
+import { IFiringState, IRepeatState } from '../firing-state';
 import { TConstantOrLazy } from '../lazyEvaluative';
+import { InvertTransformModifier, ModifierGun, SetMuzzleImmediatelyModifier } from './gunModifier';
 
 /**
  * Fire bullet.
@@ -13,7 +15,7 @@ export class Fire implements IGun {
     constructor(private readonly bullet: IBullet) {}
 
     *play(state: IFiringState): IterableIterator<void> {
-        state.player.notifyFired(state, this.bullet);
+        state.fire(this.bullet);
     }
 }
 
@@ -31,13 +33,13 @@ export class Repeat implements IGun {
         const repeatTimes = this.calcRepeatTimes(state);
         const stateClone = state.copy();
 
-        const repeatState = stateClone.startRepeating({ finished: 0, total: repeatTimes }, this.option.name);
+        const repeatState = stateClone.repeatStates.start({ finished: 0, total: repeatTimes }, this.option.name);
         for (const _ of range(repeatTimes)) {
             yield* this.gun.play(stateClone);
             yield* wait(this.calcInterval(stateClone));
             repeatState.finished += 1;
         }
-        stateClone.finishRepeating(repeatState, this.option.name);
+        stateClone.repeatStates.finish(repeatState, this.option.name);
     }
 
     private calcRepeatTimes(state: IFiringState) {
@@ -64,7 +66,7 @@ export class ParallelRepeat implements IGun {
 
         const stateClones = range(repeatTimes).map(_ => state.copy());
         const repeatStates = stateClones.map(
-            (clone, i) => clone.startRepeating({ finished: i, total: repeatTimes }, name));
+            (clone, i) => clone.repeatStates.start({ finished: i, total: repeatTimes }, name));
         const intervals = stateClones.map(s => getNumberFromLazy(s, this.option.interval));
         const bootTimes = intervals.map((_, idx, ary) => {
             let cum = 0;
@@ -82,7 +84,7 @@ export class ParallelRepeat implements IGun {
             yield* wait(boot);
             yield* gun.play(st);
             yield* wait(interval);
-            st.finishRepeating(rs, name);
+            st.repeatStates.finish(rs, name);
         }
 
         const playProgresses = range(repeatTimes).map((i) => {
@@ -165,6 +167,84 @@ export class Wait implements IGun {
 
     *play(state: IFiringState): IterableIterator<void> {
         yield* wait(getNumberFromLazy(state, this.frames));
+    }
+}
+
+export type TMirrorOption = {
+    invertedMuzzleName?: string,
+    mirrorTranslationX?: true,
+    mirrorTranslationY?: true,
+};
+
+/**
+ * Mirror play gun and inverted gun as parallel.
+ * Mirror can use another muzzle for inverted gun.
+ */
+export class Mirror implements IGun {
+    private readonly parallel: IGun;
+
+    constructor(option: TMirrorOption, gun: IGun) {
+        const invert = new ModifierGun(true, new InvertTransformModifier({
+            angle: true,
+            translationX: option.mirrorTranslationX,
+            translationY: option.mirrorTranslationY,
+        }));
+        const mirroredChild = [];
+        // Set muzzle if name was specified
+        if (option.invertedMuzzleName !== undefined) {
+            mirroredChild.push(
+                new ModifierGun(
+                    false,
+                    new SetMuzzleImmediatelyModifier(option.invertedMuzzleName),
+                ));
+        }
+        mirroredChild.push(invert);
+        mirroredChild.push(gun);
+
+        this.parallel = new Parallel(
+            gun,
+            new Concat(...mirroredChild),
+        );
+    }
+
+    *play(state: IFiringState): IterableIterator<void> {
+        yield* this.parallel.play(state);
+    }
+}
+
+/**
+ * Alternate play gun and inverted gun as sequential.
+ * Alternate can use another muzzle for inverted gun.
+ */
+export class Alternate implements IGun {
+    private readonly parallel: IGun;
+
+    constructor(option: TMirrorOption, gun: IGun) {
+        const invert = new ModifierGun(true, new InvertTransformModifier({
+            angle: true,
+            translationX: option.mirrorTranslationX,
+            translationY: option.mirrorTranslationY,
+        }));
+        const mirroredChild = [];
+        // Set muzzle if name was specified
+        if (option.invertedMuzzleName !== undefined) {
+            mirroredChild.push(
+                new ModifierGun(
+                    false,
+                    new SetMuzzleImmediatelyModifier(option.invertedMuzzleName),
+                ));
+        }
+        mirroredChild.push(invert);
+        mirroredChild.push(gun);
+
+        this.parallel = new Sequential(
+            gun,
+            new Concat(...mirroredChild),
+        );
+    }
+
+    *play(state: IFiringState): IterableIterator<void> {
+        yield* this.parallel.play(state);
     }
 }
 

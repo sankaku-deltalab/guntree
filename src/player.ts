@@ -1,23 +1,43 @@
-import { IFiringState, TVector2D, FiringState, IGun, IBullet } from './gun';
-import { Parameter } from './parameter';
+import { IGun } from './gun';
+import { IFiringState, FiringState } from './firing-state';
+import { IMuzzle } from './muzzle';
 
+/**
+ * Player play guntree.
+ */
 export interface IPlayer {
+    /** Is playing guntree. */
     isRunning: boolean;
 
+    /**
+     * Get muzzle by name.
+     * Muzzles owned by player should be defined by user.
+     *
+     * @param muzzleName Muzzle name
+     */
+    getMuzzle(muzzleName: string): IMuzzle;
+
+    /**
+     * Set guntree.
+     *
+     * @param gunTree Setting guntree. Guntree can used by multiple player.
+     */
     setGunTree(gunTree: IGun): void;
+
+    /**
+     * Start playing guntree.
+     */
     start(): void;
+
+    /**
+     * Continue playing guntree.
+     * Someone call this function every frames.
+     */
     tick(): void;
-
-    notifyFired(state: IFiringState, bullet: IBullet): void;
-    getLocation(name: string): TVector2D;
-}
-
-export interface IPlayerOwner {
-    notifyFired(player: IPlayer, state: IFiringState, bullet: IBullet): void;
-    getLocation(player: IPlayer, name: string): TVector2D;
 }
 
 export type TPlayerOption = {
+    muzzle: {[key: string]: IMuzzle};
     additionalParameters?: {[key: string]: number};
     additionalTexts?: {[key: string]: string};
 };
@@ -25,10 +45,8 @@ export type TPlayerOption = {
 export class Player implements IPlayer {
     private gunTree: IGun | null;
     private firingProgress: IterableIterator<void> | null;
-    private readonly option: TPlayerOption;
 
-    constructor(private readonly owner: IPlayerOwner,
-                option?: TPlayerOption) {
+    constructor(private readonly option: TPlayerOption) {
         this.gunTree = null;
         this.firingProgress = null;
         this.option = option || {};
@@ -36,6 +54,11 @@ export class Player implements IPlayer {
 
     get isRunning(): boolean {
         return this.firingProgress !== null;
+    }
+
+    getMuzzle(muzzleName: string): IMuzzle {
+        if (!(muzzleName in this.option.muzzle)) throw new Error(`muzzle ${muzzleName} is not set`);
+        return this.option.muzzle[muzzleName];
     }
 
     setGunTree(gunTree: IGun): void {
@@ -57,8 +80,6 @@ export class Player implements IPlayer {
 
     private initParameters(state: IFiringState): void {
         let initialParameters: [string, number][] = [
-            ['angle', 0],
-            ['aimAngle', 0],
             ['speed', 1],
             ['size', 1],
         ];
@@ -67,20 +88,18 @@ export class Player implements IPlayer {
             initialParameters = initialParameters.concat(additional);
         }
         for (const [key, value] of initialParameters) {
-            state.parameters.set(key, new Parameter(value));
+            state.fireData.parameters.set(key, value);
         }
     }
 
     private initTexts(state: IFiringState): void {
-        let initialTexts: [string, string][] = [
-            ['muzzle', '__undefined'],
-        ];
+        let initialTexts: [string, string][] = [];
         if (this.option.additionalTexts !== undefined) {
             const additional = Object.entries(this.option.additionalTexts);
             initialTexts = initialTexts.concat(additional);
         }
         for (const [key, value] of initialTexts) {
-            state.texts.set(key, value);
+            state.fireData.texts.set(key, value);
         }
     }
 
@@ -92,13 +111,5 @@ export class Player implements IPlayer {
 
         this.firingProgress = null;
         return true;
-    }
-
-    notifyFired(state: IFiringState, bullet: IBullet): void {
-        this.owner.notifyFired(this, state, bullet);
-    }
-
-    getLocation(name: string): TVector2D {
-        return this.owner.getLocation(this, name);
     }
 }
