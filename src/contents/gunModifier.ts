@@ -16,7 +16,7 @@ export const transform = (trans: TConstantOrLazy<mat.Matrix>): modO.ModifierGun 
 /**
  * Set parameter in FireData when played.
  */
-export const setParameterImmediately = (
+export const useParameter = (
         name: string,
         value: TConstantOrLazy<number>) => {
     return new modO.ModifierGun(false, new modO.SetParameterImmediatelyModifier(name, value));
@@ -34,7 +34,7 @@ export const modifyParameter = (
 /**
  * Set muzzle in FireData when played.
  */
-export const setMuzzleImmediately = (
+export const useMuzzle = (
         name: TConstantOrLazy<string>) => {
     return new modO.ModifierGun(false, new modO.SetMuzzleImmediatelyModifier(name));
 };
@@ -42,7 +42,7 @@ export const setMuzzleImmediately = (
 /**
  * Attach virtual muzzle to current muzzle.
  */
-export const attachVirtualMuzzleImmediately = (
+export const useVirtualMuzzle = (
         virtualMuzzleGenerator: IVirtualMuzzleGenerator) => {
     return new modO.ModifierGun(false, new modO.AttachVirtualMuzzleImmediatelyModifier(virtualMuzzleGenerator));
 };
@@ -50,7 +50,7 @@ export const attachVirtualMuzzleImmediately = (
 /**
  * Set text in FireData when played.
  */
-export const setTextImmediately = (
+export const useText = (
         name: string,
         text: TConstantOrLazy<string>) => {
     return new modO.ModifierGun(false, new modO.SetTextImmediatelyModifier(name, text));
