@@ -76,6 +76,19 @@ describe('#FiringState', () => {
         expect(clone.repeatStates).toBe(rsClone);
     });
 
+    test('can copy with muzzle', () => {
+        // Given FiringState with muzzle
+        const state = new FiringState(simpleMock<IPlayer>());
+        const muzzle = simpleMock<IMuzzle>();
+        state.muzzle = muzzle;
+
+        // When copy FiringState
+        const clone = state.copy();
+
+        // Then copy's repeatStates is original's clone
+        expect(clone.muzzle).toBe(muzzle);
+    });
+
     test('can get muzzle by name', () => {
         // Given Player with muzzle
         const muzzleClass = jest.fn<IMuzzle>();

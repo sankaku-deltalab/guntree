@@ -185,6 +185,7 @@ export class FiringState implements IFiringState {
         const clone = new FiringState(this.player);
         clone.fireData = this.fireData.copy();
         clone.repeatStates = this.repeatStates.copy();
+        clone.muzzle = this.muzzle;
         return clone;
     }
 }
