@@ -5,12 +5,16 @@ GunTree is readable and extendable Danmaku describing package for shmups.
 ## How to describe Danmaku
 
 ```javascript
-const guntree = repeat({ times: 2, interval: 30 },  // Repeat 2 times ...
-    setMuzzle('centerMuzzle'),  // From centerMuzzle ...
-    repeat({ times: 3, interval: 5 },  // Three round burst ...
-        nWay({ ways: 5, totalAngle: 45 }  // 5-way ...
-            fire({}),  // Fire!!
-        ),
+const fiveWayFire = nWay(
+    { ways: 5, totalAngle: 45 }  // 5-way ...
+    fire({}),  // Fire
+);
+const guntree = repeat(
+    { times: 2, interval: 30 },  // Repeat 2 times ...
+    useMuzzle('centerMuzzle'),  // From centerMuzzle ...
+    repeat(
+        { times: 3, interval: 5 },  // Three round burst ...
+        fiveWayFire,  // 5-Way fire!!
     ),
 );
 ```
@@ -26,7 +30,7 @@ yarn install guntree
 ### NPM
 
 ```sh
-yarn install guntree
+npm install guntree
 ```
 
 ## Usage
@@ -67,7 +71,7 @@ const muzzle = {
 
 const player = new Player({ 'centerMuzzle': muzzle });  // Create player per weapons
 const guntree = ct.concat(
-    ct.setMuzzle('centerMuzzle'),
+    ct.useMuzzle('centerMuzzle'),
     ct.fire({}),
 );  // GunTree can used multiple weapons
 player.setGuntree(guntree);
