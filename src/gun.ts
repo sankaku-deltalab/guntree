@@ -1,4 +1,4 @@
-import { IFiringState, TFireDataModifier } from './firing-state';
+import { IFiringState } from './firing-state';
 
 export interface IGun {
     play(state: IFiringState): IterableIterator<void>;
