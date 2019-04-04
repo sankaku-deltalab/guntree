@@ -3,8 +3,8 @@ import * as mat from 'transformation-matrix';
 import { IGun } from '../gun';
 import { IFiringState, IFireDataModifier, IFireData } from '../firing-state';
 import { TConstantOrLazy, calcValueFromConstantOrLazy, calcTransFormFromConstantOrLazy } from '../lazyEvaluative';
-import { IVirtualMuzzleGenerator } from 'guntree/muzzle';
-import { decomposeTransform } from 'guntree/transform-util';
+import { IVirtualMuzzleGenerator } from '../muzzle';
+import { decomposeTransform } from '../transform-util';
 
 /**
  * ModifierGun update FireData when fired or immediately.

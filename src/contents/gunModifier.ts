@@ -3,8 +3,8 @@ import * as mat from 'transformation-matrix';
 import { TConstantOrLazy, calcValueFromConstantOrLazy } from '../lazyEvaluative';
 import * as modO from '../elements/gunModifier';
 import * as le from '../contents/lazyEvaluative';
-import { IVirtualMuzzleGenerator } from 'guntree/muzzle';
-import { IFiringState } from 'guntree/firing-state';
+import { IVirtualMuzzleGenerator } from '../muzzle';
+import { IFiringState } from '../firing-state';
 
 /**
  * Transform matrix.
