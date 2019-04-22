@@ -12,11 +12,20 @@ export class Fire implements IGun {
     /**
      * @param bullet Fired bullet
      */
-    constructor(private readonly bullet: IBullet) {}
+    constructor(private readonly bullet: IBullet) { }
 
     *play(state: IFiringState): IterableIterator<void> {
         state.fire(this.bullet);
     }
+}
+
+/**
+ * Do nothing.
+ */
+export class Nop implements IGun {
+    constructor() { }
+
+    *play(state: IFiringState): IterableIterator<void> { }
 }
 
 export type TRepeatOption = {
@@ -26,8 +35,9 @@ export type TRepeatOption = {
 };
 
 export class Repeat implements IGun {
-    constructor(private readonly option: TRepeatOption,
-                private readonly gun: IGun) {}
+    constructor(
+        private readonly option: TRepeatOption,
+        private readonly gun: IGun) { }
 
     *play(state: IFiringState): IterableIterator<void> {
         const repeatTimes = this.calcRepeatTimes(state);
@@ -54,8 +64,9 @@ export class Repeat implements IGun {
 }
 
 export class ParallelRepeat implements IGun {
-    constructor(private readonly option: TRepeatOption,
-                private readonly gun: IGun) {}
+    constructor(
+        private readonly option: TRepeatOption,
+        private readonly gun: IGun) { }
 
     *play(state: IFiringState): IterableIterator<void> {
         const repeatTimes = getNumberFromLazy(state, this.option.times);
@@ -76,11 +87,13 @@ export class ParallelRepeat implements IGun {
             return cum;
         });
 
-        function* playChild(st: IFiringState,
-                            rs: IRepeatState,
-                            boot: number,
-                            interval: number,
-                            gun: IGun): IterableIterator<void> {
+        function* playChild(
+            st: IFiringState,
+            rs: IRepeatState,
+            boot: number,
+            interval: number,
+            gun: IGun,
+        ): IterableIterator<void> {
             yield* wait(boot);
             yield* gun.play(st);
             yield* wait(interval);
@@ -163,7 +176,7 @@ export class Parallel implements IGun {
  * Wait input frames.
  */
 export class Wait implements IGun {
-    constructor(private readonly frames: TConstantOrLazy<number>) {}
+    constructor(private readonly frames: TConstantOrLazy<number>) { }
 
     *play(state: IFiringState): IterableIterator<void> {
         yield* wait(getNumberFromLazy(state, this.frames));
@@ -248,8 +261,10 @@ export class Alternate implements IGun {
     }
 }
 
-const getNumberFromLazy = (state: IFiringState,
-                           numberOrLazy: TConstantOrLazy<number>): number => {
+const getNumberFromLazy = (
+    state: IFiringState,
+    numberOrLazy: TConstantOrLazy<number>,
+): number => {
     if (typeof numberOrLazy === 'number') return numberOrLazy;
     return numberOrLazy.calc(state);
 

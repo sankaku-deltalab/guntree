@@ -12,6 +12,8 @@ export const wait = (frames: TConstantOrLazy<number>) => new gunO.Wait(frames);
 
 export const fire = (bullet: IBullet) => new gunO.Fire(bullet);
 
+export const nop = () => new gunO.Nop();
+
 export const repeat = (option: gunO.TRepeatOption, ...guns: IGun[]) => {
     return new gunO.Repeat(option, new gunO.Concat(...guns));
 };
