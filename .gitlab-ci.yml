@@ -1,0 +1,15 @@
+image: node:latest
+
+cache:
+  paths:
+    - node_modules/
+    - $HOME/.yarn-cache
+
+test:
+  script:
+    - npm install
+    - npm test
+
+generate-document:
+  script:
+    - npm generate-document
