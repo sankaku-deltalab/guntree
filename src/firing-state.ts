@@ -153,8 +153,8 @@ export class FiringState implements IFiringState {
 
         // Apply muzzle transform
         fdClone.transform = mat.transform(
-            fdClone.transform,
             this.muzzle.getMuzzleTransform(),
+            fdClone.transform,
         );
 
         return fdClone;
@@ -186,6 +186,7 @@ export class FiringState implements IFiringState {
         clone.fireData = this.fireData.copy();
         clone.repeatStates = this.repeatStates.copy();
         clone.muzzle = this.muzzle;
+        clone.modifiers.push(...this.modifiers);
         return clone;
     }
 }
