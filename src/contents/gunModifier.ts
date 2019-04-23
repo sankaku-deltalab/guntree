@@ -3,8 +3,8 @@ import * as mat from 'transformation-matrix';
 import { TConstantOrLazy, calcValueFromConstantOrLazy } from '../lazyEvaluative';
 import * as modO from '../elements/gunModifier';
 import * as le from '../contents/lazyEvaluative';
-import { IVirtualMuzzleGenerator } from 'guntree/muzzle';
-import { IFiringState } from 'guntree/firing-state';
+import { IVirtualMuzzleGenerator } from '../muzzle';
+import { IFiringState } from '../firing-state';
 
 /**
  * Transform matrix.
@@ -14,11 +14,20 @@ export const transform = (trans: TConstantOrLazy<mat.Matrix>): modO.ModifierGun 
 };
 
 /**
+ * Add translation.
+ */
+export const addTranslation = (translation: [TConstantOrLazy<number>, TConstantOrLazy<number>]): modO.ModifierGun => {
+    return transform(
+        le.createTransform({ translation }),
+    );
+};
+
+/**
  * Set parameter in FireData when played.
  */
 export const useParameter = (
-        name: string,
-        value: TConstantOrLazy<number>) => {
+    name: string,
+    value: TConstantOrLazy<number>) => {
     return new modO.ModifierGun(false, new modO.SetParameterImmediatelyModifier(name, value));
 };
 
@@ -26,8 +35,8 @@ export const useParameter = (
  * Set parameter in FireData when played.
  */
 export const modifyParameter = (
-        name: string,
-        modifier: (stateConst: IFiringState, oldValue: number) => number) => {
+    name: string,
+    modifier: (stateConst: IFiringState, oldValue: number) => number) => {
     return new modO.ModifierGun(true, new modO.ModifyParameterModifier(name, modifier));
 };
 
@@ -35,7 +44,7 @@ export const modifyParameter = (
  * Set muzzle in FireData when played.
  */
 export const useMuzzle = (
-        name: TConstantOrLazy<string>) => {
+    name: TConstantOrLazy<string>) => {
     return new modO.ModifierGun(false, new modO.SetMuzzleImmediatelyModifier(name));
 };
 
@@ -43,7 +52,7 @@ export const useMuzzle = (
  * Attach virtual muzzle to current muzzle.
  */
 export const useVirtualMuzzle = (
-        virtualMuzzleGenerator: IVirtualMuzzleGenerator) => {
+    virtualMuzzleGenerator: IVirtualMuzzleGenerator) => {
     return new modO.ModifierGun(false, new modO.AttachVirtualMuzzleImmediatelyModifier(virtualMuzzleGenerator));
 };
 
@@ -51,8 +60,8 @@ export const useVirtualMuzzle = (
  * Set text in FireData when played.
  */
 export const useText = (
-        name: string,
-        text: TConstantOrLazy<string>) => {
+    name: string,
+    text: TConstantOrLazy<string>) => {
     return new modO.ModifierGun(false, new modO.SetTextImmediatelyModifier(name, text));
 };
 
@@ -60,19 +69,19 @@ export const addAngle = (angleDeg: TConstantOrLazy<number>) => {
     return transform(le.createTransform({ rotationDeg: angleDeg }));
 };
 
-export const addParameter  = (name: string, adding: TConstantOrLazy<number>) => {
+export const addParameter = (name: string, adding: TConstantOrLazy<number>) => {
     return modifyParameter(name, (stateConst, oldValue) => {
         return oldValue + calcValueFromConstantOrLazy<number>(stateConst, adding);
     });
 };
 
-export const mltParameter  = (name: string, adding: TConstantOrLazy<number>) => {
+export const mltParameter = (name: string, adding: TConstantOrLazy<number>) => {
     return modifyParameter(name, (stateConst, oldValue) => {
         return oldValue * calcValueFromConstantOrLazy<number>(stateConst, adding);
     });
 };
 
-export const resetParameter  = (name: string, newValue: TConstantOrLazy<number>) => {
+export const resetParameter = (name: string, newValue: TConstantOrLazy<number>) => {
     return modifyParameter(name, (stateConst, oldValue) => {
         return calcValueFromConstantOrLazy<number>(stateConst, newValue);
     });
