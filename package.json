@@ -10,7 +10,7 @@
     "test": "jest --coverage",
     "prepublish": "run-s build",
     "clean": "rimraf ./lib",
-    "generate-document": "typedoc --out public/"
+    "generate-document": "typedoc --out public/ src/"
   },
   "files": [
     "lib/",

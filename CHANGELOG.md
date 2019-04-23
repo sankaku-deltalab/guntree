@@ -6,6 +6,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 ## [Unreleased]
 ### Fixed
 - Fix .gitlab-ci.yml
+- Fix document generating
 
 ## [0.4.1] - 2019-04-23
 ### Fixed
