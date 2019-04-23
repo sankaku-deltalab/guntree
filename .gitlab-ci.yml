@@ -12,4 +12,4 @@ test:
 
 generate-document:
   script:
-    - npm generate-document
+    - npm run generate-document
