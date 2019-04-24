@@ -10,7 +10,12 @@ test:
     - npm install
     - npm test
 
-generate-document:
+pages:
   script:
     - npm install
     - npm run generate-document
+  artifacts:
+    paths:
+      - public
+  only:
+      - master
