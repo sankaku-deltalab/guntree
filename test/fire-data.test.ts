@@ -3,6 +3,18 @@ import * as mat from 'transformation-matrix';
 import { FireData } from 'guntree/firing-state';
 
 describe('#FireData', () => {
+    test.each`
+    parameterName | amount
+    ${'speed'}    | ${1}
+    ${'size'}     | ${1}
+    `('has initial parameters: $parameterName as $amount', ({ parameterName, amount }) => {
+        // When create FireData
+        const fd = new FireData();
+
+        // Then FireData has speed parameter
+        expect(fd.parameters.get(parameterName)).toBeCloseTo(amount);
+    });
+
     test('can copy self with transform', () => {
         // Given FireData
         const fd = new FireData();
