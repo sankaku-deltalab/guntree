@@ -1,14 +1,6 @@
-import { IFiringState, IRepeatStateManager } from 'guntree/firing-state';
-import { ILazyEvaluative } from 'guntree/lazyEvaluative';
 import { CenterizedLinear } from 'guntree/elements/lazyEvaluative';
-
-const repeatStateManagerClass = jest.fn<IRepeatStateManager>((getFunc: jest.Mock) => ({
-    get: getFunc,
-}));
-
-const stateClass = jest.fn<IFiringState>((rsm: IRepeatStateManager) => ({
-    repeatStates: rsm,
-}));
+import { createLazyEvaluativeMockReturnOnce } from 'test/util';
+import { createRepeatStateManagerWithGet, createFiringStateWithRSM } from './util';
 
 describe('#CenterizedLinear', () => {
     test.each`
@@ -23,8 +15,8 @@ describe('#CenterizedLinear', () => {
     ${360} | ${3}     | ${4}  | ${135}
     `('deal centerized linear value', ({ range, finished, total, expected }) => {
         // Given repeating progress
-        const rsm = new repeatStateManagerClass(jest.fn().mockReturnValueOnce({ finished, total }));
-        const state = new stateClass(rsm);
+        const rsm = createRepeatStateManagerWithGet(jest.fn().mockReturnValueOnce({ finished, total }));
+        const state = createFiringStateWithRSM(rsm);
 
         // When eval CenterizedLinear
         const cl = new CenterizedLinear(range);
@@ -41,12 +33,12 @@ describe('#CenterizedLinear', () => {
     `('use specified repeating progress with string', ({ target, expected }) => {
         // Given repeating progress
         const range = 40;
-        const rsm = new repeatStateManagerClass(jest.fn().mockImplementation((name: string) => {
+        const rsm = createRepeatStateManagerWithGet(jest.fn().mockImplementation((name: string) => {
             if (name === 'a') return { finished: 0, total: 4 };
             if (name === 'b') return { finished: 1, total: 4 };
             return { finished: 3, total: 4 };
         }));
-        const state = new stateClass(rsm);
+        const state = createFiringStateWithRSM(rsm);
 
         // When eval CenterizedLinear with name
         const cl = new CenterizedLinear(range, target);
@@ -59,8 +51,8 @@ describe('#CenterizedLinear', () => {
     test('use previous repeating progress if not specified target', () => {
         // Given repeating progress
         const range = 40;
-        const rsm = new repeatStateManagerClass(jest.fn().mockReturnValueOnce({ finished: 0, total: 4 }));
-        const state = new stateClass(rsm);
+        const rsm = createRepeatStateManagerWithGet(jest.fn().mockReturnValueOnce({ finished: 0, total: 4 }));
+        const state = createFiringStateWithRSM(rsm);
 
         // When eval CenterizedLinear without target
         const cl = new CenterizedLinear(range);
@@ -72,15 +64,12 @@ describe('#CenterizedLinear', () => {
 
     test('use lazyEvaluative totalRange', () => {
         // Given repeating progress
-        const rsm = new repeatStateManagerClass(jest.fn().mockReturnValueOnce({ finished: 0, total: 4 }));
-        const state = new stateClass(rsm);
+        const rsm = createRepeatStateManagerWithGet(jest.fn().mockReturnValueOnce({ finished: 0, total: 4 }));
+        const state = createFiringStateWithRSM(rsm);
 
         // And lazyEvaluative
         const range = 40;
-        const leClass = jest.fn<ILazyEvaluative<number>>(() => ({
-            calc: jest.fn().mockReturnValueOnce(range),
-        }));
-        const le = leClass();
+        const le = createLazyEvaluativeMockReturnOnce(range);
 
         // When eval CenterizedLinear without target
         const cl = new CenterizedLinear(le);
