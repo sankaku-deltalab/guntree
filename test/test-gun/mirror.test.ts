@@ -1,37 +1,21 @@
-import { range } from 'lodash';
 import * as mat from 'transformation-matrix';
 
-import { IFiringState, IFireData } from 'guntree/firing-state';
+import { IFireData } from 'guntree/firing-state';
 import { Mirror } from 'guntree/elements/gun';
-import { IGun } from 'guntree/gun';
 import { InvertTransformModifier } from 'guntree/elements';
 import { IMuzzle } from 'guntree/muzzle';
 import { decomposeTransform } from 'guntree/transform-util';
-import { simpleMock } from '../util';
-
-const gunClass = jest.fn<IGun>((frame: number) => ({
-    play: jest.fn().mockImplementation(() => {
-        function* playing(): IterableIterator<void> {
-            for (const _ of range(frame)) yield;
-        }
-        return playing();
-    }),
-}));
-
-const stateClass = jest.fn<IFiringState>((clone1?: IFiringState, clone2?: IFiringState) => ({
-    pushModifier: jest.fn(),
-    copy: jest.fn().mockReturnValueOnce(clone1).mockReturnValueOnce(clone2),
-}));
+import { simpleMock, createGunMockConsumeFrames, createFiringStateMock } from '../util';
 
 describe('#Mirror', () => {
     test('play child gun and inverted child gun as parallel', () => {
         // Given FiringState
-        const stateClone1 = new stateClass();
-        const stateClone2 = new stateClass();
-        const state = new stateClass(stateClone1, stateClone2);
+        const stateClone1 = createFiringStateMock();
+        const stateClone2 = createFiringStateMock();
+        const state = createFiringStateMock(stateClone1, stateClone2);
 
         // And Mirror with child gun
-        const childGun = new gunClass(0);
+        const childGun = createGunMockConsumeFrames(0);
         const mirror = new Mirror({}, childGun);
 
         // When play Mirror
@@ -55,9 +39,9 @@ describe('#Mirror', () => {
     test('can specify another muzzle for inverted firing', () => {
         // Given FiringState
         const muzzle = simpleMock<IMuzzle>();
-        const stateClone1 = new stateClass();
-        const stateClone2 = new stateClass();
-        const state = new stateClass(stateClone1, stateClone2);
+        const stateClone1 = createFiringStateMock();
+        const stateClone2 = createFiringStateMock();
+        const state = createFiringStateMock(stateClone1, stateClone2);
         const getMuzzleByName = jest.fn().mockReturnValueOnce(muzzle);
         state.getMuzzleByName = getMuzzleByName;
         stateClone1.getMuzzleByName = getMuzzleByName;
@@ -65,7 +49,7 @@ describe('#Mirror', () => {
 
         // And Mirror with child gun
         const muzzleName = 'a';
-        const childGun = new gunClass(0);
+        const childGun = createGunMockConsumeFrames(0);
         const mirror = new Mirror({ invertedMuzzleName: muzzleName }, childGun);
 
         // When play Mirror
@@ -86,13 +70,13 @@ describe('#Mirror', () => {
 
     test('consume frames equal to child frames', () => {
         // Given FiringState
-        const stateClone1 = new stateClass();
-        const stateClone2 = new stateClass();
-        const state = new stateClass(stateClone1, stateClone2);
+        const stateClone1 = createFiringStateMock();
+        const stateClone2 = createFiringStateMock();
+        const state = createFiringStateMock(stateClone1, stateClone2);
 
         // And Mirror with child gun
         const childFrames = 6;
-        const childGun = new gunClass(childFrames);
+        const childGun = createGunMockConsumeFrames(childFrames);
         const mirror = new Mirror({}, childGun);
 
         // When play Mirror
@@ -110,9 +94,9 @@ describe('#Mirror', () => {
 
     test('inverted firing inverted angle', () => {
         // Given FiringState
-        const stateClone1 = new stateClass();
-        const stateClone2 = new stateClass();
-        const state = new stateClass(stateClone1, stateClone2);
+        const stateClone1 = createFiringStateMock();
+        const stateClone2 = createFiringStateMock();
+        const state = createFiringStateMock(stateClone1, stateClone2);
 
         // And FireData
         const angle = 13;
@@ -120,7 +104,7 @@ describe('#Mirror', () => {
         fd.transform = mat.rotateDEG(angle);
 
         // And Mirror with child gun
-        const childGun = new gunClass(0);
+        const childGun = createGunMockConsumeFrames(0);
         const mirror = new Mirror({}, childGun);
 
         // When play Mirror
@@ -137,16 +121,16 @@ describe('#Mirror', () => {
         // And second transform was inverted angle
         const pushModifier = <jest.Mock>(stateClone2.pushModifier);
         const pushedMod = <InvertTransformModifier>(pushModifier.mock.calls[0][0]);
-        pushedMod.modifyFireData(new stateClass(), fd);
+        pushedMod.modifyFireData(createFiringStateMock(), fd);
         const [_, mirroredAngle, __] = decomposeTransform(fd.transform);
         expect(mirroredAngle).toBeCloseTo(-angle);
     });
 
     test('can invert translation x', () => {
         // Given FiringState
-        const stateClone1 = new stateClass();
-        const stateClone2 = new stateClass();
-        const state = new stateClass(stateClone1, stateClone2);
+        const stateClone1 = createFiringStateMock();
+        const stateClone2 = createFiringStateMock();
+        const state = createFiringStateMock(stateClone1, stateClone2);
 
         // And FireData
         const translationX = 13;
@@ -154,7 +138,7 @@ describe('#Mirror', () => {
         fd.transform = mat.translate(translationX, 0);
 
         // And Mirror with child gun and specify invert translation x
-        const childGun = new gunClass(0);
+        const childGun = createGunMockConsumeFrames(0);
         const mirror = new Mirror({ mirrorTranslationX: true }, childGun);
 
         // When play Mirror
@@ -171,16 +155,16 @@ describe('#Mirror', () => {
         // And second transform was inverted translation x
         const pushModifier = <jest.Mock>(stateClone2.pushModifier);
         const pushedMod = <InvertTransformModifier>(pushModifier.mock.calls[0][0]);
-        pushedMod.modifyFireData(new stateClass(), fd);
+        pushedMod.modifyFireData(createFiringStateMock(), fd);
         const [mirroredTrans, _, __] = decomposeTransform(fd.transform);
         expect(mirroredTrans.x).toBeCloseTo(-translationX);
     });
 
     test('can invert translation y', () => {
         // Given FiringState
-        const stateClone1 = new stateClass();
-        const stateClone2 = new stateClass();
-        const state = new stateClass(stateClone1, stateClone2);
+        const stateClone1 = createFiringStateMock();
+        const stateClone2 = createFiringStateMock();
+        const state = createFiringStateMock(stateClone1, stateClone2);
 
         // And FireData
         const translationY = 13;
@@ -188,7 +172,7 @@ describe('#Mirror', () => {
         fd.transform = mat.translate(0, translationY);
 
         // And Mirror with child gun and specify invert translation y
-        const childGun = new gunClass(0);
+        const childGun = createGunMockConsumeFrames(0);
         const mirror = new Mirror({ mirrorTranslationY: true }, childGun);
 
         // When play Mirror
@@ -205,7 +189,7 @@ describe('#Mirror', () => {
         // And second transform was inverted translation x
         const pushModifier = <jest.Mock>(stateClone2.pushModifier);
         const pushedMod = <InvertTransformModifier>(pushModifier.mock.calls[0][0]);
-        pushedMod.modifyFireData(new stateClass(), fd);
+        pushedMod.modifyFireData(createFiringStateMock(), fd);
         const [mirroredTrans, _, __] = decomposeTransform(fd.transform);
         expect(mirroredTrans.y).toBeCloseTo(-translationY);
     });

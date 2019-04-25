@@ -2,13 +2,14 @@ import * as mat from 'transformation-matrix';
 
 import { IFiringState, IFireData } from 'guntree/firing-state';
 import { InvertTransformModifier } from 'guntree/elements/gunModifier';
-import { IMuzzle, IVirtualMuzzle, IVirtualMuzzleGenerator } from 'guntree/muzzle';
 import { simpleMock } from '../util';
 import { decomposeTransform } from 'guntree/transform-util';
 
-const fireDataClass = jest.fn<IFireData>((trans: mat.Matrix) => ({
-    transform: trans,
-}));
+const createFireData = (trans: mat.Matrix): IFireData => {
+    const fd = simpleMock<IFireData>();
+    fd.transform = trans;
+    return fd;
+};
 
 describe('#InvertTransformModifier', () => {
     test('can invert angle', () => {
@@ -17,7 +18,7 @@ describe('#InvertTransformModifier', () => {
 
         // And FireData with transform
         const initialAngle = 13;
-        const fd = new fireDataClass(mat.rotateDEG(initialAngle));
+        const fd = createFireData(mat.rotateDEG(initialAngle));
 
         // And InvertTransformModifier with angle inverting option
         const invertMod = new InvertTransformModifier({ angle: true });
@@ -36,7 +37,7 @@ describe('#InvertTransformModifier', () => {
 
         // And FireData with transform
         const initialTransX = 13;
-        const fd = new fireDataClass(mat.translate(initialTransX, 0));
+        const fd = createFireData(mat.translate(initialTransX, 0));
         const oldTrans = fd.transform;
 
         // And InvertTransformModifier with translation x inverting option
@@ -57,7 +58,7 @@ describe('#InvertTransformModifier', () => {
 
         // And FireData with transform
         const initialTransY = 13;
-        const fd = new fireDataClass(mat.translate(0, initialTransY));
+        const fd = createFireData(mat.translate(0, initialTransY));
         const oldTrans = fd.transform;
 
         // And InvertTransformModifier with translation y inverting option

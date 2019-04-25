@@ -1,10 +1,12 @@
 import { IFiringState, IFireData } from 'guntree/firing-state';
 import { SetParameterImmediatelyModifier } from 'guntree/elements/gunModifier';
-import { simpleMock, leOnce } from '../util';
+import { simpleMock, createLazyEvaluativeMockReturnOnce } from '../util';
 
-const fireDataClass = jest.fn<IFireData>((parameters: Map<string, number>) => ({
-    parameters,
-}));
+const createFireData = (parameters: Map<string, number>) => {
+    const fd = simpleMock<IFireData>();
+    fd.parameters = parameters;
+    return fd;
+};
 
 describe('#SetParameterImmediatelyModifier', () => {
     test('can set value with unset name', () => {
@@ -12,7 +14,7 @@ describe('#SetParameterImmediatelyModifier', () => {
         const state = simpleMock<IFiringState>();
 
         // And FireData
-        const fd = new fireDataClass(new Map());
+        const fd = createFireData(new Map());
 
         // And SetParameterImmediatelyModifier
         const name = 'a';
@@ -33,7 +35,7 @@ describe('#SetParameterImmediatelyModifier', () => {
         // And FireData with parameter
         const name = 'a';
         const initialValue = 0.5;
-        const fd = new fireDataClass(new Map([[name, initialValue]]));
+        const fd = createFireData(new Map([[name, initialValue]]));
 
         // And SetParameterImmediatelyModifier
         const value = 1;
@@ -51,12 +53,12 @@ describe('#SetParameterImmediatelyModifier', () => {
         const state = simpleMock<IFiringState>();
 
         // And FireData
-        const fd = new fireDataClass(new Map());
+        const fd = createFireData(new Map());
 
         // And SetParameterImmediatelyModifier
         const name = 'a';
         const valueConst = 1;
-        const valueLe = leOnce(valueConst);
+        const valueLe = createLazyEvaluativeMockReturnOnce(valueConst);
         const setParameterMod = new SetParameterImmediatelyModifier(name, valueLe);
 
         // When modify SetParameterImmediately

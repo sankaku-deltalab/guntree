@@ -1,34 +1,17 @@
 import { range } from 'lodash';
 
-import { IGun, IBullet } from 'guntree/gun';
-import { IFiringState, IFireData } from 'guntree/firing-state';
+import { IFiringState } from 'guntree/firing-state';
 import { Player } from 'guntree/player';
 import { IMuzzle } from 'guntree/muzzle';
-
-const createGun = (frames: number): IGun => {
-    const gunClass = jest.fn<IGun>((f: number) => ({
-        play: jest.fn().mockImplementation(() => {
-            function* playing(): IterableIterator<void> {
-                for (const _ of range(f)) yield;
-            }
-            return playing();
-        }),
-    }));
-    return new gunClass(frames);
-};
-
-const createEmptyMock = <T>(): T => {
-    const cls = jest.fn<T>(() => ({}));
-    return new cls();
-};
+import { simpleMock, createGunMockConsumeFrames } from './util';
 
 describe('#Player', () => {
     test('can start gun tree', () => {
         // Given gun tree
-        const gunTree = createGun(0);
+        const gunTree = createGunMockConsumeFrames(0);
 
         // And Player
-        const player = new Player(createEmptyMock());
+        const player = new Player(simpleMock());
 
         // When set gun tree to player
         player.setGunTree(gunTree);
@@ -42,7 +25,7 @@ describe('#Player', () => {
 
     test('throw error if start without gun tree', () => {
         // Given Player
-        const player = new Player(createEmptyMock());
+        const player = new Player(simpleMock());
 
         // When start player without gun tree
         const starting = () => player.start();
@@ -58,8 +41,8 @@ describe('#Player', () => {
         ${12}
     `('can continue gun tree', ({ gunTreeLength }) => {
         // Given Player with gun tree
-        const gunTree = createGun(gunTreeLength);
-        const player = new Player(createEmptyMock());
+        const gunTree = createGunMockConsumeFrames(gunTreeLength);
+        const player = new Player(simpleMock());
         player.setGunTree(gunTree);
 
         // When start player
@@ -83,22 +66,21 @@ describe('#Player', () => {
         ${'size'}     | ${1}
     `('initialize parameter `$name` to $value', ({ name, value }) => {
         // Given Player with gun tree
-        const gunTree = createGun(0);
-        const player = new Player(createEmptyMock());
+        const gunTree = createGunMockConsumeFrames(0);
+        const player = new Player(simpleMock());
         player.setGunTree(gunTree);
 
         // When start player
         player.start();
 
         // Then gun was played with state and state parameter was initialized
-        const gunState: IFiringState = (<jest.Mock> gunTree.play).mock.calls[0][0];
+        const gunState: IFiringState = (<jest.Mock>gunTree.play).mock.calls[0][0];
         expect(gunState.fireData.parameters.get(name)).toEqual(value);
     });
 
     test('can set muzzle at constructed and get there', () => {
         // Given parameter name and value
-        const muzzleClass = jest.fn<IMuzzle>(() => ({}));
-        const muzzle = new muzzleClass();
+        const muzzle = simpleMock<IMuzzle>();
 
         // And Player with muzzle
         const player = new Player({ muzzle: { a: muzzle } });
@@ -118,7 +100,7 @@ describe('#Player', () => {
         };
 
         // And Player with gun tree and parameter
-        const gunTree = createGun(0);
+        const gunTree = createGunMockConsumeFrames(0);
         const player = new Player({ additionalParameters, muzzle: {} });
         player.setGunTree(gunTree);
 
@@ -126,7 +108,7 @@ describe('#Player', () => {
         player.start();
 
         // Then gun was played with state and state parameter was initialized
-        const gunState: IFiringState = (<jest.Mock> gunTree.play).mock.calls[0][0];
+        const gunState: IFiringState = (<jest.Mock>gunTree.play).mock.calls[0][0];
         for (const [name, value] of Object.entries(additionalParameters)) {
             expect(gunState.fireData.parameters.get(name)).toEqual(value);
         }
@@ -149,7 +131,7 @@ describe('#Player', () => {
         };
 
         // And Player with gun tree and parameter
-        const gunTree = createGun(0);
+        const gunTree = createGunMockConsumeFrames(0);
         const player = new Player({ additionalTexts, muzzle: {} });
         player.setGunTree(gunTree);
 
@@ -157,7 +139,7 @@ describe('#Player', () => {
         player.start();
 
         // Then gun was played with state and state texts was initialized
-        const gunState: IFiringState = (<jest.Mock> gunTree.play).mock.calls[0][0];
+        const gunState: IFiringState = (<jest.Mock>gunTree.play).mock.calls[0][0];
         for (const [name, value] of Object.entries(additionalTexts)) {
             expect(gunState.fireData.texts.get(name)).toBe(value);
         }
