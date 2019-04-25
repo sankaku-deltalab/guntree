@@ -4,9 +4,11 @@ import { IFiringState } from '../firing-state';
 import { ILazyEvaluative, TConstantOrLazy, calcValueFromConstantOrLazy } from '../lazyEvaluative';
 
 export class Linear implements ILazyEvaluative<number> {
-    constructor(private readonly start: TConstantOrLazy<number>,
-                private readonly stop: TConstantOrLazy<number>,
-                private readonly target?: string) {}
+    constructor(
+        private readonly start: TConstantOrLazy<number>,
+        private readonly stop: TConstantOrLazy<number>,
+        private readonly target?: string,
+    ) { }
 
     calc(state: IFiringState): number {
         const start = calcValueFromConstantOrLazy(state, this.start);
@@ -34,8 +36,10 @@ export class Iterate implements ILazyEvaluative<number> {
      * @param array values iterated with repeating
      * @param option
      */
-    constructor(private readonly array: (TConstantOrLazy<number>)[],
-                private readonly option?: TIterateOption) {}
+    constructor(
+        private readonly array: (TConstantOrLazy<number>)[],
+        private readonly option?: TIterateOption,
+    ) { }
 
     calc(state: IFiringState): number {
         const target = this.option !== undefined ? this.option.target : undefined;
@@ -58,7 +62,7 @@ export class Round implements ILazyEvaluative<number> {
      *
      * @param input number or lazyEvaluative deals number
      */
-    constructor(private readonly input: TConstantOrLazy<number>) {}
+    constructor(private readonly input: TConstantOrLazy<number>) { }
 
     calc(state: IFiringState): number {
         if (typeof this.input === 'number') return Math.round(this.input);
@@ -74,8 +78,10 @@ export class Round implements ILazyEvaluative<number> {
  * new CenterizedLinear(15)  // deal [-5, 0, 5] values when repeat 3 times
  */
 export class CenterizedLinear implements ILazyEvaluative<number> {
-    constructor(private readonly totalRange: TConstantOrLazy<number>,
-                private readonly target?: string) {}
+    constructor(
+        private readonly totalRange: TConstantOrLazy<number>,
+        private readonly target?: string,
+    ) { }
 
     calc(state: IFiringState): number {
         const totalRange = calcValueFromConstantOrLazy(state, this.totalRange);
@@ -127,13 +133,13 @@ export class CreateTransform implements ILazyEvaluative<mat.Matrix> {
     calc(state: IFiringState): mat.Matrix {
         const tr: [number, number | undefined] =
             Array.isArray(this.option.translation)
-            ? calcTupleLe(state, this.option.translation)
-            : [calcValueFromConstantOrLazy(state, this.option.translation), undefined];
+                ? calcTupleLe(state, this.option.translation)
+                : [calcValueFromConstantOrLazy(state, this.option.translation), undefined];
         const rot = calcValueFromConstantOrLazy(state, this.option.rotationDeg);
         const sc: [number, number | undefined] =
             Array.isArray(this.option.scale)
-            ? calcTupleLe(state, this.option.scale)
-            : [calcValueFromConstantOrLazy(state, this.option.scale), undefined];
+                ? calcTupleLe(state, this.option.scale)
+                : [calcValueFromConstantOrLazy(state, this.option.scale), undefined];
         return mat.transform(
             mat.translate(tr[0], tr[1]),
             mat.rotateDEG(rot),
@@ -143,8 +149,9 @@ export class CreateTransform implements ILazyEvaluative<mat.Matrix> {
 }
 
 const calcTupleLe = (
-        state: IFiringState,
-        tuple: [TConstantOrLazy<number>, TConstantOrLazy<number>]): [number, number | undefined] => {
+    state: IFiringState,
+    tuple: [TConstantOrLazy<number>, TConstantOrLazy<number>],
+): [number, number | undefined] => {
     return [
         calcValueFromConstantOrLazy(state, tuple[0]),
         calcValueFromConstantOrLazy(state, tuple[1]),
