@@ -69,7 +69,7 @@ const muzzle = {
     }
 };
 
-const player = new Player({ 'centerMuzzle': muzzle });  // Create player per weapons
+const player = createDefaultPlayer({ 'centerMuzzle': muzzle });  // Create player per weapons
 const guntree = ct.concat(
     ct.useMuzzle('centerMuzzle'),
     ct.fire({}),
