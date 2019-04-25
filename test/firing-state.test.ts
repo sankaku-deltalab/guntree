@@ -91,12 +91,9 @@ describe('#FiringState', () => {
 
     test('can get muzzle by name', () => {
         // Given Player with muzzle
-        const muzzleClass = jest.fn<IMuzzle>();
-        const muzzle = new muzzleClass();
-        const playerClass = jest.fn<IPlayer>(() => ({
-            getMuzzle: jest.fn().mockReturnValueOnce(muzzle),
-        }));
-        const player = new playerClass();
+        const muzzle = simpleMock<IMuzzle>();
+        const player = simpleMock<IPlayer>();
+        player.getMuzzle = jest.fn().mockReturnValueOnce(muzzle);
 
         // And FiringState
         const state = new FiringState(player);
@@ -112,19 +109,15 @@ describe('#FiringState', () => {
 
     test('can call fire and pass firing to muzzle', () => {
         // Given FiringState with muzzle.
-        const muzzleClass = jest.fn<IMuzzle>(() => ({
-            fire: jest.fn(),
-        }));
-        const fireDataClass = jest.fn<IFireData>();
+        const muzzle = simpleMock<IMuzzle>();
+        muzzle.fire = jest.fn();
+        const modifiedFireData = simpleMock<IFireData>();
         const state = new FiringState(simpleMock<IPlayer>());
-        const muzzle = new muzzleClass();
-        const modifiedFireData = new fireDataClass();
         state.muzzle = muzzle;
         state.calcModifiedFireData = jest.fn().mockReturnValueOnce(modifiedFireData);
 
         // And Bullet
-        const bulletClass = jest.fn<IBullet>(() => ({}));
-        const bullet = new bulletClass();
+        const bullet = simpleMock<IBullet>();
 
         // And FiringState's repeatStates's copy was pre-defined
         const rsClone = jest.fn();

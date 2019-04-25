@@ -1,10 +1,12 @@
 import { IFiringState, IFireData } from 'guntree/firing-state';
 import { SetTextImmediatelyModifier } from 'guntree/elements/gunModifier';
-import { simpleMock, leOnce } from '../util';
+import { simpleMock, createLazyEvaluativeMockReturnOnce } from '../util';
 
-const fireDataClass = jest.fn<IFireData>((texts: Map<string, string>) => ({
-    texts,
-}));
+const createFireData = (texts: Map<string, string>) => {
+    const fd = simpleMock<IFireData>();
+    fd.texts = texts;
+    return fd;
+};
 
 describe('#SetTextImmediatelyModifier', () => {
     test('can set text with unset name', () => {
@@ -12,7 +14,7 @@ describe('#SetTextImmediatelyModifier', () => {
         const state = simpleMock<IFiringState>();
 
         // And FireData
-        const fd = new fireDataClass(new Map());
+        const fd = createFireData(new Map());
 
         // And SetTextImmediatelyModifier
         const name = 'a';
@@ -33,7 +35,7 @@ describe('#SetTextImmediatelyModifier', () => {
         // And FireData
         const name = 'a';
         const initialText = 'aa';
-        const fd = new fireDataClass(new Map([[name, initialText]]));
+        const fd = createFireData(new Map([[name, initialText]]));
 
         // And SetTextImmediatelyModifier
         const text = 'bb';
@@ -51,12 +53,12 @@ describe('#SetTextImmediatelyModifier', () => {
         const state = simpleMock<IFiringState>();
 
         // And FireData
-        const fd = new fireDataClass(new Map());
+        const fd = createFireData(new Map());
 
         // And SetTextImmediatelyModifier
         const name = 'a';
         const textConst = 'aa';
-        const textLe = leOnce(textConst);
+        const textLe = createLazyEvaluativeMockReturnOnce(textConst);
         const setTextMod = new SetTextImmediatelyModifier(name, textLe);
 
         // When modify SetTextImmediately

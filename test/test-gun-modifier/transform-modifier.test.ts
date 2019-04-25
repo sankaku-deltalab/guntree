@@ -2,11 +2,13 @@ import * as mat from 'transformation-matrix';
 
 import { IFiringState, IFireData } from 'guntree/firing-state';
 import { TransformModifier } from 'guntree/elements/gunModifier';
-import { simpleMock, leOnce } from '../util';
+import { simpleMock, createLazyEvaluativeMockReturnOnce } from '../util';
 
-const fireDataClass = jest.fn<IFireData>((trans: mat.Matrix) => ({
-    transform: trans,
-}));
+const createFireData = (trans: mat.Matrix): IFireData => {
+    const fd = simpleMock<IFireData>();
+    fd.transform = trans;
+    return fd;
+};
 
 describe('#TransformModifier', () => {
     test('generate modifier transform fireData', () => {
@@ -15,7 +17,7 @@ describe('#TransformModifier', () => {
 
         // And FireData
         const initialTrans = mat.translate(1.125);
-        const fd = new fireDataClass(initialTrans);
+        const fd = createFireData(initialTrans);
 
         // And Transform
         const trans = mat.translate(5);
@@ -35,11 +37,11 @@ describe('#TransformModifier', () => {
 
         // And FireData
         const initialTrans = mat.translate(1.125);
-        const fd = new fireDataClass(initialTrans);
+        const fd = createFireData(initialTrans);
 
         // And Transform
         const transConst = mat.translate(5);
-        const transLe = leOnce(transConst);
+        const transLe = createLazyEvaluativeMockReturnOnce(transConst);
         const transformMod = new TransformModifier(transLe);
 
         // When modify FireData

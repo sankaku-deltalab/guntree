@@ -1,13 +1,38 @@
+import { range } from 'lodash';
+
+import { IGun } from 'guntree/gun';
 import { ILazyEvaluative } from 'guntree/lazyEvaluative';
+import { IFiringState } from 'guntree/firing-state';
 
 export const simpleMock = <T>() => {
-    const cls = jest.fn<T>();
+    const cls = jest.fn<T, []>();
     return new cls();
 };
 
-export const leOnce = <T>(value: T) => {
-    const leClass = jest.fn<ILazyEvaluative<T>>((value: T) => ({
-        calc: jest.fn().mockReturnValue(value),
+export const createLazyEvaluativeMockReturnOnce = <T>(value: T) => {
+    const leClass = jest.fn<ILazyEvaluative<T>, [T]>((value: T) => ({
+        calc: jest.fn().mockReturnValueOnce(value),
     }));
     return new leClass(value);
+};
+
+export const createGunMockConsumeFrames = (frames: number): IGun => {
+    const gun = simpleMock<IGun>();
+    gun.play = jest.fn().mockImplementation(() => {
+        function* playing(): IterableIterator<void> {
+            for (const _ of range(frames)) yield;
+        }
+        return playing();
+    });
+    return gun;
+};
+
+export const createFiringStateMock = (...clones: IFiringState[]): IFiringState => {
+    const state = simpleMock<IFiringState>();
+    let copyFunction = jest.fn();
+    clones.map((clone) => {
+        copyFunction = copyFunction.mockReturnValueOnce(clone);
+    });
+    state.copy = copyFunction;
+    return state;
 };

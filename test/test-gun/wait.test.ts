@@ -1,12 +1,17 @@
 import { IFiringState } from 'guntree/firing-state';
 import { ILazyEvaluative } from 'guntree/lazyEvaluative';
 import { Wait } from 'guntree/elements/gun';
+import {
+    simpleMock,
+    createLazyEvaluativeMockReturnOnce,
+    createGunMockConsumeFrames,
+    createFiringStateMock,
+} from 'test/util';
 
 describe('#Wait', () => {
     test('consume constant input frames', () => {
         // Given firing state
-        const firingStateClass = jest.fn<IFiringState>(() => ({}));
-        const state = new firingStateClass();
+        const state = simpleMock<IFiringState>();
 
         // And Wait
         const waitFrames = 3;
@@ -27,15 +32,11 @@ describe('#Wait', () => {
 
     test('consume lazyEvaluative input frames', () => {
         // Given firing state
-        const firingStateClass = jest.fn<IFiringState>(() => ({}));
-        const state = new firingStateClass();
+        const state = simpleMock<IFiringState>();
 
         // And lazyEvaluative
         const waitFrames = 3;
-        const leClass = jest.fn<ILazyEvaluative<number>>(() => ({
-            calc: jest.fn().mockReturnValueOnce(waitFrames),
-        }));
-        const le = new leClass();
+        const le = createLazyEvaluativeMockReturnOnce(waitFrames);
 
         // And Wait
         const wait = new Wait(le);

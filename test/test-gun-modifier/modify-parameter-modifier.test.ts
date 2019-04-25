@@ -2,9 +2,11 @@ import { IFiringState, IFireData } from 'guntree/firing-state';
 import { ModifyParameterModifier } from 'guntree/elements/gunModifier';
 import { simpleMock } from '../util';
 
-const fireDataClass = jest.fn<IFireData>((parameters: Map<string, number>) => ({
-    parameters,
-}));
+const createFireData = (parameters: Map<string, number>) => {
+    const fd = simpleMock<IFireData>();
+    fd.parameters = parameters;
+    return fd;
+};
 
 describe('#ModifyParameterModifier', () => {
     test('modify already set parameter', () => {
@@ -14,7 +16,7 @@ describe('#ModifyParameterModifier', () => {
         // And FireData with parameter
         const name = 'a';
         const initialValue = 0.5;
-        const fd = new fireDataClass(new Map([[name, initialValue]]));
+        const fd = createFireData(new Map([[name, initialValue]]));
 
         // And ModifyParameterModifier
         const value = 1;
@@ -35,7 +37,7 @@ describe('#ModifyParameterModifier', () => {
         // And FireData with parameter
         const name = 'a';
         const initialValue = 0.5;
-        const fd = new fireDataClass(new Map([[name, initialValue]]));
+        const fd = createFireData(new Map([[name, initialValue]]));
 
         // And ModifyParameterModifier with unset name
         const unsetName = 'b';
