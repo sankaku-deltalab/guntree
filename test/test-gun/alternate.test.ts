@@ -7,12 +7,18 @@ import { IMuzzle } from 'guntree/muzzle';
 import { decomposeTransform } from 'guntree/transform-util';
 import { simpleMock, createGunMockConsumeFrames, createFiringStateMock } from '../util';
 
+const createFiringState = (...clones: IFiringState[]): IFiringState => {
+    const state = createFiringStateMock(...clones);
+    state.pushModifier = jest.fn();
+    return state;
+};
+
 describe('#Alternate', () => {
     test('play child gun and inverted child gun as sequential', () => {
         // Given FiringState
-        const stateClone1 = createFiringStateMock();
-        const stateClone2 = createFiringStateMock();
-        const state = createFiringStateMock(stateClone1, stateClone2);
+        const stateClone1 = createFiringState();
+        const stateClone2 = createFiringState();
+        const state = createFiringState(stateClone1, stateClone2);
 
         // And Alternate with child gun
         const childGun = createGunMockConsumeFrames(0);
@@ -39,9 +45,9 @@ describe('#Alternate', () => {
     test('can specify another muzzle for inverted firing', () => {
         // Given FiringState
         const muzzle = simpleMock<IMuzzle>();
-        const stateClone1 = createFiringStateMock();
-        const stateClone2 = createFiringStateMock();
-        const state = createFiringStateMock(stateClone1, stateClone2);
+        const stateClone1 = createFiringState();
+        const stateClone2 = createFiringState();
+        const state = createFiringState(stateClone1, stateClone2);
         const getMuzzleByName = jest.fn().mockReturnValueOnce(muzzle);
         state.getMuzzleByName = getMuzzleByName;
         stateClone1.getMuzzleByName = getMuzzleByName;
@@ -70,9 +76,9 @@ describe('#Alternate', () => {
 
     test('consume frames equal to double of child frames', () => {
         // Given FiringState
-        const stateClone1 = createFiringStateMock();
-        const stateClone2 = createFiringStateMock();
-        const state = createFiringStateMock(stateClone1, stateClone2);
+        const stateClone1 = createFiringState();
+        const stateClone2 = createFiringState();
+        const state = createFiringState(stateClone1, stateClone2);
 
         // And Alternate with child gun
         const childFrames = 6;
@@ -94,9 +100,9 @@ describe('#Alternate', () => {
 
     test('inverted firing inverted angle', () => {
         // Given FiringState
-        const stateClone1 = createFiringStateMock();
-        const stateClone2 = createFiringStateMock();
-        const state = createFiringStateMock(stateClone1, stateClone2);
+        const stateClone1 = createFiringState();
+        const stateClone2 = createFiringState();
+        const state = createFiringState(stateClone1, stateClone2);
 
         // And FireData
         const angle = 13;
@@ -121,16 +127,16 @@ describe('#Alternate', () => {
         // And second transform was inverted angle
         const pushModifier = <jest.Mock>(stateClone2.pushModifier);
         const pushedMod = <InvertTransformModifier>(pushModifier.mock.calls[0][0]);
-        pushedMod.modifyFireData(createFiringStateMock(), fd);
+        pushedMod.modifyFireData(createFiringState(), fd);
         const [_, mirroredAngle, __] = decomposeTransform(fd.transform);
         expect(mirroredAngle).toBeCloseTo(-angle);
     });
 
     test('can invert translation x', () => {
         // Given FiringState
-        const stateClone1 = createFiringStateMock();
-        const stateClone2 = createFiringStateMock();
-        const state = createFiringStateMock(stateClone1, stateClone2);
+        const stateClone1 = createFiringState();
+        const stateClone2 = createFiringState();
+        const state = createFiringState(stateClone1, stateClone2);
 
         // And FireData
         const translationX = 13;
@@ -155,16 +161,16 @@ describe('#Alternate', () => {
         // And second transform was inverted translation x
         const pushModifier = <jest.Mock>(stateClone2.pushModifier);
         const pushedMod = <InvertTransformModifier>(pushModifier.mock.calls[0][0]);
-        pushedMod.modifyFireData(createFiringStateMock(), fd);
+        pushedMod.modifyFireData(createFiringState(), fd);
         const [mirroredTrans, _, __] = decomposeTransform(fd.transform);
         expect(mirroredTrans.x).toBeCloseTo(-translationX);
     });
 
     test('can invert translation y', () => {
         // Given FiringState
-        const stateClone1 = createFiringStateMock();
-        const stateClone2 = createFiringStateMock();
-        const state = createFiringStateMock(stateClone1, stateClone2);
+        const stateClone1 = createFiringState();
+        const stateClone2 = createFiringState();
+        const state = createFiringState(stateClone1, stateClone2);
 
         // And FireData
         const translationY = 13;
@@ -189,7 +195,7 @@ describe('#Alternate', () => {
         // And second transform was inverted translation x
         const pushModifier = <jest.Mock>(stateClone2.pushModifier);
         const pushedMod = <InvertTransformModifier>(pushModifier.mock.calls[0][0]);
-        pushedMod.modifyFireData(createFiringStateMock(), fd);
+        pushedMod.modifyFireData(createFiringState(), fd);
         const [mirroredTrans, _, __] = decomposeTransform(fd.transform);
         expect(mirroredTrans.y).toBeCloseTo(-translationY);
     });

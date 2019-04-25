@@ -2,7 +2,7 @@ import { range } from 'lodash';
 
 import { IGun } from 'guntree/gun';
 import { ILazyEvaluative } from 'guntree/lazyEvaluative';
-import { IFiringState } from 'guntree/firing-state';
+import { IFiringState, IRepeatStateManager, IRepeatState } from 'guntree/firing-state';
 
 export const simpleMock = <T>() => {
     const cls = jest.fn<T, []>();
@@ -34,5 +34,18 @@ export const createFiringStateMock = (...clones: IFiringState[]): IFiringState =
         copyFunction = copyFunction.mockReturnValueOnce(clone);
     });
     state.copy = copyFunction;
+    state.pushModifier = jest.fn();
     return state;
+};
+
+export const createRepeatStateManagerMock = (...clones: IRepeatStateManager[]): IRepeatStateManager => {
+    const rsm = simpleMock<IRepeatStateManager>();
+    let copyFunction = jest.fn();
+    clones.map((clone) => {
+        copyFunction = copyFunction.mockReturnValueOnce(clone);
+    });
+    rsm.copy = copyFunction;
+    rsm.start = jest.fn().mockImplementation((rs: IRepeatState) => rs);
+    rsm.finish = jest.fn();
+    return rsm;
 };

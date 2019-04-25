@@ -5,7 +5,8 @@ import { simpleMock, createLazyEvaluativeMockReturnOnce } from '../util';
 
 const createFiringState = (muzzle: IMuzzle) => {
     const state = simpleMock<IFiringState>();
-    state.muzzle = muzzle;
+    state.muzzle = null;
+    state.getMuzzleByName = jest.fn().mockReturnValueOnce(muzzle);
     return state;
 };
 

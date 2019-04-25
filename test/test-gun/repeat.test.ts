@@ -3,30 +3,22 @@ import { range } from 'lodash';
 import { IFiringState, IRepeatState, IRepeatStateManager } from 'guntree/firing-state';
 import { Repeat } from 'guntree/elements/gun';
 import {
-    simpleMock,
     createLazyEvaluativeMockReturnOnce,
     createGunMockConsumeFrames,
     createFiringStateMock,
+    createRepeatStateManagerMock,
 } from '../util';
 
-const createRepeatStateManager = (clone?: IRepeatStateManager) => {
-    const rsm = simpleMock<IRepeatStateManager>();
-    rsm.copy = jest.fn().mockReturnValue(clone);
-    rsm.start = jest.fn().mockImplementation((rs: IRepeatState) => rs);
-    rsm.finish = jest.fn();
-    return rsm;
-};
-
-const createFiringStateAndRSM = (
-    fsClone?: IFiringState, rsmClone?: IRepeatStateManager,
-): [IFiringState, IRepeatStateManager] => {
-    const rsm = createRepeatStateManager(rsmClone);
-    const fsClones = [];
-    if (fsClone !== undefined) {
-        fsClones.push(fsClone);
-    }
-    const fs = createFiringStateMock(...fsClones);
-    return [fs, rsm];
+const createFiringStateWithRSM = (cloneNum: number): [IFiringState, IFiringState[]] => {
+    const stateClones = range(cloneNum).map(() => {
+        const rsm = createRepeatStateManagerMock();
+        const state = createFiringStateMock();
+        state.repeatStates = rsm;
+        return state;
+    });
+    const state = createFiringStateMock(...stateClones);
+    state.repeatStates = createRepeatStateManagerMock(...stateClones.map(s => s.repeatStates));
+    return [state, stateClones];
 };
 
 describe('#Repeat', () => {
@@ -41,8 +33,7 @@ describe('#Repeat', () => {
     ${14}  | ${2}  | ${7}
     `('consume $frames frames given by (times: $times * interval: $interval)', ({ frames, times, interval }) => {
         // Given repeating progress
-        const [fsClone, rsmClone] = createFiringStateAndRSM();
-        const [state, rsm] = createFiringStateAndRSM(fsClone, rsmClone);
+        const [state, stateClones] = createFiringStateWithRSM(times);
 
         // When play Repeat
         const repeat = new Repeat({ times, interval }, createGunMockConsumeFrames(0));
@@ -74,8 +65,7 @@ describe('#Repeat', () => {
     `('consume $frames frames given by ($times * ($childFrames + $interval))', (
         { frames, times, interval, childFrames }) => {
         // Given repeating progress
-        const [fsClone, rsmClone] = createFiringStateAndRSM();
-        const [state, rsm] = createFiringStateAndRSM(fsClone, rsmClone);
+        const [state, stateClones] = createFiringStateWithRSM(times);
 
         // And gun consume childFrames
         const gun = createGunMockConsumeFrames(childFrames);
@@ -96,11 +86,10 @@ describe('#Repeat', () => {
 
     test('use lazyEvaluative to times', () => {
         // Given repeating progress
-        const [fsClone, rsmClone] = createFiringStateAndRSM();
-        const [state, rsm] = createFiringStateAndRSM(fsClone, rsmClone);
+        const expectedTimes = 5;
+        const [state, stateClones] = createFiringStateWithRSM(expectedTimes);
 
         // And lazyEvaluative used for times
-        const expectedTimes = 5;
         const le = createLazyEvaluativeMockReturnOnce(expectedTimes);
 
         // When play Repeat
@@ -131,66 +120,57 @@ describe('#Repeat', () => {
 
     test('use lazyEvaluative to interval', () => {
         // Given repeating progress
-        const [fsClone, rsmClone] = createFiringStateAndRSM();
-        const [state, rsm] = createFiringStateAndRSM(fsClone, rsmClone);
+        const times = 3;
+        const [state, stateClones] = createFiringStateWithRSM(times);
 
         // And lazyEvaluative used for interval
         const expectedInterval = 5;
         const le = createLazyEvaluativeMockReturnOnce(expectedInterval);
 
         // When play Repeat
-        const times = 3;
         const repeat = new Repeat({ times, interval: le }, createGunMockConsumeFrames(0));
         const progress = repeat.play(state);
-        let consumedFrames = 0;
         while (true) {
             const r = progress.next();
             if (r.done) break;
-            if (expectedInterval > 0 && consumedFrames % expectedInterval === 0) {
-                expect(le.calc).lastCalledWith(fsClone);
-                expect(le.calc).toReturnWith(expectedInterval);
-                const expectedRepeated = 1 + consumedFrames / expectedInterval;
-                expect(le.calc).toHaveBeenCalledTimes(expectedRepeated);
-            }
-            consumedFrames += 1;
         }
 
-        // Then consume frames
-        expect(consumedFrames).toBe(times * expectedInterval);
+        // Then lazyEvaluative calculated with each state clones
+        stateClones.map((clone) => {
+            expect(le.calc).toBeCalledWith(clone);
+            expect(le.calc).toReturnWith(expectedInterval);
+        });
     });
 
     test('play gun at first frame of each repeating', () => {
         // Given repeating progress
-        const [fsClone, rsmClone] = createFiringStateAndRSM();
-        const [state, rsm] = createFiringStateAndRSM(fsClone, rsmClone);
+        const times = 4;
+        const [state, stateClones] = createFiringStateWithRSM(times);
 
         // And guns consume childFrames
         const childFrames = 3;
-        const gun = createGunMockConsumeFrames(childFrames);
+        const childGun = createGunMockConsumeFrames(childFrames);
 
         // When play Repeat
-        const times = 4;
         const interval = 6;
-        const expectedFrames = times * (childFrames + interval);
-        const gunStartFrames = range(expectedFrames).map(f => f % (childFrames + interval) === 0);
-
-        const repeat = new Repeat({ times, interval }, gun);
+        const repeat = new Repeat({ times, interval }, childGun);
         const progress = repeat.play(state);
 
+        const callFrames = range(times).map(i => i * (interval + childFrames));
         let consumedFrames = 0;
-        let expectedFiredCount = 0;
+        let firedCount = 0;
         while (true) {
             const r = progress.next();
 
             // Then play guns at expected frames
-            if (gunStartFrames[consumedFrames]) {
-                expectedFiredCount += 1;
-                expect(gun.play).lastCalledWith(fsClone);
+            if (callFrames[firedCount] === consumedFrames) {
+                expect(childGun.play).toBeCalledWith(stateClones[firedCount]);
+                firedCount += 1;
             }
-            expect(gun.play).toBeCalledTimes(expectedFiredCount);
 
             consumedFrames += 1;
             if (r.done) break;
         }
+        expect(childGun.play).toBeCalledTimes(times);
     });
 });

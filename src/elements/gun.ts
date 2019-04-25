@@ -40,16 +40,19 @@ export class Repeat implements IGun {
         private readonly gun: IGun) { }
 
     *play(state: IFiringState): IterableIterator<void> {
+        const name = this.option.name;
         const repeatTimes = this.calcRepeatTimes(state);
-        const stateClone = state.copy();
+        const stateClones = range(repeatTimes).map(_ => state.copy());
+        const repeatStates = stateClones.map(
+            (clone, i) => clone.repeatStates.start({ finished: i, total: repeatTimes }, name),
+        );
 
-        const repeatState = stateClone.repeatStates.start({ finished: 0, total: repeatTimes }, this.option.name);
-        for (const _ of range(repeatTimes)) {
-            yield* this.gun.play(stateClone);
-            yield* wait(this.calcInterval(stateClone));
-            repeatState.finished += 1;
+        for (const i of range(repeatTimes)) {
+            const clone = stateClones[i];
+            yield* this.gun.play(clone);
+            yield* wait(this.calcInterval(clone));
+            clone.repeatStates.finish(repeatStates[i], name);
         }
-        stateClone.repeatStates.finish(repeatState, this.option.name);
     }
 
     private calcRepeatTimes(state: IFiringState) {
@@ -77,7 +80,8 @@ export class ParallelRepeat implements IGun {
 
         const stateClones = range(repeatTimes).map(_ => state.copy());
         const repeatStates = stateClones.map(
-            (clone, i) => clone.repeatStates.start({ finished: i, total: repeatTimes }, name));
+            (clone, i) => clone.repeatStates.start({ finished: i, total: repeatTimes }, name),
+        );
         const intervals = stateClones.map(s => getNumberFromLazy(s, this.option.interval));
         const bootTimes = intervals.map((_, idx, ary) => {
             let cum = 0;

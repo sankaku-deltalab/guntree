@@ -1,7 +1,5 @@
 import { range } from 'lodash';
 
-import { IGun } from 'guntree/gun';
-import { IFiringState } from 'guntree/firing-state';
 import { Parallel } from 'guntree/elements/gun';
 import {
     createGunMockConsumeFrames,
