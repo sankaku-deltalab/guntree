@@ -4,7 +4,7 @@ import { Sequential } from 'guntree/elements/gun';
 import {
     createGunMockConsumeFrames,
     createFiringStateMock,
-} from 'test/util';
+} from '../util';
 
 describe('#Sequential', () => {
     test('play multiple guns as sequentially and each guns are played with cloned state', () => {

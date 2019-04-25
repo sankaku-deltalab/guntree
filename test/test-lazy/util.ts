@@ -1,4 +1,4 @@
-import { simpleMock } from 'test/util';
+import { simpleMock } from '../util';
 import { IRepeatStateManager, IFiringState } from 'guntree/firing-state';
 
 export const createRepeatStateManagerWithGet = (getFunc: jest.Mock): IRepeatStateManager => {

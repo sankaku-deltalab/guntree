@@ -6,7 +6,7 @@ import { Parallel } from 'guntree/elements/gun';
 import {
     createGunMockConsumeFrames,
     createFiringStateMock,
-} from 'test/util';
+} from '../util';
 
 describe('#Parallel', () => {
     test('play multiple guns as parallel and each guns are played with cloned state', () => {

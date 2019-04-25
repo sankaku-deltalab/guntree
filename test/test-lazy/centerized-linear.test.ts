@@ -1,5 +1,5 @@
 import { CenterizedLinear } from 'guntree/elements/lazyEvaluative';
-import { createLazyEvaluativeMockReturnOnce } from 'test/util';
+import { createLazyEvaluativeMockReturnOnce } from '../util';
 import { createRepeatStateManagerWithGet, createFiringStateWithRSM } from './util';
 
 describe('#CenterizedLinear', () => {

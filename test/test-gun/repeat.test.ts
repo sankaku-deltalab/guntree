@@ -7,7 +7,7 @@ import {
     createLazyEvaluativeMockReturnOnce,
     createGunMockConsumeFrames,
     createFiringStateMock,
-} from 'test/util';
+} from '../util';
 
 const createRepeatStateManager = (clone?: IRepeatStateManager) => {
     const rsm = simpleMock<IRepeatStateManager>();

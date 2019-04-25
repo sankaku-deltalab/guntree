@@ -6,7 +6,7 @@ import {
     createLazyEvaluativeMockReturnOnce,
     createGunMockConsumeFrames,
     createFiringStateMock,
-} from 'test/util';
+} from '../util';
 
 describe('#Wait', () => {
     test('consume constant input frames', () => {

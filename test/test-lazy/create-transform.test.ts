@@ -2,7 +2,7 @@ import * as mat from 'transformation-matrix';
 
 import { IFiringState } from 'guntree/firing-state';
 import { CreateTransform } from 'guntree/elements/lazyEvaluative';
-import { simpleMock, createLazyEvaluativeMockReturnOnce } from 'test/util';
+import { simpleMock, createLazyEvaluativeMockReturnOnce } from '../util';
 
 const matKeys: ['a', 'b', 'c', 'd', 'e', 'f'] = ['a', 'b', 'c', 'd', 'e', 'f'];
 

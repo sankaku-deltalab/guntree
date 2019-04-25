@@ -1,6 +1,6 @@
 import { Linear } from 'guntree/elements/lazyEvaluative';
 import { createRepeatStateManagerWithGet, createFiringStateWithRSM } from './util';
-import { createLazyEvaluativeMockReturnOnce } from 'test/util';
+import { createLazyEvaluativeMockReturnOnce } from '../util';
 
 describe('#Linear', () => {
     test.each([

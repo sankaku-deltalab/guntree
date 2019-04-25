@@ -1,7 +1,5 @@
-import { IFiringState } from 'guntree/firing-state';
-import { ILazyEvaluative } from 'guntree/lazyEvaluative';
 import { Round } from 'guntree/elements/lazyEvaluative';
-import { createFiringStateMock, createLazyEvaluativeMockReturnOnce } from 'test/util';
+import { createFiringStateMock, createLazyEvaluativeMockReturnOnce } from '../util';
 
 describe('#Round', () => {
     test.each`
