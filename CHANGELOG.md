@@ -7,6 +7,11 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 ### Fixed
 - Fix .gitlab-ci.yml
 - Fix document generating
+- Fix tests
+
+### Changed
+- Update packages
+- Update Repeat gun
 
 ## [0.4.1] - 2019-04-23
 ### Fixed
