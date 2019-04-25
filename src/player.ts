@@ -1,5 +1,5 @@
 import { IGun } from './gun';
-import { IFiringState, FiringState } from './firing-state';
+import { IFiringState, FiringState, FireData, RepeatStateManager } from './firing-state';
 import { IMuzzle } from './muzzle';
 
 /**
@@ -37,9 +37,9 @@ export interface IPlayer {
 }
 
 export type TPlayerOption = {
-    muzzle: {[key: string]: IMuzzle};
-    additionalParameters?: {[key: string]: number};
-    additionalTexts?: {[key: string]: string};
+    muzzle: { [key: string]: IMuzzle };
+    additionalParameters?: { [key: string]: number };
+    additionalTexts?: { [key: string]: string };
 };
 
 export class Player implements IPlayer {
@@ -72,7 +72,7 @@ export class Player implements IPlayer {
     }
 
     private createFiringState(): IFiringState {
-        const state = new FiringState(this);
+        const state = new FiringState(this, new FireData(), new RepeatStateManager());
         this.initParameters(state);
         this.initTexts(state);
         return state;
