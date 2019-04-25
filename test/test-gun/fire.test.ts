@@ -1,18 +1,16 @@
 import { IBullet } from 'guntree/gun';
 import { IFiringState } from 'guntree/firing-state';
 import { Fire } from 'guntree/elements/gun';
+import { simpleMock } from '../util';
 
 describe('#Fire', () => {
     test('notify firing to firing state', () => {
         // Given FiringState
-        const firingStateClass = jest.fn<IFiringState>(() => ({
-            fire: jest.fn(),
-        }));
-        const state = new firingStateClass();
+        const state = simpleMock<IFiringState>();
+        state.fire = jest.fn();
 
         // And Bullet
-        const bulletClass = jest.fn<IBullet>(() => ({}));
-        const bullet = new bulletClass();
+        const bullet = simpleMock<IBullet>();
 
         // And Fire
         const fire = new Fire(bullet);
@@ -28,14 +26,11 @@ describe('#Fire', () => {
 
     test('do not consume frames', () => {
         // Given FiringState
-        const firingStateClass = jest.fn<IFiringState>(() => ({
-            fire: jest.fn(),
-        }));
-        const state = new firingStateClass();
+        const state = simpleMock<IFiringState>();
+        state.fire = jest.fn();
 
         // And Bullet
-        const bulletClass = jest.fn<IBullet>(() => ({}));
-        const bullet = new bulletClass();
+        const bullet = simpleMock<IBullet>();
 
         // And Fire
         const fire = new Fire(bullet);

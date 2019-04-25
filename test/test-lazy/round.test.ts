@@ -1,6 +1,5 @@
-import { IFiringState } from 'guntree/firing-state';
-import { ILazyEvaluative } from 'guntree/lazyEvaluative';
 import { Round } from 'guntree/elements/lazyEvaluative';
+import { createFiringStateMock, createLazyEvaluativeMockReturnOnce } from '../util';
 
 describe('#Round', () => {
     test.each`
@@ -12,8 +11,7 @@ describe('#Round', () => {
     ${1.5}  | ${2}
     `('deal $expected when input is number of $input', ({ input, expected }) => {
         // Given repeating progress
-        const stateClass = jest.fn<IFiringState>();
-        const state = new stateClass();
+        const state = createFiringStateMock();
 
         // When eval round
         const round = new Round(input);
@@ -32,14 +30,10 @@ describe('#Round', () => {
     ${1.5}  | ${2}
     `('deal $expected when input is lazyEvaluative deals $input', ({ input, expected }) => {
         // Given repeating progress
-        const stateClass = jest.fn<IFiringState>();
-        const state = new stateClass();
+        const state = createFiringStateMock();
 
         // When eval round with lazyEvaluative
-        const leClass = jest.fn<ILazyEvaluative<number>>(() => ({
-            calc: jest.fn().mockReturnValue(input),
-        }));
-        const round = new Round(new leClass());
+        const round = new Round(createLazyEvaluativeMockReturnOnce(input));
         const actual = round.calc(state);
 
         // Then deal rounded value dealt from lazyEvaluative

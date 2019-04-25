@@ -3,13 +3,24 @@ image: node:latest
 cache:
   paths:
     - node_modules/
-    - $HOME/.yarn-cache
+
+stages:
+  - test
+  - deploy
 
 test:
+  stage: test
   script:
     - npm install
     - npm test
 
-generate-document:
+pages:
+  stage: deploy
   script:
+    - npm install
     - npm run generate-document
+  artifacts:
+    paths:
+      - public
+  only:
+      - master

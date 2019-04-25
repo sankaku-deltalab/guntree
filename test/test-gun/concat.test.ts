@@ -1,30 +1,19 @@
 import { range } from 'lodash';
 
-import { IGun } from 'guntree/gun';
 import { IFiringState } from 'guntree/firing-state';
 import { Concat } from 'guntree/elements/gun';
-
-const mockGunClass = jest.fn<IGun>((frame: number) => ({
-    play: jest.fn().mockImplementation(() => {
-        function* playing(): IterableIterator<void> {
-            for (const _ of range(frame)) yield;
-        }
-        return playing();
-    }),
-}));
+import { simpleMock, createGunMockConsumeFrames } from '../util';
 
 describe('#Concat', () => {
     test('play multiple guns as sequentially with state without copy', () => {
         // Given firing state
-        const firingStateClass = jest.fn<IFiringState>(() => ({
-            copy: jest.fn(),
-        }));
-        const state = new firingStateClass();
+        const state = simpleMock<IFiringState>();
+        state.copy = jest.fn();
 
         // And guns
         const gunNum = 2;
         const childFrames = 3;
-        const guns = range(gunNum).map(_ => new mockGunClass(childFrames));
+        const guns = range(gunNum).map(_ => createGunMockConsumeFrames(childFrames));
 
         // And Concat
         const concat = new Concat(...guns);

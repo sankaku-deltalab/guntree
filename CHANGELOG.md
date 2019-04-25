@@ -5,6 +5,16 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 
 ## [Unreleased]
 
+## [0.4.2] - 2019-04-25
+### Fixed
+- Fix .gitlab-ci.yml
+- Fix document generating
+- Fix tests
+
+### Changed
+- Update packages
+- Update Repeat gun
+
 ## [0.4.1] - 2019-04-23
 ### Fixed
 - Fix .gitlab-ci.yml
@@ -43,7 +53,8 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 ### Added
 - Initial release
 
-[Unreleased]: https://github.com/sankaku-deltalab/guntree/compare/0.4.0...HEAD
+[Unreleased]: https://github.com/sankaku-deltalab/guntree/compare/0.4.2...HEAD
+[0.4.2]: https://github.com/sankaku-deltalab/guntree/compare/0.4.1...0.4.2
 [0.4.1]: https://github.com/sankaku-deltalab/guntree/compare/0.4.0...0.4.1
 [0.4.0]: https://github.com/sankaku-deltalab/guntree/compare/0.3.0...0.4.0
 [0.3.0]: https://github.com/sankaku-deltalab/guntree/compare/0.2.0...0.3.0

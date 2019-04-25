@@ -13,11 +13,9 @@ describe('#fixedAimMuzzle', () => {
         const baseTrans = mat.rotateDEG(12);
         // aiming angle become 30 deg
         const enemyTrans = mat.translate(Math.sqrt(3), 1);
-        const muzzleClass = jest.fn<IMuzzle>(() => ({
-            getMuzzleTransform: jest.fn().mockReturnValue(baseTrans),
-            getEnemyTransform: jest.fn().mockReturnValueOnce(enemyTrans),
-        }));
-        const baseMuzzle = new muzzleClass();
+        const baseMuzzle = simpleMock<IMuzzle>();
+        baseMuzzle.getMuzzleTransform = jest.fn().mockReturnValue(baseTrans);
+        baseMuzzle.getEnemyTransform = jest.fn().mockReturnValue(enemyTrans);
 
         // And fixedAim based on base muzzle
         const fixedAim = new FixedAimMuzzle().generate();
@@ -37,12 +35,10 @@ describe('#fixedAimMuzzle', () => {
 
     test('call based muzzle fire when self fire was called', () => {
         // Given base muzzle
-        const muzzleClass = jest.fn<IMuzzle>(() => ({
-            fire: jest.fn(),
-            getMuzzleTransform: jest.fn().mockReturnValueOnce(mat.translate(0)),
-            getEnemyTransform: jest.fn().mockReturnValueOnce(mat.translate(0)),
-        }));
-        const baseMuzzle = new muzzleClass();
+        const baseMuzzle = simpleMock<IMuzzle>();
+        baseMuzzle.fire = jest.fn();
+        baseMuzzle.getMuzzleTransform = jest.fn().mockReturnValue(mat.translate(0));
+        baseMuzzle.getEnemyTransform = jest.fn().mockReturnValue(mat.translate(0));
 
         // And fixedAim based on base muzzle
         const fixedAim = new FixedAimMuzzle().generate();
@@ -64,11 +60,9 @@ describe('#fixedAimMuzzle', () => {
     test('use based muzzle enemy transform', () => {
         // Given base muzzle
         const trans = simpleMock<mat.Matrix>();
-        const muzzleClass = jest.fn<IMuzzle>(() => ({
-            getMuzzleTransform: jest.fn().mockReturnValueOnce(mat.translate(0)),
-            getEnemyTransform: jest.fn().mockReturnValue(trans),
-        }));
-        const baseMuzzle = new muzzleClass();
+        const baseMuzzle = simpleMock<IMuzzle>();
+        baseMuzzle.getMuzzleTransform = jest.fn().mockReturnValue(mat.translate(0));
+        baseMuzzle.getEnemyTransform = jest.fn().mockReturnValue(trans);
 
         // And fixedAim based on base muzzle
         const fixedAim = new FixedAimMuzzle().generate();

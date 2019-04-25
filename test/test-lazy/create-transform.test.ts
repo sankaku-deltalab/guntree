@@ -1,14 +1,8 @@
 import * as mat from 'transformation-matrix';
 
 import { IFiringState } from 'guntree/firing-state';
-import { ILazyEvaluative } from 'guntree/lazyEvaluative';
 import { CreateTransform } from 'guntree/elements/lazyEvaluative';
-
-const stateClass = jest.fn<IFiringState>();
-
-const leClassCalcValueOnce = jest.fn<ILazyEvaluative<number>>((val: number) => ({
-    calc: jest.fn().mockReturnValueOnce(val),
-}));
+import { simpleMock, createLazyEvaluativeMockReturnOnce } from '../util';
 
 const matKeys: ['a', 'b', 'c', 'd', 'e', 'f'] = ['a', 'b', 'c', 'd', 'e', 'f'];
 
@@ -22,7 +16,7 @@ describe('#CreateTransform', () => {
     ${1.2}
     `('can use translation with single value', ({ translation }) => {
         // Given repeating progress
-        const state = new stateClass();
+        const state = simpleMock<IFiringState>();
 
         // And CreateTransform with translation
         const createTrans = new CreateTransform({ translation });
@@ -46,10 +40,10 @@ describe('#CreateTransform', () => {
     ${1.2}
     `('can use translation with single lazyEvaluative value', ({ translation }) => {
         // Given repeating progress
-        const state = new stateClass();
+        const state = simpleMock<IFiringState>();
 
         // And translation as lazyEvaluative
-        const translationLe = new leClassCalcValueOnce(translation);
+        const translationLe = createLazyEvaluativeMockReturnOnce(translation);
 
         // And CreateTransform with translation
         const createTrans = new CreateTransform({ translation: translationLe });
@@ -71,7 +65,7 @@ describe('#CreateTransform', () => {
     ${0.5}  | ${10}
     `('can use translation with double value', ({ tx, ty }) => {
         // Given repeating progress
-        const state = new stateClass();
+        const state = simpleMock<IFiringState>();
 
         // And CreateTransform with translation
         const createTrans = new CreateTransform({ translation: [tx, ty] });
@@ -93,11 +87,11 @@ describe('#CreateTransform', () => {
     ${0.5}  | ${10}
     `('can use translation with double lazyEvaluative values', ({ tx, ty }) => {
         // Given repeating progress
-        const state = new stateClass();
+        const state = simpleMock<IFiringState>();
 
         // And translation as lazyEvaluative
-        const txLe = new leClassCalcValueOnce(tx);
-        const tyLe = new leClassCalcValueOnce(ty);
+        const txLe = createLazyEvaluativeMockReturnOnce(tx);
+        const tyLe = createLazyEvaluativeMockReturnOnce(ty);
 
         // And CreateTransform with translation
         const createTrans = new CreateTransform({ translation: [txLe, tyLe] });
@@ -121,7 +115,7 @@ describe('#CreateTransform', () => {
     ${720}
     `('can use rotate as degrees', ({ rotationDeg }) => {
         // Given repeating progress
-        const state = new stateClass();
+        const state = simpleMock<IFiringState>();
 
         // And CreateTransform with angleDeg
         const createTrans = new CreateTransform({ rotationDeg });
@@ -145,10 +139,10 @@ describe('#CreateTransform', () => {
     ${720}
     `('can use rotate as degrees with lazyEvaluative number', ({ rotationDeg }) => {
         // Given repeating progress
-        const state = new stateClass();
+        const state = simpleMock<IFiringState>();
 
         // And angle as lazyEvaluative
-        const leRot = new leClassCalcValueOnce(rotationDeg);
+        const leRot = createLazyEvaluativeMockReturnOnce(rotationDeg);
 
         // And CreateTransform with angleDeg
         const createTrans = new CreateTransform({ rotationDeg: leRot });
@@ -171,7 +165,7 @@ describe('#CreateTransform', () => {
     ${1.2}
     `('can use scale with single value', ({ scale }) => {
         // Given repeating progress
-        const state = new stateClass();
+        const state = simpleMock<IFiringState>();
 
         // And CreateTransform with scale
         const createTrans = new CreateTransform({ scale });
@@ -195,10 +189,10 @@ describe('#CreateTransform', () => {
     ${1.2}
     `('can use scale with single lazyEvaluative value', ({ scale }) => {
         // Given repeating progress
-        const state = new stateClass();
+        const state = simpleMock<IFiringState>();
 
         // And scale as lazyEvaluative
-        const scaleLe = new leClassCalcValueOnce(scale);
+        const scaleLe = createLazyEvaluativeMockReturnOnce(scale);
 
         // And CreateTransform with scale
         const createTrans = new CreateTransform({ scale: scaleLe });
@@ -220,7 +214,7 @@ describe('#CreateTransform', () => {
     ${0.5}  | ${10}
     `('can use scale with double value', ({ sx, sy }) => {
         // Given repeating progress
-        const state = new stateClass();
+        const state = simpleMock<IFiringState>();
 
         // And CreateTransform with scale
         const createTrans = new CreateTransform({ scale: [sx, sy] });
@@ -242,11 +236,11 @@ describe('#CreateTransform', () => {
     ${0.5}  | ${10}
     `('can use scale with single lazyEvaluative value', ({ sx, sy }) => {
         // Given repeating progress
-        const state = new stateClass();
+        const state = simpleMock<IFiringState>();
 
         // And scale as lazyEvaluative
-        const sxLe = new leClassCalcValueOnce(sx);
-        const syLe = new leClassCalcValueOnce(sy);
+        const sxLe = createLazyEvaluativeMockReturnOnce(sx);
+        const syLe = createLazyEvaluativeMockReturnOnce(sy);
 
         // And CreateTransform with scale
         const createTrans = new CreateTransform({ scale: [sxLe, syLe] });
