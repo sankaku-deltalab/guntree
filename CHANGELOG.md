@@ -9,6 +9,9 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 ### Fix
 - Fix circular reference in Player and FiringState
 
+### Changed
+- Update ReadMe
+
 ## [0.4.3] - 2019-04-25
 ### Changed
 - Update FiringState to used dependency injection
