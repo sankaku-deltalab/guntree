@@ -17,7 +17,7 @@ describe('#Player', () => {
         const gunTree = createGunMockConsumeFrames(0);
 
         // And Player
-        const player = new Player(stateMaster, {});
+        const player = new Player({}, () => stateMaster);
 
         // When set gun tree to player
         player.setGunTree(gunTree);
@@ -35,7 +35,7 @@ describe('#Player', () => {
         const stateMaster = createFiringStateMock(state);
 
         // And Player
-        const player = new Player(stateMaster, {});
+        const player = new Player({}, () => stateMaster);
 
         // When start player without gun tree
         const starting = () => player.start();
@@ -56,7 +56,7 @@ describe('#Player', () => {
 
         // And Player with gun tree
         const gunTree = createGunMockConsumeFrames(gunTreeLength);
-        const player = new Player(stateMaster, {});
+        const player = new Player({}, () => stateMaster);
         player.setGunTree(gunTree);
 
         // When start player
@@ -79,7 +79,7 @@ describe('#Player', () => {
         const muzzle = simpleMock<IMuzzle>();
 
         // And Player with muzzle
-        const player = new Player(simpleMock(), { a: muzzle });
+        const player = new Player({ a: muzzle }, simpleMock());
 
         // When get muzzle from player
         const gottenMuzzle = player.getMuzzle('a');

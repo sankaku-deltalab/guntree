@@ -1,5 +1,5 @@
 import { IGun } from './gun';
-import { IFiringState } from './firing-state';
+import { IFiringState, FiringState, FireData, RepeatStateManager } from './firing-state';
 import { IMuzzle } from './muzzle';
 
 /**
@@ -36,13 +36,26 @@ export interface IPlayer {
     tick(): void;
 }
 
+/**
+ * Create Player with default classes.
+ *
+ * @param muzzle Muzzles used for firing
+ */
+export const createDefaultPlayer = (muzzle: { [key: string]: IMuzzle }) => {
+    return new Player(muzzle, (player) => {
+        return new FiringState(
+            player, new FireData(), new RepeatStateManager(),
+        );
+    });
+};
+
 export class Player implements IPlayer {
     private gunTree: IGun | null;
     private firingProgress: IterableIterator<void> | null;
 
     constructor(
-        private readonly firingState: IFiringState,
         private readonly muzzle: { [key: string]: IMuzzle },
+        private readonly firingStateGenerator: (player: IPlayer) => IFiringState,
     ) {
         this.gunTree = null;
         this.firingProgress = null;
@@ -63,12 +76,8 @@ export class Player implements IPlayer {
 
     start(): boolean {
         if (this.gunTree === null) throw new Error('GunTree was not set');
-        this.firingProgress = this.gunTree.play(this.createFiringState());
+        this.firingProgress = this.gunTree.play(this.firingStateGenerator(this));
         return this.tick();
-    }
-
-    private createFiringState(): IFiringState {
-        return this.firingState.copy();
     }
 
     tick(): boolean {
