@@ -6,6 +6,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 ## [Unreleased]
 ### Changed
 - Update FiringState to used dependency injection
+- Update Player to used dependency injection
 
 ## [0.4.2] - 2019-04-25
 ### Fixed

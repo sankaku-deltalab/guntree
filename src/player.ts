@@ -1,5 +1,5 @@
 import { IGun } from './gun';
-import { IFiringState, FiringState, FireData, RepeatStateManager } from './firing-state';
+import { IFiringState } from './firing-state';
 import { IMuzzle } from './muzzle';
 
 /**
@@ -46,7 +46,10 @@ export class Player implements IPlayer {
     private gunTree: IGun | null;
     private firingProgress: IterableIterator<void> | null;
 
-    constructor(private readonly option: TPlayerOption) {
+    constructor(
+        private readonly option: TPlayerOption,
+        private readonly firingState: IFiringState,
+    ) {
         this.gunTree = null;
         this.firingProgress = null;
         this.option = option || {};
@@ -72,7 +75,7 @@ export class Player implements IPlayer {
     }
 
     private createFiringState(): IFiringState {
-        const state = new FiringState(this, new FireData(), new RepeatStateManager());
+        const state = this.firingState.copy();
         this.initParameters(state);
         this.initTexts(state);
         return state;
