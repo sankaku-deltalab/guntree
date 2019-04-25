@@ -36,23 +36,16 @@ export interface IPlayer {
     tick(): void;
 }
 
-export type TPlayerOption = {
-    muzzle: { [key: string]: IMuzzle };
-    additionalParameters?: { [key: string]: number };
-    additionalTexts?: { [key: string]: string };
-};
-
 export class Player implements IPlayer {
     private gunTree: IGun | null;
     private firingProgress: IterableIterator<void> | null;
 
     constructor(
-        private readonly option: TPlayerOption,
         private readonly firingState: IFiringState,
+        private readonly muzzle: { [key: string]: IMuzzle },
     ) {
         this.gunTree = null;
         this.firingProgress = null;
-        this.option = option || {};
     }
 
     get isRunning(): boolean {
@@ -60,8 +53,8 @@ export class Player implements IPlayer {
     }
 
     getMuzzle(muzzleName: string): IMuzzle {
-        if (!(muzzleName in this.option.muzzle)) throw new Error(`muzzle ${muzzleName} is not set`);
-        return this.option.muzzle[muzzleName];
+        if (!(muzzleName in this.muzzle)) throw new Error(`muzzle ${muzzleName} is not set`);
+        return this.muzzle[muzzleName];
     }
 
     setGunTree(gunTree: IGun): void {
@@ -75,35 +68,7 @@ export class Player implements IPlayer {
     }
 
     private createFiringState(): IFiringState {
-        const state = this.firingState.copy();
-        this.initParameters(state);
-        this.initTexts(state);
-        return state;
-    }
-
-    private initParameters(state: IFiringState): void {
-        let initialParameters: [string, number][] = [
-            ['speed', 1],
-            ['size', 1],
-        ];
-        if (this.option.additionalParameters !== undefined) {
-            const additional = Object.entries(this.option.additionalParameters);
-            initialParameters = initialParameters.concat(additional);
-        }
-        for (const [key, value] of initialParameters) {
-            state.fireData.parameters.set(key, value);
-        }
-    }
-
-    private initTexts(state: IFiringState): void {
-        let initialTexts: [string, string][] = [];
-        if (this.option.additionalTexts !== undefined) {
-            const additional = Object.entries(this.option.additionalTexts);
-            initialTexts = initialTexts.concat(additional);
-        }
-        for (const [key, value] of initialTexts) {
-            state.fireData.texts.set(key, value);
-        }
+        return this.firingState.copy();
     }
 
     tick(): boolean {
