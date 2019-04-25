@@ -115,19 +115,22 @@ export interface IRepeatState {
  * FiringState contains information while firing.
  */
 export class FiringState implements IFiringState {
-    /** Contain data used when fired. */
-    fireData: IFireData;
-
     /** Muzzle fire bullet */
     muzzle: IMuzzle | null;
-
-    /** Manager manage repeating while firing. */
-    repeatStates: IRepeatStateManager;
 
     /** Function would applied to fireData when fire bullet, */
     private readonly modifiers: IFireDataModifier[];
 
-    constructor(private readonly player: IPlayer) {
+    /**
+     * @param player Player playing with this state
+     * @param fireData Contain data used when fired
+     * @param repeatStates Manager manage repeating while firing
+     */
+    constructor(
+        private readonly player: IPlayer,
+        public fireData: IFireData,
+        public repeatStates: IRepeatStateManager,
+    ) {
         this.fireData = new FireData();
         this.muzzle = null;
         this.repeatStates = new RepeatStateManager();
@@ -182,9 +185,9 @@ export class FiringState implements IFiringState {
     }
 
     copy(): FiringState {
-        const clone = new FiringState(this.player);
-        clone.fireData = this.fireData.copy();
-        clone.repeatStates = this.repeatStates.copy();
+        const clone = new FiringState(
+            this.player, this.fireData.copy(), this.repeatStates.copy(),
+        );
         clone.muzzle = this.muzzle;
         clone.modifiers.push(...this.modifiers);
         return clone;
