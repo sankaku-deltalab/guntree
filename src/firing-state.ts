@@ -131,9 +131,7 @@ export class FiringState implements IFiringState {
         public fireData: IFireData,
         public repeatStates: IRepeatStateManager,
     ) {
-        this.fireData = new FireData();
         this.muzzle = null;
-        this.repeatStates = new RepeatStateManager();
         this.modifiers = [];
     }
 
