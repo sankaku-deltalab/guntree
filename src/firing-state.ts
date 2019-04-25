@@ -115,22 +115,23 @@ export interface IRepeatState {
  * FiringState contains information while firing.
  */
 export class FiringState implements IFiringState {
-    /** Contain data used when fired. */
-    fireData: IFireData;
-
     /** Muzzle fire bullet */
     muzzle: IMuzzle | null;
-
-    /** Manager manage repeating while firing. */
-    repeatStates: IRepeatStateManager;
 
     /** Function would applied to fireData when fire bullet, */
     private readonly modifiers: IFireDataModifier[];
 
-    constructor(private readonly player: IPlayer) {
-        this.fireData = new FireData();
+    /**
+     * @param player Player playing with this state
+     * @param fireData Contain data used when fired
+     * @param repeatStates Manager manage repeating while firing
+     */
+    constructor(
+        private readonly player: IPlayer,
+        public fireData: IFireData,
+        public repeatStates: IRepeatStateManager,
+    ) {
         this.muzzle = null;
-        this.repeatStates = new RepeatStateManager();
         this.modifiers = [];
     }
 
@@ -182,9 +183,9 @@ export class FiringState implements IFiringState {
     }
 
     copy(): FiringState {
-        const clone = new FiringState(this.player);
-        clone.fireData = this.fireData.copy();
-        clone.repeatStates = this.repeatStates.copy();
+        const clone = new FiringState(
+            this.player, this.fireData.copy(), this.repeatStates.copy(),
+        );
         clone.muzzle = this.muzzle;
         clone.modifiers.push(...this.modifiers);
         return clone;
@@ -207,7 +208,10 @@ export class FireData implements IFireData {
     constructor() {
         this.transform = mat.translate(0);
         this.muzzle = null;
-        this.parameters = new Map();
+        this.parameters = new Map([
+            ['speed', 1],
+            ['size', 1],
+        ]);
         this.texts = new Map();
     }
 
