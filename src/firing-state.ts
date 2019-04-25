@@ -208,7 +208,10 @@ export class FireData implements IFireData {
     constructor() {
         this.transform = mat.translate(0);
         this.muzzle = null;
-        this.parameters = new Map();
+        this.parameters = new Map([
+            ['speed', 1],
+            ['size', 1],
+        ]);
         this.texts = new Map();
     }
 
