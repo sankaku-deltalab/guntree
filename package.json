@@ -10,7 +10,7 @@
     "test": "jest --coverage",
     "prepublish": "run-s build",
     "clean": "rimraf ./lib",
-    "lint-src": "tslint ./src/*",
+    "lint": "eslint --ext .ts src/ test/",
     "generate-document": "typedoc --out public/ src/"
   },
   "files": [
