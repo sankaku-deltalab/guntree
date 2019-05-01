@@ -1,11 +1,11 @@
-import { IFiringState } from "guntree/firing-state";
+import { FiringState } from "guntree/firing-state";
 import { Nop } from "guntree/elements/gun";
 import { simpleMock } from "../util";
 
 describe("#Nop", (): void => {
   test("do not consume frames", (): void => {
     // Given FiringState
-    const state = simpleMock<IFiringState>();
+    const state = simpleMock<FiringState>();
 
     // And Nop
     const fire = new Nop();

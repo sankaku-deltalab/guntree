@@ -1,31 +1,31 @@
 import * as mat from "transformation-matrix";
 
-import { IGun } from "../gun";
-import { IFiringState, IFireDataModifier, IFireData } from "../firing-state";
+import { Gun } from "../gun";
+import { FiringState, FireDataModifier, FireData } from "../firing-state";
 import {
   TConstantOrLazy,
   calcValueFromConstantOrLazy,
   calcTransFormFromConstantOrLazy
 } from "../lazyEvaluative";
-import { IVirtualMuzzleGenerator } from "../muzzle";
+import { VirtualMuzzleGenerator } from "../muzzle";
 import { decomposeTransform } from "../transform-util";
 
 /**
  * ModifierGun update FireData when fired or immediately.
  */
-export class ModifierGun implements IGun {
+export class ModifierGun implements Gun {
   private readonly modifyLater: boolean;
-  private readonly modifier: IFireDataModifier;
+  private readonly modifier: FireDataModifier;
   /**
    * @param modifyLater Use modifier later or immediately
    * @param modifier Used modifier
    */
-  public constructor(modifyLater: boolean, modifier: IFireDataModifier) {
+  public constructor(modifyLater: boolean, modifier: FireDataModifier) {
     this.modifyLater = modifyLater;
     this.modifier = modifier;
   }
 
-  public *play(state: IFiringState): IterableIterator<void> {
+  public *play(state: FiringState): IterableIterator<void> {
     ModifierGun.modifyImmediatelyOrLater(
       state,
       this.modifyLater,
@@ -34,9 +34,9 @@ export class ModifierGun implements IGun {
   }
 
   private static modifyImmediatelyOrLater(
-    state: IFiringState,
+    state: FiringState,
     modifyLater: boolean,
-    modifier: IFireDataModifier
+    modifier: FireDataModifier
   ): void {
     if (modifyLater) {
       state.pushModifier(modifier);
@@ -49,13 +49,13 @@ export class ModifierGun implements IGun {
 /**
  * Transform matrix.
  */
-export class TransformModifier implements IFireDataModifier {
+export class TransformModifier implements FireDataModifier {
   private readonly trans: TConstantOrLazy<mat.Matrix>;
   public constructor(trans: TConstantOrLazy<mat.Matrix>) {
     this.trans = trans;
   }
 
-  public modifyFireData(stateConst: IFiringState, fireData: IFireData): void {
+  public modifyFireData(stateConst: FiringState, fireData: FireData): void {
     const transConst = calcTransFormFromConstantOrLazy(stateConst, this.trans);
     fireData.transform = mat.transform(transConst, fireData.transform);
   }
@@ -70,13 +70,13 @@ export interface TInvertTransformOption {
 /**
  * Invert transform matrix.
  */
-export class InvertTransformModifier implements IFireDataModifier {
+export class InvertTransformModifier implements FireDataModifier {
   private readonly option: TInvertTransformOption;
   public constructor(option: TInvertTransformOption) {
     this.option = option;
   }
 
-  public modifyFireData(stateConst: IFiringState, fireData: IFireData): void {
+  public modifyFireData(stateConst: FiringState, fireData: FireData): void {
     const [t, angleDeg, scale] = decomposeTransform(fireData.transform);
     const xRate = this.option.translationX ? -1 : 1;
     const yRate = this.option.translationY ? -1 : 1;
@@ -94,7 +94,7 @@ export class InvertTransformModifier implements IFireDataModifier {
 /**
  * Set parameter in FireData when played.
  */
-export class SetParameterImmediatelyModifier implements IFireDataModifier {
+export class SetParameterImmediatelyModifier implements FireDataModifier {
   private readonly name: string;
   private readonly value: TConstantOrLazy<number>;
 
@@ -103,7 +103,7 @@ export class SetParameterImmediatelyModifier implements IFireDataModifier {
     this.value = value;
   }
 
-  public modifyFireData(stateConst: IFiringState, fireData: IFireData): void {
+  public modifyFireData(stateConst: FiringState, fireData: FireData): void {
     fireData.parameters.set(
       this.name,
       calcValueFromConstantOrLazy(stateConst, this.value)
@@ -114,22 +114,22 @@ export class SetParameterImmediatelyModifier implements IFireDataModifier {
 /**
  * Modify parameter with given function later.
  */
-export class ModifyParameterModifier implements IFireDataModifier {
+export class ModifyParameterModifier implements FireDataModifier {
   private readonly name: string;
   private readonly modifier: (
-    stateConst: IFiringState,
+    stateConst: FiringState,
     oldValue: number
   ) => number;
 
   public constructor(
     name: string,
-    modifier: (stateConst: IFiringState, oldValue: number) => number
+    modifier: (stateConst: FiringState, oldValue: number) => number
   ) {
     this.name = name;
     this.modifier = modifier;
   }
 
-  public modifyFireData(stateConst: IFiringState, fireData: IFireData): void {
+  public modifyFireData(stateConst: FiringState, fireData: FireData): void {
     const oldValue = fireData.parameters.get(this.name);
     if (oldValue === undefined)
       throw new Error(`parameter <${this.name}> was not set`);
@@ -140,7 +140,7 @@ export class ModifyParameterModifier implements IFireDataModifier {
 /**
  * Set text in FireData when played.
  */
-export class SetTextImmediatelyModifier implements IFireDataModifier {
+export class SetTextImmediatelyModifier implements FireDataModifier {
   private readonly name: string;
   private readonly text: TConstantOrLazy<string>;
 
@@ -149,7 +149,7 @@ export class SetTextImmediatelyModifier implements IFireDataModifier {
     this.text = text;
   }
 
-  public modifyFireData(stateConst: IFiringState, fireData: IFireData): void {
+  public modifyFireData(stateConst: FiringState, fireData: FireData): void {
     fireData.texts.set(
       this.name,
       calcValueFromConstantOrLazy(stateConst, this.text)
@@ -160,14 +160,14 @@ export class SetTextImmediatelyModifier implements IFireDataModifier {
 /**
  * Set muzzle in FireData when played.
  */
-export class SetMuzzleImmediatelyModifier implements IFireDataModifier {
+export class SetMuzzleImmediatelyModifier implements FireDataModifier {
   private readonly name: TConstantOrLazy<string>;
 
   public constructor(name: TConstantOrLazy<string>) {
     this.name = name;
   }
 
-  public modifyFireData(stateConst: IFiringState, _fireData: IFireData): void {
+  public modifyFireData(stateConst: FiringState, _fireData: FireData): void {
     const muzzleName = calcValueFromConstantOrLazy(stateConst, this.name);
     stateConst.muzzle = stateConst.getMuzzleByName(muzzleName);
   }
@@ -177,14 +177,14 @@ export class SetMuzzleImmediatelyModifier implements IFireDataModifier {
  * Attach virtual muzzle to current muzzle.
  */
 export class AttachVirtualMuzzleImmediatelyModifier
-  implements IFireDataModifier {
-  private readonly virtualMuzzleGenerator: IVirtualMuzzleGenerator;
+  implements FireDataModifier {
+  private readonly virtualMuzzleGenerator: VirtualMuzzleGenerator;
 
-  public constructor(virtualMuzzleGenerator: IVirtualMuzzleGenerator) {
+  public constructor(virtualMuzzleGenerator: VirtualMuzzleGenerator) {
     this.virtualMuzzleGenerator = virtualMuzzleGenerator;
   }
 
-  public modifyFireData(stateConst: IFiringState, _fireData: IFireData): void {
+  public modifyFireData(stateConst: FiringState, _fireData: FireData): void {
     if (stateConst.muzzle === null)
       throw new Error("Muzzle was not set at FiringState");
     const muzzle = this.virtualMuzzleGenerator.generate();

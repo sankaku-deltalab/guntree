@@ -1,16 +1,16 @@
-import { IGun } from "./gun";
+import { Gun } from "./gun";
 import {
-  IFiringState,
   FiringState,
-  FireData,
-  RepeatStateManager
+  DefaultFiringState,
+  DefaultFireData,
+  DefaultRepeatStateManager
 } from "./firing-state";
-import { IMuzzle } from "./muzzle";
+import { Muzzle } from "./muzzle";
 
 /**
  * Player play guntree.
  */
-export interface IPlayer {
+export interface Player {
   /** Is playing guntree. */
   isRunning: boolean;
 
@@ -20,14 +20,14 @@ export interface IPlayer {
    *
    * @param muzzleName Muzzle name
    */
-  getMuzzle(muzzleName: string): IMuzzle;
+  getMuzzle(muzzleName: string): Muzzle;
 
   /**
    * Set guntree.
    *
    * @param gunTree Setting guntree. Guntree can used by multiple player.
    */
-  setGunTree(gunTree: IGun): void;
+  setGunTree(gunTree: Gun): void;
 
   /**
    * Start playing guntree.
@@ -41,15 +41,15 @@ export interface IPlayer {
   tick(): void;
 }
 
-export class Player implements IPlayer {
-  private gunTree: IGun | null;
+export class DefaultPlayer implements Player {
+  private gunTree: Gun | null;
   private firingProgress: IterableIterator<void> | null;
-  private readonly muzzle: { [key: string]: IMuzzle };
-  private readonly firingStateGenerator: (player: IPlayer) => IFiringState;
+  private readonly muzzle: { [key: string]: Muzzle };
+  private readonly firingStateGenerator: (player: Player) => FiringState;
 
   public constructor(
-    muzzle: { [key: string]: IMuzzle },
-    firingStateGenerator: (player: IPlayer) => IFiringState
+    muzzle: { [key: string]: Muzzle },
+    firingStateGenerator: (player: Player) => FiringState
   ) {
     this.gunTree = null;
     this.firingProgress = null;
@@ -61,13 +61,13 @@ export class Player implements IPlayer {
     return this.firingProgress !== null;
   }
 
-  public getMuzzle(muzzleName: string): IMuzzle {
+  public getMuzzle(muzzleName: string): Muzzle {
     if (!(muzzleName in this.muzzle))
       throw new Error(`muzzle ${muzzleName} is not set`);
     return this.muzzle[muzzleName];
   }
 
-  public setGunTree(gunTree: IGun): void {
+  public setGunTree(gunTree: Gun): void {
     this.gunTree = gunTree;
   }
 
@@ -94,12 +94,16 @@ export class Player implements IPlayer {
  * @param muzzle Muzzles used for firing
  */
 export const createDefaultPlayer = (muzzle: {
-  [key: string]: IMuzzle;
-}): IPlayer => {
-  return new Player(
+  [key: string]: Muzzle;
+}): Player => {
+  return new DefaultPlayer(
     muzzle,
-    (player): IFiringState => {
-      return new FiringState(player, new FireData(), new RepeatStateManager());
+    (player): FiringState => {
+      return new DefaultFiringState(
+        player,
+        new DefaultFireData(),
+        new DefaultRepeatStateManager()
+      );
     }
   );
 };

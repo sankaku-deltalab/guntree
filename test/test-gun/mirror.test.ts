@@ -1,9 +1,9 @@
 import * as mat from "transformation-matrix";
 
-import { IFireData } from "guntree/firing-state";
+import { FireData } from "guntree/firing-state";
 import { Mirror } from "guntree/elements/gun";
 import { InvertTransformModifier } from "guntree/elements";
-import { IMuzzle } from "guntree/muzzle";
+import { Muzzle } from "guntree/muzzle";
 import { decomposeTransform } from "guntree/transform-util";
 import {
   simpleMock,
@@ -42,7 +42,7 @@ describe("#Mirror", (): void => {
 
   test("can specify another muzzle for inverted firing", (): void => {
     // Given FiringState
-    const muzzle = simpleMock<IMuzzle>();
+    const muzzle = simpleMock<Muzzle>();
     const stateClone1 = createFiringStateMock();
     const stateClone2 = createFiringStateMock();
     const state = createFiringStateMock(stateClone1, stateClone2);
@@ -104,7 +104,7 @@ describe("#Mirror", (): void => {
 
     // And FireData
     const angle = 13;
-    const fd = simpleMock<IFireData>();
+    const fd = simpleMock<FireData>();
     fd.transform = mat.rotateDEG(angle);
 
     // And Mirror with child gun
@@ -138,7 +138,7 @@ describe("#Mirror", (): void => {
 
     // And FireData
     const translationX = 13;
-    const fd = simpleMock<IFireData>();
+    const fd = simpleMock<FireData>();
     fd.transform = mat.translate(translationX, 0);
 
     // And Mirror with child gun and specify invert translation x
@@ -172,7 +172,7 @@ describe("#Mirror", (): void => {
 
     // And FireData
     const translationY = 13;
-    const fd = simpleMock<IFireData>();
+    const fd = simpleMock<FireData>();
     fd.transform = mat.translate(0, translationY);
 
     // And Mirror with child gun and specify invert translation y

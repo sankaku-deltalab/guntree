@@ -1,4 +1,4 @@
-import { IRepeatState } from "guntree/firing-state";
+import { RepeatState } from "guntree/firing-state";
 import { Linear } from "guntree/elements/lazyEvaluative";
 import {
   createRepeatStateManagerWithGet,
@@ -64,7 +64,7 @@ describe("#Linear", (): void => {
       const [start, stop] = [0, 40];
       const rsm = createRepeatStateManagerWithGet(
         jest.fn().mockImplementation(
-          (name: string): IRepeatState => {
+          (name: string): RepeatState => {
             if (name === "a") return { finished: 0, total: 4 };
             if (name === "b") return { finished: 1, total: 4 };
             return { finished: 3, total: 4 };
@@ -87,7 +87,7 @@ describe("#Linear", (): void => {
     const [start, stop] = [0, 40];
     const rsm = createRepeatStateManagerWithGet(
       jest.fn().mockImplementation(
-        (name?: string): IRepeatState => {
+        (name?: string): RepeatState => {
           if (name === undefined) return { finished: 0, total: 4 };
           throw new Error();
         }

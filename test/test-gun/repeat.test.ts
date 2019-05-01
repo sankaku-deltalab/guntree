@@ -1,6 +1,6 @@
 import { range } from "lodash";
 
-import { IFiringState, IRepeatStateManager } from "guntree/firing-state";
+import { FiringState, RepeatStateManager } from "guntree/firing-state";
 import { Repeat } from "guntree/elements/gun";
 import {
   createLazyEvaluativeMockReturnOnce,
@@ -11,9 +11,9 @@ import {
 
 const createFiringStateWithRSM = (
   cloneNum: number
-): [IFiringState, IFiringState[]] => {
+): [FiringState, FiringState[]] => {
   const stateClones = range(cloneNum).map(
-    (): IFiringState => {
+    (): FiringState => {
       const rsm = createRepeatStateManagerMock();
       const state = createFiringStateMock();
       state.repeatStates = rsm;
@@ -22,7 +22,7 @@ const createFiringStateWithRSM = (
   );
   const state = createFiringStateMock(...stateClones);
   state.repeatStates = createRepeatStateManagerMock(
-    ...stateClones.map((s): IRepeatStateManager => s.repeatStates)
+    ...stateClones.map((s): RepeatStateManager => s.repeatStates)
   );
   return [state, stateClones];
 };

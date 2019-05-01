@@ -1,19 +1,19 @@
 import * as mat from "transformation-matrix";
 
-import { IBullet } from "./gun";
-import { IFireData } from "./firing-state";
+import { Bullet } from "./gun";
+import { FireData } from "./firing-state";
 
 /**
  * Muzzle presents firing location and angle.
  */
-export interface IMuzzle {
+export interface Muzzle {
   /**
    * Fire bullet.
    *
    * @param data FireData when fired.
    * @param bullet Firing bullet.
    */
-  fire(data: IFireData, bullet: IBullet): void;
+  fire(data: FireData, bullet: Bullet): void;
 
   /**
    * Get muzzle transform.
@@ -33,21 +33,21 @@ export interface IMuzzle {
  * And VirtualMuzzle is based on another muzzle (real or virtual).
  * When use VirtualMuzzle in guntree, Must used through VirtualMuzzleGenerator.
  */
-export interface IVirtualMuzzle extends IMuzzle {
+export interface VirtualMuzzle extends Muzzle {
   /**
    * Set basing muzzle.
    *
    * @param baseMuzzle basing muzzle
    */
-  basedOn(baseMuzzle: IMuzzle): void;
+  basedOn(baseMuzzle: Muzzle): void;
 }
 
 /**
  * Generate VirtualMuzzle.
  */
-export interface IVirtualMuzzleGenerator {
+export interface VirtualMuzzleGenerator {
   /**
    * Generate virtual muzzle.
    */
-  generate(): IVirtualMuzzle;
+  generate(): VirtualMuzzle;
 }

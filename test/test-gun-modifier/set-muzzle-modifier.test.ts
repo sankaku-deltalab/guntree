@@ -1,10 +1,10 @@
-import { IFiringState, IFireData } from "guntree/firing-state";
+import { FiringState, FireData } from "guntree/firing-state";
 import { SetMuzzleImmediatelyModifier } from "guntree/elements/gunModifier";
-import { IMuzzle } from "guntree/muzzle";
+import { Muzzle } from "guntree/muzzle";
 import { simpleMock, createLazyEvaluativeMockReturnOnce } from "../util";
 
-const createFiringState = (muzzle: IMuzzle): IFiringState => {
-  const state = simpleMock<IFiringState>();
+const createFiringState = (muzzle: Muzzle): FiringState => {
+  const state = simpleMock<FiringState>();
   state.muzzle = null;
   state.getMuzzleByName = jest.fn().mockReturnValueOnce(muzzle);
   return state;
@@ -13,13 +13,13 @@ const createFiringState = (muzzle: IMuzzle): IFiringState => {
 describe("#SetMuzzleImmediatelyModifier", (): void => {
   test("can set muzzle gotten from FiringState", (): void => {
     // Given Muzzle
-    const muzzle = simpleMock<IMuzzle>();
+    const muzzle = simpleMock<Muzzle>();
 
     // And firing state
     const state = createFiringState(muzzle);
 
     // And FireData
-    const fd = simpleMock<IFireData>();
+    const fd = simpleMock<FireData>();
 
     // And SetMuzzleImmediatelyModifier
     const name = "a";
@@ -37,13 +37,13 @@ describe("#SetMuzzleImmediatelyModifier", (): void => {
 
   test("can set muzzle name with lazyEvaluative value", (): void => {
     // Given Muzzle
-    const muzzle = simpleMock<IMuzzle>();
+    const muzzle = simpleMock<Muzzle>();
 
     // And firing state
     const state = createFiringState(muzzle);
 
     // And FireData
-    const fd = simpleMock<IFireData>();
+    const fd = simpleMock<FireData>();
 
     // And SetMuzzleImmediatelyModifier
     const nameConst = "a";

@@ -1,8 +1,8 @@
 import { range } from "lodash";
 
-import { IFiringState } from "guntree/firing-state";
-import { Player } from "guntree/player";
-import { IMuzzle } from "guntree/muzzle";
+import { FiringState } from "guntree/firing-state";
+import { DefaultPlayer } from "guntree/player";
+import { Muzzle } from "guntree/muzzle";
 import {
   simpleMock,
   createGunMockConsumeFrames,
@@ -21,7 +21,7 @@ describe("#Player", (): void => {
     const gunTree = createGunMockConsumeFrames(0);
 
     // And Player
-    const player = new Player({}, (): IFiringState => stateMaster);
+    const player = new DefaultPlayer({}, (): FiringState => stateMaster);
 
     // When set gun tree to player
     player.setGunTree(gunTree);
@@ -39,7 +39,7 @@ describe("#Player", (): void => {
     const stateMaster = createFiringStateMock(state);
 
     // And Player
-    const player = new Player({}, (): IFiringState => stateMaster);
+    const player = new DefaultPlayer({}, (): FiringState => stateMaster);
 
     // When start player without gun tree
     const starting = (): boolean => player.start();
@@ -62,7 +62,7 @@ describe("#Player", (): void => {
 
       // And Player with gun tree
       const gunTree = createGunMockConsumeFrames(gunTreeLength);
-      const player = new Player({}, (): IFiringState => stateMaster);
+      const player = new DefaultPlayer({}, (): FiringState => stateMaster);
       player.setGunTree(gunTree);
 
       // When start player
@@ -83,10 +83,10 @@ describe("#Player", (): void => {
 
   test("can set muzzle at constructed and get there", (): void => {
     // Given parameter name and value
-    const muzzle = simpleMock<IMuzzle>();
+    const muzzle = simpleMock<Muzzle>();
 
     // And Player with muzzle
-    const player = new Player({ a: muzzle }, simpleMock());
+    const player = new DefaultPlayer({ a: muzzle }, simpleMock());
 
     // When get muzzle from player
     const gottenMuzzle = player.getMuzzle("a");

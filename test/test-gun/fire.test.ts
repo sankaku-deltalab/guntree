@@ -1,16 +1,16 @@
-import { IBullet } from "guntree/gun";
-import { IFiringState } from "guntree/firing-state";
+import { Bullet } from "guntree/gun";
+import { FiringState } from "guntree/firing-state";
 import { Fire } from "guntree/elements/gun";
 import { simpleMock } from "../util";
 
 describe("#Fire", (): void => {
   test("notify firing to firing state", (): void => {
     // Given FiringState
-    const state = simpleMock<IFiringState>();
+    const state = simpleMock<FiringState>();
     state.fire = jest.fn();
 
     // And Bullet
-    const bullet = simpleMock<IBullet>();
+    const bullet = simpleMock<Bullet>();
 
     // And Fire
     const fire = new Fire(bullet);
@@ -26,11 +26,11 @@ describe("#Fire", (): void => {
 
   test("do not consume frames", (): void => {
     // Given FiringState
-    const state = simpleMock<IFiringState>();
+    const state = simpleMock<FiringState>();
     state.fire = jest.fn();
 
     // And Bullet
-    const bullet = simpleMock<IBullet>();
+    const bullet = simpleMock<Bullet>();
 
     // And Fire
     const fire = new Fire(bullet);

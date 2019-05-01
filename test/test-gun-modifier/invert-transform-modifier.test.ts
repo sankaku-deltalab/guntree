@@ -1,12 +1,12 @@
 import * as mat from "transformation-matrix";
 
-import { IFiringState, IFireData } from "guntree/firing-state";
+import { FiringState, FireData } from "guntree/firing-state";
 import { InvertTransformModifier } from "guntree/elements/gunModifier";
 import { simpleMock } from "../util";
 import { decomposeTransform } from "guntree/transform-util";
 
-const createFireData = (trans: mat.Matrix): IFireData => {
-  const fd = simpleMock<IFireData>();
+const createFireData = (trans: mat.Matrix): FireData => {
+  const fd = simpleMock<FireData>();
   fd.transform = trans;
   return fd;
 };
@@ -14,7 +14,7 @@ const createFireData = (trans: mat.Matrix): IFireData => {
 describe("#InvertTransformModifier", (): void => {
   test("can invert angle", (): void => {
     // Given FiringState
-    const state = simpleMock<IFiringState>();
+    const state = simpleMock<FiringState>();
 
     // And FireData with transform
     const initialAngle = 13;
@@ -33,7 +33,7 @@ describe("#InvertTransformModifier", (): void => {
 
   test("can invert translation x", (): void => {
     // Given FiringState
-    const state = simpleMock<IFiringState>();
+    const state = simpleMock<FiringState>();
 
     // And FireData with transform
     const initialTransX = 13;
@@ -54,7 +54,7 @@ describe("#InvertTransformModifier", (): void => {
 
   test("can invert translation y", (): void => {
     // Given FiringState
-    const state = simpleMock<IFiringState>();
+    const state = simpleMock<FiringState>();
 
     // And FireData with transform
     const initialTransY = 13;

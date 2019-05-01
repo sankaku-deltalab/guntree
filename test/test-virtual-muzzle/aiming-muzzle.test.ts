@@ -1,10 +1,10 @@
 import * as mat from "transformation-matrix";
 
 import { AimingMuzzle } from "guntree/elements/virtual-muzzle";
-import { IMuzzle } from "guntree/muzzle";
+import { Muzzle } from "guntree/muzzle";
 import { decomposeTransform } from "guntree/transform-util";
-import { IFireData } from "guntree/firing-state";
-import { IBullet } from "guntree/gun";
+import { FireData } from "guntree/firing-state";
+import { Bullet } from "guntree/gun";
 import { simpleMock } from "../util";
 
 describe("#aimingMuzzle", (): void => {
@@ -12,7 +12,7 @@ describe("#aimingMuzzle", (): void => {
     // Given base muzzle
     const baseTrans = mat.rotateDEG(12);
     const enemyTrans = mat.translate(1, 0);
-    const baseMuzzle = simpleMock<IMuzzle>();
+    const baseMuzzle = simpleMock<Muzzle>();
     baseMuzzle.getMuzzleTransform = jest.fn().mockReturnValue(baseTrans);
     baseMuzzle.getEnemyTransform = jest.fn().mockReturnValue(enemyTrans);
 
@@ -35,7 +35,7 @@ describe("#aimingMuzzle", (): void => {
 
   test("call based muzzle fire when self fire was called", (): void => {
     // Given base muzzle
-    const baseMuzzle = simpleMock<IMuzzle>();
+    const baseMuzzle = simpleMock<Muzzle>();
     baseMuzzle.fire = jest.fn();
     baseMuzzle.getMuzzleTransform = jest.fn().mockReturnValue(mat.translate(0));
     baseMuzzle.getEnemyTransform = jest.fn().mockReturnValue(mat.translate(0));
@@ -45,10 +45,10 @@ describe("#aimingMuzzle", (): void => {
     aiming.basedOn(baseMuzzle);
 
     // And FireData
-    const fireData = simpleMock<IFireData>();
+    const fireData = simpleMock<FireData>();
 
     // And Bullet
-    const bullet = simpleMock<IBullet>();
+    const bullet = simpleMock<Bullet>();
 
     // When call fire of aiming muzzle
     aiming.fire(fireData, bullet);
@@ -60,7 +60,7 @@ describe("#aimingMuzzle", (): void => {
   test("use based muzzle enemy transform", (): void => {
     // Given base muzzle
     const trans = simpleMock<mat.Matrix>();
-    const baseMuzzle = simpleMock<IMuzzle>();
+    const baseMuzzle = simpleMock<Muzzle>();
     baseMuzzle.getMuzzleTransform = jest.fn().mockReturnValue(mat.translate(0));
     baseMuzzle.getEnemyTransform = jest.fn().mockReturnValue(trans);
 

@@ -6,8 +6,8 @@ import {
 } from "../lazyEvaluative";
 import * as modO from "../elements/gunModifier";
 import * as le from "../contents/lazyEvaluative";
-import { IVirtualMuzzleGenerator } from "../muzzle";
-import { IFiringState } from "../firing-state";
+import { VirtualMuzzleGenerator } from "../muzzle";
+import { FiringState } from "../firing-state";
 
 /**
  * Transform matrix.
@@ -45,7 +45,7 @@ export const useParameter = (
  */
 export const modifyParameter = (
   name: string,
-  modifier: (stateConst: IFiringState, oldValue: number) => number
+  modifier: (stateConst: FiringState, oldValue: number) => number
 ): modO.ModifierGun => {
   return new modO.ModifierGun(
     true,
@@ -67,7 +67,7 @@ export const useMuzzle = (name: TConstantOrLazy<string>): modO.ModifierGun => {
  * Attach virtual muzzle to current muzzle.
  */
 export const useVirtualMuzzle = (
-  virtualMuzzleGenerator: IVirtualMuzzleGenerator
+  virtualMuzzleGenerator: VirtualMuzzleGenerator
 ): modO.ModifierGun => {
   return new modO.ModifierGun(
     false,

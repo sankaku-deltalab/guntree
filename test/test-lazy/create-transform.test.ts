@@ -1,6 +1,6 @@
 import * as mat from "transformation-matrix";
 
-import { IFiringState } from "guntree/firing-state";
+import { FiringState } from "guntree/firing-state";
 import { CreateTransform } from "guntree/elements/lazyEvaluative";
 import { simpleMock, createLazyEvaluativeMockReturnOnce } from "../util";
 
@@ -18,7 +18,7 @@ describe("#CreateTransform", (): void => {
     "can use translation with single value",
     ({ translation }): void => {
       // Given repeating progress
-      const state = simpleMock<IFiringState>();
+      const state = simpleMock<FiringState>();
 
       // And CreateTransform with translation
       const createTrans = new CreateTransform({ translation });
@@ -45,7 +45,7 @@ describe("#CreateTransform", (): void => {
     "can use translation with single lazyEvaluative value",
     ({ translation }): void => {
       // Given repeating progress
-      const state = simpleMock<IFiringState>();
+      const state = simpleMock<FiringState>();
 
       // And translation as lazyEvaluative
       const translationLe = createLazyEvaluativeMockReturnOnce(translation);
@@ -73,7 +73,7 @@ describe("#CreateTransform", (): void => {
     "can use translation with double value",
     ({ tx, ty }): void => {
       // Given repeating progress
-      const state = simpleMock<IFiringState>();
+      const state = simpleMock<FiringState>();
 
       // And CreateTransform with translation
       const createTrans = new CreateTransform({ translation: [tx, ty] });
@@ -98,7 +98,7 @@ describe("#CreateTransform", (): void => {
     "can use translation with double lazyEvaluative values",
     ({ tx, ty }): void => {
       // Given repeating progress
-      const state = simpleMock<IFiringState>();
+      const state = simpleMock<FiringState>();
 
       // And translation as lazyEvaluative
       const txLe = createLazyEvaluativeMockReturnOnce(tx);
@@ -129,7 +129,7 @@ describe("#CreateTransform", (): void => {
     "can use rotate as degrees",
     ({ rotationDeg }): void => {
       // Given repeating progress
-      const state = simpleMock<IFiringState>();
+      const state = simpleMock<FiringState>();
 
       // And CreateTransform with angleDeg
       const createTrans = new CreateTransform({ rotationDeg });
@@ -156,7 +156,7 @@ describe("#CreateTransform", (): void => {
     "can use rotate as degrees with lazyEvaluative number",
     ({ rotationDeg }): void => {
       // Given repeating progress
-      const state = simpleMock<IFiringState>();
+      const state = simpleMock<FiringState>();
 
       // And angle as lazyEvaluative
       const leRot = createLazyEvaluativeMockReturnOnce(rotationDeg);
@@ -185,7 +185,7 @@ describe("#CreateTransform", (): void => {
     "can use scale with single value",
     ({ scale }): void => {
       // Given repeating progress
-      const state = simpleMock<IFiringState>();
+      const state = simpleMock<FiringState>();
 
       // And CreateTransform with scale
       const createTrans = new CreateTransform({ scale });
@@ -212,7 +212,7 @@ describe("#CreateTransform", (): void => {
     "can use scale with single lazyEvaluative value",
     ({ scale }): void => {
       // Given repeating progress
-      const state = simpleMock<IFiringState>();
+      const state = simpleMock<FiringState>();
 
       // And scale as lazyEvaluative
       const scaleLe = createLazyEvaluativeMockReturnOnce(scale);
@@ -240,7 +240,7 @@ describe("#CreateTransform", (): void => {
     "can use scale with double value",
     ({ sx, sy }): void => {
       // Given repeating progress
-      const state = simpleMock<IFiringState>();
+      const state = simpleMock<FiringState>();
 
       // And CreateTransform with scale
       const createTrans = new CreateTransform({ scale: [sx, sy] });
@@ -265,7 +265,7 @@ describe("#CreateTransform", (): void => {
     "can use scale with single lazyEvaluative value",
     ({ sx, sy }): void => {
       // Given repeating progress
-      const state = simpleMock<IFiringState>();
+      const state = simpleMock<FiringState>();
 
       // And scale as lazyEvaluative
       const sxLe = createLazyEvaluativeMockReturnOnce(sx);

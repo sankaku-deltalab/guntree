@@ -1,6 +1,6 @@
 import * as mat from "transformation-matrix";
 
-import { FireData } from "guntree/firing-state";
+import { DefaultFireData } from "guntree/firing-state";
 
 describe("#FireData", (): void => {
   test.each`
@@ -11,7 +11,7 @@ describe("#FireData", (): void => {
     "has initial parameters: $parameterName as $amount",
     ({ parameterName, amount }): void => {
       // When create FireData
-      const fd = new FireData();
+      const fd = new DefaultFireData();
 
       // Then FireData has speed parameter
       expect(fd.parameters.get(parameterName)).toBeCloseTo(amount);
@@ -20,7 +20,7 @@ describe("#FireData", (): void => {
 
   test("can copy self with transform", (): void => {
     // Given FireData
-    const fd = new FireData();
+    const fd = new DefaultFireData();
 
     // And transform was set in FireData
     fd.transform = mat.translate(30);
@@ -36,7 +36,7 @@ describe("#FireData", (): void => {
 
   test("can copy self with transform", (): void => {
     // Given FireData
-    const fd = new FireData();
+    const fd = new DefaultFireData();
 
     // And parameters was set in FireData
     fd.parameters = new Map([["a", 0], ["b", -1], ["1", 1.5]]);
@@ -52,7 +52,7 @@ describe("#FireData", (): void => {
 
   test("can copy self with transform", (): void => {
     // Given FireData
-    const fd = new FireData();
+    const fd = new DefaultFireData();
 
     // And texts was set in FireData
     fd.texts = new Map([["a", "123"], ["b", "wqr"], ["1", ""]]);

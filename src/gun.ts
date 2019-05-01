@@ -1,10 +1,10 @@
-import { IFiringState } from "./firing-state";
+import { FiringState } from "./firing-state";
 
-export interface IGun {
-  play(state: IFiringState): IterableIterator<void>;
+export interface Gun {
+  play(state: FiringState): IterableIterator<void>;
 }
 
 /**
  * Bullet express property of bullet.
  */
-export interface IBullet {}
+export interface Bullet {}

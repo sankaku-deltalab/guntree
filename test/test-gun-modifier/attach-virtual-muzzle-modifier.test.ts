@@ -1,28 +1,24 @@
-import { IFiringState, IFireData } from "guntree/firing-state";
+import { FiringState, FireData } from "guntree/firing-state";
 import { AttachVirtualMuzzleImmediatelyModifier } from "guntree/elements/gunModifier";
-import {
-  IMuzzle,
-  IVirtualMuzzle,
-  IVirtualMuzzleGenerator
-} from "guntree/muzzle";
+import { Muzzle, VirtualMuzzle, VirtualMuzzleGenerator } from "guntree/muzzle";
 import { simpleMock } from "../util";
 
 describe("#AttachVirtualMuzzleImmediately", (): void => {
   test("attach virtual muzzle to current FiringState muzzle", (): void => {
     // Given Virtual muzzle generator
-    const virtualMuzzle = simpleMock<IVirtualMuzzle>();
+    const virtualMuzzle = simpleMock<VirtualMuzzle>();
     virtualMuzzle.basedOn = jest.fn();
 
     // And FiringState with muzzle
-    const state = simpleMock<IFiringState>();
-    const baseMuzzle = simpleMock<IMuzzle>();
+    const state = simpleMock<FiringState>();
+    const baseMuzzle = simpleMock<Muzzle>();
     state.muzzle = baseMuzzle;
 
     // And FireData
-    const fd = simpleMock<IFireData>();
+    const fd = simpleMock<FireData>();
 
     // And AttachVirtualMuzzleImmediatelyModifier
-    const virtualMuzzleGenerator = simpleMock<IVirtualMuzzleGenerator>();
+    const virtualMuzzleGenerator = simpleMock<VirtualMuzzleGenerator>();
     virtualMuzzleGenerator.generate = jest
       .fn()
       .mockReturnValueOnce(virtualMuzzle);

@@ -1,9 +1,9 @@
 import * as mat from "transformation-matrix";
 
-import { IFiringState, IFireData } from "guntree/firing-state";
+import { FiringState, FireData } from "guntree/firing-state";
 import { Alternate } from "guntree/elements/gun";
 import { InvertTransformModifier } from "guntree/elements";
-import { IMuzzle } from "guntree/muzzle";
+import { Muzzle } from "guntree/muzzle";
 import { decomposeTransform } from "guntree/transform-util";
 import {
   simpleMock,
@@ -11,7 +11,7 @@ import {
   createFiringStateMock
 } from "../util";
 
-const createFiringState = (...clones: IFiringState[]): IFiringState => {
+const createFiringState = (...clones: FiringState[]): FiringState => {
   const state = createFiringStateMock(...clones);
   state.pushModifier = jest.fn();
   return state;
@@ -48,7 +48,7 @@ describe("#Alternate", (): void => {
 
   test("can specify another muzzle for inverted firing", (): void => {
     // Given FiringState
-    const muzzle = simpleMock<IMuzzle>();
+    const muzzle = simpleMock<Muzzle>();
     const stateClone1 = createFiringState();
     const stateClone2 = createFiringState();
     const state = createFiringState(stateClone1, stateClone2);
@@ -113,7 +113,7 @@ describe("#Alternate", (): void => {
 
     // And FireData
     const angle = 13;
-    const fd = simpleMock<IFireData>();
+    const fd = simpleMock<FireData>();
     fd.transform = mat.rotateDEG(angle);
 
     // And Alternate with child gun
@@ -147,7 +147,7 @@ describe("#Alternate", (): void => {
 
     // And FireData
     const translationX = 13;
-    const fd = simpleMock<IFireData>();
+    const fd = simpleMock<FireData>();
     fd.transform = mat.translate(translationX, 0);
 
     // And Alternate with child gun and specify invert translation x
@@ -181,7 +181,7 @@ describe("#Alternate", (): void => {
 
     // And FireData
     const translationY = 13;
-    const fd = simpleMock<IFireData>();
+    const fd = simpleMock<FireData>();
     fd.transform = mat.translate(0, translationY);
 
     // And Alternate with child gun and specify invert translation y

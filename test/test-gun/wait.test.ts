@@ -1,11 +1,11 @@
-import { IFiringState } from "guntree/firing-state";
+import { FiringState } from "guntree/firing-state";
 import { Wait } from "guntree/elements/gun";
 import { simpleMock, createLazyEvaluativeMockReturnOnce } from "../util";
 
 describe("#Wait", (): void => {
   test("consume constant input frames", (): void => {
     // Given firing state
-    const state = simpleMock<IFiringState>();
+    const state = simpleMock<FiringState>();
 
     // And Wait
     const waitFrames = 3;
@@ -26,7 +26,7 @@ describe("#Wait", (): void => {
 
   test("consume lazyEvaluative input frames", (): void => {
     // Given firing state
-    const state = simpleMock<IFiringState>();
+    const state = simpleMock<FiringState>();
 
     // And lazyEvaluative
     const waitFrames = 3;

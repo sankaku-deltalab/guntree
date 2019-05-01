@@ -1,7 +1,7 @@
 import { range } from "lodash";
 
-import { IGun } from "guntree/gun";
-import { IFiringState } from "guntree/firing-state";
+import { Gun } from "guntree/gun";
+import { FiringState } from "guntree/firing-state";
 import { Parallel } from "guntree/elements/gun";
 import { createGunMockConsumeFrames, createFiringStateMock } from "../util";
 
@@ -10,14 +10,14 @@ describe("#Parallel", (): void => {
     // Given firing state
     const gunNum = 3;
     const clones = range(gunNum).map(
-      (_): IFiringState => createFiringStateMock()
+      (_): FiringState => createFiringStateMock()
     );
     const state = createFiringStateMock(...clones);
 
     // And guns
     const childFrames = 5;
     const guns = range(gunNum).map(
-      (_): IGun => createGunMockConsumeFrames(childFrames)
+      (_): Gun => createGunMockConsumeFrames(childFrames)
     );
 
     // And Parallel

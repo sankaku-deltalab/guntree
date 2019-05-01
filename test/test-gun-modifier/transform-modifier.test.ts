@@ -1,11 +1,11 @@
 import * as mat from "transformation-matrix";
 
-import { IFiringState, IFireData } from "guntree/firing-state";
+import { FiringState, FireData } from "guntree/firing-state";
 import { TransformModifier } from "guntree/elements/gunModifier";
 import { simpleMock, createLazyEvaluativeMockReturnOnce } from "../util";
 
-const createFireData = (trans: mat.Matrix): IFireData => {
-  const fd = simpleMock<IFireData>();
+const createFireData = (trans: mat.Matrix): FireData => {
+  const fd = simpleMock<FireData>();
   fd.transform = trans;
   return fd;
 };
@@ -13,7 +13,7 @@ const createFireData = (trans: mat.Matrix): IFireData => {
 describe("#TransformModifier", (): void => {
   test("generate modifier transform fireData", (): void => {
     // Given FiringState
-    const state = simpleMock<IFiringState>();
+    const state = simpleMock<FiringState>();
 
     // And FireData
     const initialTrans = mat.translate(1.125);
@@ -33,7 +33,7 @@ describe("#TransformModifier", (): void => {
 
   test("can use lazyEvaluative transform", (): void => {
     // Given FiringState
-    const state = simpleMock<IFiringState>();
+    const state = simpleMock<FiringState>();
 
     // And FireData
     const initialTrans = mat.translate(1.125);

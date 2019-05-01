@@ -1,7 +1,7 @@
 import { range } from "lodash";
 
-import { IGun, IBullet } from "../gun";
-import { IFiringState, IRepeatState } from "../firing-state";
+import { Gun, Bullet } from "../gun";
+import { FiringState, RepeatState } from "../firing-state";
 import { TConstantOrLazy } from "../lazyEvaluative";
 import {
   InvertTransformModifier,
@@ -16,7 +16,7 @@ export function* wait(frames: number): IterableIterator<void> {
 }
 
 const getNumberFromLazy = (
-  state: IFiringState,
+  state: FiringState,
   numberOrLazy: TConstantOrLazy<number>
 ): number => {
   if (typeof numberOrLazy === "number") return numberOrLazy;
@@ -26,18 +26,18 @@ const getNumberFromLazy = (
 /**
  * Fire bullet.
  */
-export class Fire implements IGun {
+export class Fire implements Gun {
   /** Bullet would fired */
-  private readonly bullet: IBullet;
+  private readonly bullet: Bullet;
 
   /**
    * @param bullet Fired bullet
    */
-  public constructor(bullet: IBullet) {
+  public constructor(bullet: Bullet) {
     this.bullet = bullet;
   }
 
-  public *play(state: IFiringState): IterableIterator<void> {
+  public *play(state: FiringState): IterableIterator<void> {
     state.fire(this.bullet);
   }
 }
@@ -45,10 +45,10 @@ export class Fire implements IGun {
 /**
  * Do nothing.
  */
-export class Nop implements IGun {
+export class Nop implements Gun {
   public constructor() {}
 
-  public *play(_state: IFiringState): IterableIterator<void> {}
+  public *play(_state: FiringState): IterableIterator<void> {}
 }
 
 export interface TRepeatOption {
@@ -57,23 +57,21 @@ export interface TRepeatOption {
   name?: string;
 }
 
-export class Repeat implements IGun {
+export class Repeat implements Gun {
   private readonly option: TRepeatOption;
-  private readonly gun: IGun;
+  private readonly gun: Gun;
 
-  public constructor(option: TRepeatOption, gun: IGun) {
+  public constructor(option: TRepeatOption, gun: Gun) {
     this.option = option;
     this.gun = gun;
   }
 
-  public *play(state: IFiringState): IterableIterator<void> {
+  public *play(state: FiringState): IterableIterator<void> {
     const name = this.option.name;
     const repeatTimes = this.calcRepeatTimes(state);
-    const stateClones = range(repeatTimes).map(
-      (): IFiringState => state.copy()
-    );
+    const stateClones = range(repeatTimes).map((): FiringState => state.copy());
     const repeatStates = stateClones.map(
-      (clone, i): IRepeatState =>
+      (clone, i): RepeatState =>
         clone.repeatStates.start({ finished: i, total: repeatTimes }, name)
     );
 
@@ -85,38 +83,36 @@ export class Repeat implements IGun {
     }
   }
 
-  private calcRepeatTimes(state: IFiringState): number {
+  private calcRepeatTimes(state: FiringState): number {
     if (typeof this.option.times === "number") return this.option.times;
     return this.option.times.calc(state);
   }
 
-  private calcInterval(state: IFiringState): number {
+  private calcInterval(state: FiringState): number {
     if (typeof this.option.interval === "number") return this.option.interval;
     return this.option.interval.calc(state);
   }
 }
 
-export class ParallelRepeat implements IGun {
+export class ParallelRepeat implements Gun {
   private readonly option: TRepeatOption;
-  private readonly gun: IGun;
+  private readonly gun: Gun;
 
-  public constructor(option: TRepeatOption, gun: IGun) {
+  public constructor(option: TRepeatOption, gun: Gun) {
     this.option = option;
     this.gun = gun;
   }
 
-  public *play(state: IFiringState): IterableIterator<void> {
+  public *play(state: FiringState): IterableIterator<void> {
     const repeatTimes = getNumberFromLazy(state, this.option.times);
 
     if (repeatTimes === 0) return;
 
     const name = this.option.name;
 
-    const stateClones = range(repeatTimes).map(
-      (): IFiringState => state.copy()
-    );
+    const stateClones = range(repeatTimes).map((): FiringState => state.copy());
     const repeatStates = stateClones.map(
-      (clone, i): IRepeatState =>
+      (clone, i): RepeatState =>
         clone.repeatStates.start({ finished: i, total: repeatTimes }, name)
     );
     const intervals = stateClones.map(
@@ -133,11 +129,11 @@ export class ParallelRepeat implements IGun {
     );
 
     function* playChild(
-      st: IFiringState,
-      rs: IRepeatState,
+      st: FiringState,
+      rs: RepeatState,
       boot: number,
       interval: number,
-      gun: IGun
+      gun: Gun
     ): IterableIterator<void> {
       yield* wait(boot);
       yield* gun.play(st);
@@ -172,14 +168,14 @@ export class ParallelRepeat implements IGun {
  * Concat guns.
  * Child guns are played with FiringState without copy.
  */
-export class Concat implements IGun {
-  private readonly guns: IGun[];
+export class Concat implements Gun {
+  private readonly guns: Gun[];
 
-  public constructor(...guns: IGun[]) {
+  public constructor(...guns: Gun[]) {
     this.guns = guns;
   }
 
-  public *play(state: IFiringState): IterableIterator<void> {
+  public *play(state: FiringState): IterableIterator<void> {
     for (const gun of this.guns) {
       yield* gun.play(state);
     }
@@ -190,14 +186,14 @@ export class Concat implements IGun {
  * Play guns sequentially.
  * Each child guns are played with copied FiringState.
  */
-export class Sequential implements IGun {
-  private readonly guns: IGun[];
+export class Sequential implements Gun {
+  private readonly guns: Gun[];
 
-  public constructor(...guns: IGun[]) {
+  public constructor(...guns: Gun[]) {
     this.guns = guns;
   }
 
-  public *play(state: IFiringState): IterableIterator<void> {
+  public *play(state: FiringState): IterableIterator<void> {
     for (const gun of this.guns) {
       yield* gun.play(state.copy());
     }
@@ -208,14 +204,14 @@ export class Sequential implements IGun {
  * Play guns parallel.
  * Each child guns are played with copied FiringState.
  */
-export class Parallel implements IGun {
-  private readonly guns: IGun[];
+export class Parallel implements Gun {
+  private readonly guns: Gun[];
 
-  public constructor(...guns: IGun[]) {
+  public constructor(...guns: Gun[]) {
     this.guns = guns;
   }
 
-  public *play(state: IFiringState): IterableIterator<void> {
+  public *play(state: FiringState): IterableIterator<void> {
     const progresses = this.guns.map(
       (g): IterableIterator<void> => g.play(state.copy())
     );
@@ -233,14 +229,14 @@ export class Parallel implements IGun {
 /**
  * Wait input frames.
  */
-export class Wait implements IGun {
+export class Wait implements Gun {
   private readonly frames: TConstantOrLazy<number>;
 
   public constructor(frames: TConstantOrLazy<number>) {
     this.frames = frames;
   }
 
-  public *play(state: IFiringState): IterableIterator<void> {
+  public *play(state: FiringState): IterableIterator<void> {
     yield* wait(getNumberFromLazy(state, this.frames));
   }
 }
@@ -255,10 +251,10 @@ export interface TMirrorOption {
  * Mirror play gun and inverted gun as parallel.
  * Mirror can use another muzzle for inverted gun.
  */
-export class Mirror implements IGun {
-  private readonly parallel: IGun;
+export class Mirror implements Gun {
+  private readonly parallel: Gun;
 
-  public constructor(option: TMirrorOption, gun: IGun) {
+  public constructor(option: TMirrorOption, gun: Gun) {
     const invert = new ModifierGun(
       true,
       new InvertTransformModifier({
@@ -283,7 +279,7 @@ export class Mirror implements IGun {
     this.parallel = new Parallel(gun, new Concat(...mirroredChild));
   }
 
-  public *play(state: IFiringState): IterableIterator<void> {
+  public *play(state: FiringState): IterableIterator<void> {
     yield* this.parallel.play(state);
   }
 }
@@ -292,10 +288,10 @@ export class Mirror implements IGun {
  * Alternate play gun and inverted gun as sequential.
  * Alternate can use another muzzle for inverted gun.
  */
-export class Alternate implements IGun {
-  private readonly parallel: IGun;
+export class Alternate implements Gun {
+  private readonly parallel: Gun;
 
-  public constructor(option: TMirrorOption, gun: IGun) {
+  public constructor(option: TMirrorOption, gun: Gun) {
     const invert = new ModifierGun(
       true,
       new InvertTransformModifier({
@@ -320,7 +316,7 @@ export class Alternate implements IGun {
     this.parallel = new Sequential(gun, new Concat(...mirroredChild));
   }
 
-  public *play(state: IFiringState): IterableIterator<void> {
+  public *play(state: FiringState): IterableIterator<void> {
     yield* this.parallel.play(state);
   }
 }

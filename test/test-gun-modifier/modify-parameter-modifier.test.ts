@@ -1,9 +1,9 @@
-import { IFiringState, IFireData } from "guntree/firing-state";
+import { FiringState, FireData } from "guntree/firing-state";
 import { ModifyParameterModifier } from "guntree/elements/gunModifier";
 import { simpleMock } from "../util";
 
-const createFireData = (parameters: Map<string, number>): IFireData => {
-  const fd = simpleMock<IFireData>();
+const createFireData = (parameters: Map<string, number>): FireData => {
+  const fd = simpleMock<FireData>();
   fd.parameters = parameters;
   return fd;
 };
@@ -11,7 +11,7 @@ const createFireData = (parameters: Map<string, number>): IFireData => {
 describe("#ModifyParameterModifier", (): void => {
   test("modify already set parameter", (): void => {
     // Given firing state
-    const state = simpleMock<IFiringState>();
+    const state = simpleMock<FiringState>();
 
     // And FireData with parameter
     const name = "a";
@@ -32,7 +32,7 @@ describe("#ModifyParameterModifier", (): void => {
 
   test("can not modify unset parameter", (): void => {
     // Given firing state
-    const state = simpleMock<IFiringState>();
+    const state = simpleMock<FiringState>();
 
     // And FireData with parameter
     const name = "a";

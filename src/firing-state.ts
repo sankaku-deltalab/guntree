@@ -1,38 +1,38 @@
 import * as mat from "transformation-matrix";
 
-import { IPlayer } from "./player";
-import { IMuzzle } from "./muzzle";
-import { IBullet } from ".";
+import { Player } from "./player";
+import { Muzzle } from "./muzzle";
+import { Bullet } from ".";
 
 /**
  * FiringState contains information while firing.
  */
-export interface IFiringState {
+export interface FiringState {
   /** Contain data used when fired. */
-  fireData: IFireData;
+  fireData: FireData;
 
   /** Muzzle fire bullet */
-  muzzle: IMuzzle | null;
+  muzzle: Muzzle | null;
 
   /** Manager manage repeating while firing. */
-  repeatStates: IRepeatStateManager;
+  repeatStates: RepeatStateManager;
 
   /**
    * Push function would applied to fireData when fire bullet.
    *
    * @param modifier modifier would applied when fire bullet
    */
-  pushModifier(modifier: IFireDataModifier): void;
+  pushModifier(modifier: FireDataModifier): void;
 
   /** Calculate modified fire data. */
-  calcModifiedFireData(): IFireData;
+  calcModifiedFireData(): FireData;
 
   /**
    * Get muzzle by name.
    *
    * @param muzzleName Searching muzzle name
    */
-  getMuzzleByName(muzzleName: string): IMuzzle;
+  getMuzzleByName(muzzleName: string): Muzzle;
 
   /**
    * Fire bullet.
@@ -40,16 +40,16 @@ export interface IFiringState {
    *
    * @param bullet Firing bullet
    */
-  fire(bullet: IBullet): void;
+  fire(bullet: Bullet): void;
 
   /** Copy this state. */
-  copy(): IFiringState;
+  copy(): FiringState;
 }
 
 /**
  * IFireData contains data used when bullet was fired.
  */
-export interface IFireData {
+export interface FireData {
   /** Bullet spawning transform. */
   transform: mat.Matrix;
 
@@ -60,20 +60,20 @@ export interface IFireData {
   texts: Map<string, string>;
 
   /** Copy this data. */
-  copy(): IFireData;
+  copy(): FireData;
 }
 
 /**
  * IFireDataModifier modify FireData.
  */
-export interface IFireDataModifier {
-  modifyFireData(stateConst: IFiringState, fireData: IFireData): void;
+export interface FireDataModifier {
+  modifyFireData(stateConst: FiringState, fireData: FireData): void;
 }
 
 /**
  * IRepeatStateManager manage repeating while firing.
  */
-export interface IRepeatStateManager {
+export interface RepeatStateManager {
   /**
    * Get repeat state with name.
    * If name is not given, return latest repeat state.
@@ -81,7 +81,7 @@ export interface IRepeatStateManager {
    *
    * @param name Repeating name
    */
-  get(name?: string): IRepeatState;
+  get(name?: string): RepeatState;
 
   /**
    * Notify start repeating.
@@ -91,7 +91,7 @@ export interface IRepeatStateManager {
    * @param state Repeat state
    * @param name Repeat state name
    */
-  start(state: IRepeatState, name?: string): IRepeatState;
+  start(state: RepeatState, name?: string): RepeatState;
 
   /**
    * Notify finish repeating.
@@ -100,13 +100,13 @@ export interface IRepeatStateManager {
    * @param state Repeat state
    * @param name Repeat state name
    */
-  finish(state: IRepeatState, name?: string): void;
+  finish(state: RepeatState, name?: string): void;
 
   /** Copy states with manager. */
-  copy(): IRepeatStateManager;
+  copy(): RepeatStateManager;
 }
 
-export interface IRepeatState {
+export interface RepeatState {
   finished: number;
   total: number;
 }
@@ -114,21 +114,21 @@ export interface IRepeatState {
 /**
  * FiringState contains information while firing.
  */
-export class FiringState implements IFiringState {
+export class DefaultFiringState implements FiringState {
   /** Muzzle fire bullet */
-  public muzzle: IMuzzle | null;
+  public muzzle: Muzzle | null;
 
   /** Function would applied to fireData when fire bullet, */
-  private readonly modifiers: IFireDataModifier[];
+  private readonly modifiers: FireDataModifier[];
 
   /** Player playing with this state */
-  private readonly player: IPlayer;
+  private readonly player: Player;
 
   /** Contain data used when fired */
-  public fireData: IFireData;
+  public fireData: FireData;
 
   /** Manager manage repeating while firing */
-  public repeatStates: IRepeatStateManager;
+  public repeatStates: RepeatStateManager;
 
   /**
    * @param player Player playing with this state
@@ -136,9 +136,9 @@ export class FiringState implements IFiringState {
    * @param repeatStates Manager manage repeating while firing
    */
   public constructor(
-    player: IPlayer,
-    fireData: IFireData,
-    repeatStates: IRepeatStateManager
+    player: Player,
+    fireData: FireData,
+    repeatStates: RepeatStateManager
   ) {
     this.muzzle = null;
     this.modifiers = [];
@@ -152,12 +152,12 @@ export class FiringState implements IFiringState {
    *
    * @param modifier Function would applied when fire bullet
    */
-  public pushModifier(modifier: IFireDataModifier): void {
+  public pushModifier(modifier: FireDataModifier): void {
     this.modifiers.push(modifier);
   }
 
   /** Calculate modified fire data. */
-  public calcModifiedFireData(): IFireData {
+  public calcModifiedFireData(): FireData {
     if (this.muzzle === null) throw new Error("Muzzle was not set");
     const fdClone = this.fireData.copy();
 
@@ -180,7 +180,7 @@ export class FiringState implements IFiringState {
    *
    * @param muzzleName Searching muzzle name
    */
-  public getMuzzleByName(muzzleName: string): IMuzzle {
+  public getMuzzleByName(muzzleName: string): Muzzle {
     return this.player.getMuzzle(muzzleName);
   }
 
@@ -190,14 +190,14 @@ export class FiringState implements IFiringState {
    *
    * @param bullet Firing bullet
    */
-  public fire(bullet: IBullet): void {
+  public fire(bullet: Bullet): void {
     if (this.muzzle === null) throw new Error("Muzzle was not set");
     const data = this.calcModifiedFireData();
     this.muzzle.fire(data, bullet);
   }
 
-  public copy(): FiringState {
-    const clone = new FiringState(
+  public copy(): DefaultFiringState {
+    const clone = new DefaultFiringState(
       this.player,
       this.fireData.copy(),
       this.repeatStates.copy()
@@ -220,12 +220,12 @@ const copyMap = <T1, T2>(
   return clone;
 };
 
-export class FireData implements IFireData {
+export class DefaultFireData implements FireData {
   /** Bullet spawning transform. */
   public transform: mat.Matrix;
 
   /** Muzzle name fire bullet */
-  public muzzle: IMuzzle | null;
+  public muzzle: Muzzle | null;
 
   /** Parameters express real value. */
   public parameters: Map<string, number>;
@@ -240,8 +240,8 @@ export class FireData implements IFireData {
     this.texts = new Map();
   }
 
-  public copy(): FireData {
-    const clone = new FireData();
+  public copy(): DefaultFireData {
+    const clone = new DefaultFireData();
     clone.transform = Object.assign({}, this.transform);
     clone.parameters = copyMap(this.parameters);
     clone.texts = copyMap(this.texts);
@@ -249,16 +249,16 @@ export class FireData implements IFireData {
   }
 }
 
-export class RepeatStateManager implements IRepeatStateManager {
-  private repeatStateStack: IRepeatState[];
-  private repeatMap: Map<string, IRepeatState[]>;
+export class DefaultRepeatStateManager implements RepeatStateManager {
+  private repeatStateStack: RepeatState[];
+  private repeatMap: Map<string, RepeatState[]>;
 
   public constructor() {
     this.repeatStateStack = [{ finished: 0, total: 1 }];
     this.repeatMap = new Map();
   }
 
-  public get(name?: string): IRepeatState {
+  public get(name?: string): RepeatState {
     if (name === undefined) {
       return this.repeatStateStack[this.repeatStateStack.length - 1];
     }
@@ -268,7 +268,7 @@ export class RepeatStateManager implements IRepeatStateManager {
     return rsStack[rsStack.length - 1];
   }
 
-  public start(state: IRepeatState, name?: string): IRepeatState {
+  public start(state: RepeatState, name?: string): RepeatState {
     if (name !== undefined) {
       this.pushToMap(state, name);
     }
@@ -277,7 +277,7 @@ export class RepeatStateManager implements IRepeatStateManager {
     return state;
   }
 
-  private pushToMap(state: IRepeatState, name: string): void {
+  private pushToMap(state: RepeatState, name: string): void {
     const stack = this.repeatMap.get(name);
     if (stack === undefined) {
       this.repeatMap.set(name, [state]);
@@ -286,7 +286,7 @@ export class RepeatStateManager implements IRepeatStateManager {
     }
   }
 
-  public finish(state: IRepeatState, name?: string): void {
+  public finish(state: RepeatState, name?: string): void {
     if (name !== undefined) {
       this.popFromMap(state, name);
     }
@@ -302,7 +302,7 @@ export class RepeatStateManager implements IRepeatStateManager {
       throw new Error("Finished repeating is not current repeating");
   }
 
-  private popFromMap(state: IRepeatState, name: string): IRepeatState {
+  private popFromMap(state: RepeatState, name: string): RepeatState {
     const stack = this.repeatMap.get(name);
     if (stack === undefined)
       throw new Error(
@@ -320,12 +320,12 @@ export class RepeatStateManager implements IRepeatStateManager {
   }
 
   /** Copy states with manager. */
-  public copy(): RepeatStateManager {
-    const clone = new RepeatStateManager();
+  public copy(): DefaultRepeatStateManager {
+    const clone = new DefaultRepeatStateManager();
     clone.repeatStateStack = [...this.repeatStateStack];
     clone.repeatMap = copyMap(
       this.repeatMap,
-      (rsStack): IRepeatState[] => [...rsStack]
+      (rsStack): RepeatState[] => [...rsStack]
     );
     return clone;
   }

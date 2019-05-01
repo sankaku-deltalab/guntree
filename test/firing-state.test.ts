@@ -2,26 +2,26 @@ import { range } from "lodash";
 import * as mat from "transformation-matrix";
 
 import {
-  FiringState,
-  IFireData,
-  IFireDataModifier,
-  IRepeatStateManager
+  DefaultFiringState,
+  FireData,
+  FireDataModifier,
+  RepeatStateManager
 } from "guntree/firing-state";
-import { IPlayer } from "guntree/player";
-import { IBullet } from "guntree/gun";
-import { IMuzzle } from "guntree/muzzle";
+import { Player } from "guntree/player";
+import { Bullet } from "guntree/gun";
+import { Muzzle } from "guntree/muzzle";
 import { simpleMock } from "./util";
 
-const createSimpleFireDataMock = (): [IFireData, IFireData] => {
-  const fireData = simpleMock<IFireData>();
-  const fireDataClone = simpleMock<IFireData>();
+const createSimpleFireDataMock = (): [FireData, FireData] => {
+  const fireData = simpleMock<FireData>();
+  const fireDataClone = simpleMock<FireData>();
   fireData.copy = jest.fn().mockReturnValueOnce(fireDataClone);
   return [fireData, fireDataClone];
 };
 
-const createSimpleRSMMock = (): [IRepeatStateManager, IRepeatStateManager] => {
-  const rsm = simpleMock<IRepeatStateManager>();
-  const rsmClone = simpleMock<IRepeatStateManager>();
+const createSimpleRSMMock = (): [RepeatStateManager, RepeatStateManager] => {
+  const rsm = simpleMock<RepeatStateManager>();
+  const rsmClone = simpleMock<RepeatStateManager>();
   rsm.copy = jest.fn().mockReturnValueOnce(rsmClone);
   return [rsm, rsmClone];
 };
@@ -33,23 +33,23 @@ describe("#FiringState", (): void => {
     fireDataClone.transform = mat.translate(0);
 
     // And muzzle with transform
-    const muzzle = simpleMock<IMuzzle>();
+    const muzzle = simpleMock<Muzzle>();
     muzzle.getMuzzleTransform = jest.fn().mockReturnValueOnce(mat.translate(0));
 
     // And FiringState with muzzle and FireData clone
-    const state = new FiringState(
-      simpleMock<IPlayer>(),
+    const state = new DefaultFiringState(
+      simpleMock<Player>(),
       fireData,
-      simpleMock<IRepeatStateManager>()
+      simpleMock<RepeatStateManager>()
     );
     state.muzzle = muzzle;
     state.fireData.copy = jest.fn().mockReturnValueOnce(fireDataClone);
 
     // And modifiers
-    const calledModifiers: IFireDataModifier[] = [];
+    const calledModifiers: FireDataModifier[] = [];
     const modifiers = range(3).map(
-      (): IFireDataModifier => {
-        const mod = simpleMock<IFireDataModifier>();
+      (): FireDataModifier => {
+        const mod = simpleMock<FireDataModifier>();
         mod.modifyFireData = jest
           .fn()
           .mockImplementation((): number => calledModifiers.push(mod));
@@ -83,7 +83,7 @@ describe("#FiringState", (): void => {
     const [rsm, _rsmClone] = createSimpleRSMMock();
 
     // And FiringState
-    const state = new FiringState(simpleMock(), fireData, rsm);
+    const state = new DefaultFiringState(simpleMock(), fireData, rsm);
 
     // When copy FiringState
     const clone = state.copy();
@@ -100,7 +100,7 @@ describe("#FiringState", (): void => {
     const [rsm, rsmClone] = createSimpleRSMMock();
 
     // And FiringState
-    const state = new FiringState(simpleMock(), fireData, rsm);
+    const state = new DefaultFiringState(simpleMock(), fireData, rsm);
 
     // When copy FiringState
     const clone = state.copy();
@@ -117,10 +117,10 @@ describe("#FiringState", (): void => {
     const [rsm, _rsmClone] = createSimpleRSMMock();
 
     // And Muzzle
-    const muzzle = simpleMock<IMuzzle>();
+    const muzzle = simpleMock<Muzzle>();
 
     // Given FiringState with muzzle
-    const state = new FiringState(simpleMock(), fireData, rsm);
+    const state = new DefaultFiringState(simpleMock(), fireData, rsm);
     state.muzzle = muzzle;
 
     // When copy FiringState
@@ -132,12 +132,12 @@ describe("#FiringState", (): void => {
 
   test("can get muzzle by name", (): void => {
     // Given Player with muzzle
-    const muzzle = simpleMock<IMuzzle>();
-    const player = simpleMock<IPlayer>();
+    const muzzle = simpleMock<Muzzle>();
+    const player = simpleMock<Player>();
     player.getMuzzle = jest.fn().mockReturnValueOnce(muzzle);
 
     // And FiringState
-    const state = new FiringState(player, simpleMock(), simpleMock());
+    const state = new DefaultFiringState(player, simpleMock(), simpleMock());
 
     // When get muzzle by name
     const muzzleName = "a";
@@ -150,24 +150,24 @@ describe("#FiringState", (): void => {
 
   test("can call fire and pass firing to muzzle", (): void => {
     // Given Muzzle can fire
-    const muzzle = simpleMock<IMuzzle>();
+    const muzzle = simpleMock<Muzzle>();
     muzzle.fire = jest.fn();
 
     // And RepeatStateManager with clone
-    const rsm = simpleMock<IRepeatStateManager>();
-    const rsmClone = simpleMock<IRepeatStateManager>();
+    const rsm = simpleMock<RepeatStateManager>();
+    const rsmClone = simpleMock<RepeatStateManager>();
     rsm.copy = jest.fn().mockReturnValueOnce(rsmClone);
 
     // And FiringState with muzzle and can calcModifiedFireData
-    const state = new FiringState(simpleMock(), simpleMock(), rsm);
+    const state = new DefaultFiringState(simpleMock(), simpleMock(), rsm);
     state.muzzle = muzzle;
-    const modifiedFireData = simpleMock<IFireData>();
+    const modifiedFireData = simpleMock<FireData>();
     state.calcModifiedFireData = jest
       .fn()
       .mockReturnValueOnce(modifiedFireData);
 
     // And Bullet
-    const bullet = simpleMock<IBullet>();
+    const bullet = simpleMock<Bullet>();
 
     // When fire
     state.fire(bullet);
@@ -185,12 +185,12 @@ describe("#FiringState", (): void => {
     const [rsm, _rsmClone] = createSimpleRSMMock();
 
     // And muzzle
-    const muzzle = simpleMock<IMuzzle>();
+    const muzzle = simpleMock<Muzzle>();
     const muzzleTrans = mat.translate(1.2, 5.3);
     muzzle.getMuzzleTransform = jest.fn().mockReturnValueOnce(muzzleTrans);
 
     // And firing state with muzzle and FireData clone
-    const state = new FiringState(simpleMock(), fireData, rsm);
+    const state = new DefaultFiringState(simpleMock(), fireData, rsm);
     state.muzzle = muzzle;
 
     // When calc modified fireData

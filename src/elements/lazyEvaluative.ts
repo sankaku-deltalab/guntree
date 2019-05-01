@@ -1,13 +1,13 @@
 import * as mat from "transformation-matrix";
 
-import { IFiringState } from "../firing-state";
+import { FiringState } from "../firing-state";
 import {
-  ILazyEvaluative,
+  LazyEvaluative,
   TConstantOrLazy,
   calcValueFromConstantOrLazy
 } from "../lazyEvaluative";
 
-export class Linear implements ILazyEvaluative<number> {
+export class Linear implements LazyEvaluative<number> {
   private readonly start: TConstantOrLazy<number>;
   private readonly stop: TConstantOrLazy<number>;
   private readonly target?: string;
@@ -22,7 +22,7 @@ export class Linear implements ILazyEvaluative<number> {
     this.target = target;
   }
 
-  public calc(state: IFiringState): number {
+  public calc(state: FiringState): number {
     const start = calcValueFromConstantOrLazy(state, this.start);
     const stop = calcValueFromConstantOrLazy(state, this.stop);
     const repeat = state.repeatStates.get(this.target);
@@ -42,7 +42,7 @@ export interface TIterateOption {
 /**
  * Iterate values in argument with repeating.
  */
-export class Iterate implements ILazyEvaluative<number> {
+export class Iterate implements LazyEvaluative<number> {
   private readonly array: (TConstantOrLazy<number>)[];
   private readonly option?: TIterateOption;
   /**
@@ -58,7 +58,7 @@ export class Iterate implements ILazyEvaluative<number> {
     this.option = option;
   }
 
-  public calc(state: IFiringState): number {
+  public calc(state: FiringState): number {
     const target = this.option !== undefined ? this.option.target : undefined;
     const repeat = state.repeatStates.get(target);
     if (repeat.finished >= this.array.length) {
@@ -77,7 +77,7 @@ export class Iterate implements ILazyEvaluative<number> {
 /**
  * Deal rounded value
  */
-export class Round implements ILazyEvaluative<number> {
+export class Round implements LazyEvaluative<number> {
   private readonly input: TConstantOrLazy<number>;
   /**
    *
@@ -87,7 +87,7 @@ export class Round implements ILazyEvaluative<number> {
     this.input = input;
   }
 
-  public calc(state: IFiringState): number {
+  public calc(state: FiringState): number {
     if (typeof this.input === "number") return Math.round(this.input);
     return Math.round(this.input.calc(state));
   }
@@ -100,7 +100,7 @@ export class Round implements ILazyEvaluative<number> {
  *
  * new CenterizedLinear(15)  // deal [-5, 0, 5] values when repeat 3 times
  */
-export class CenterizedLinear implements ILazyEvaluative<number> {
+export class CenterizedLinear implements LazyEvaluative<number> {
   private readonly totalRange: TConstantOrLazy<number>;
   private readonly target?: string;
 
@@ -109,7 +109,7 @@ export class CenterizedLinear implements ILazyEvaluative<number> {
     this.target = target;
   }
 
-  public calc(state: IFiringState): number {
+  public calc(state: FiringState): number {
     const totalRange = calcValueFromConstantOrLazy(state, this.totalRange);
     const repeat = state.repeatStates.get(this.target);
     const rate = repeat.finished / repeat.total;
@@ -139,7 +139,7 @@ interface TCreateTransformOptionFilled {
 }
 
 const calcTupleLe = (
-  state: IFiringState,
+  state: FiringState,
   tuple: [TConstantOrLazy<number>, TConstantOrLazy<number>]
 ): [number, number | undefined] => {
   return [
@@ -159,7 +159,7 @@ const calcTupleLe = (
  *     scale: 1.25,
  * });
  */
-export class CreateTransform implements ILazyEvaluative<mat.Matrix> {
+export class CreateTransform implements LazyEvaluative<mat.Matrix> {
   private readonly option: TCreateTransformOptionFilled;
 
   /**
@@ -174,7 +174,7 @@ export class CreateTransform implements ILazyEvaluative<mat.Matrix> {
     this.option = Object.assign(defaultOption, option);
   }
 
-  public calc(state: IFiringState): mat.Matrix {
+  public calc(state: FiringState): mat.Matrix {
     const tr: [number, number | undefined] = Array.isArray(
       this.option.translation
     )

@@ -1,11 +1,11 @@
 import { range } from "lodash";
 
-import { IGun } from "guntree/gun";
-import { ILazyEvaluative } from "guntree/lazyEvaluative";
+import { Gun } from "guntree/gun";
+import { LazyEvaluative } from "guntree/lazyEvaluative";
 import {
-  IFiringState,
-  IRepeatStateManager,
-  IRepeatState
+  FiringState,
+  RepeatStateManager,
+  RepeatState
 } from "guntree/firing-state";
 
 export const simpleMock = <T>(): T => {
@@ -15,14 +15,14 @@ export const simpleMock = <T>(): T => {
 
 export const createLazyEvaluativeMockReturnOnce = <T>(
   value: T
-): ILazyEvaluative<T> => {
-  const le = simpleMock<ILazyEvaluative<T>>();
+): LazyEvaluative<T> => {
+  const le = simpleMock<LazyEvaluative<T>>();
   le.calc = jest.fn().mockReturnValueOnce(value);
   return le;
 };
 
-export const createGunMockConsumeFrames = (frames: number): IGun => {
-  const gun = simpleMock<IGun>();
+export const createGunMockConsumeFrames = (frames: number): Gun => {
+  const gun = simpleMock<Gun>();
   gun.play = jest.fn().mockImplementation(
     (): IterableIterator<void> => {
       function* playing(): IterableIterator<void> {
@@ -35,9 +35,9 @@ export const createGunMockConsumeFrames = (frames: number): IGun => {
 };
 
 export const createFiringStateMock = (
-  ...clones: IFiringState[]
-): IFiringState => {
-  const state = simpleMock<IFiringState>();
+  ...clones: FiringState[]
+): FiringState => {
+  const state = simpleMock<FiringState>();
   let copyFunction = jest.fn();
   clones.map(
     (clone): void => {
@@ -50,9 +50,9 @@ export const createFiringStateMock = (
 };
 
 export const createRepeatStateManagerMock = (
-  ...clones: IRepeatStateManager[]
-): IRepeatStateManager => {
-  const rsm = simpleMock<IRepeatStateManager>();
+  ...clones: RepeatStateManager[]
+): RepeatStateManager => {
+  const rsm = simpleMock<RepeatStateManager>();
   let copyFunction = jest.fn();
   clones.map(
     (clone): void => {
@@ -62,7 +62,7 @@ export const createRepeatStateManagerMock = (
   rsm.copy = copyFunction;
   rsm.start = jest
     .fn()
-    .mockImplementation((rs: IRepeatState): IRepeatState => rs);
+    .mockImplementation((rs: RepeatState): RepeatState => rs);
   rsm.finish = jest.fn();
   return rsm;
 };

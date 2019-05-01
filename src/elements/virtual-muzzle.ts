@@ -1,18 +1,18 @@
 import * as mat from "transformation-matrix";
 
 import { decomposeTransform } from "../transform-util";
-import { IFireData } from "../firing-state";
-import { IBullet } from "../gun";
-import { IMuzzle, IVirtualMuzzle, IVirtualMuzzleGenerator } from "../muzzle";
+import { FireData } from "../firing-state";
+import { Bullet } from "../gun";
+import { Muzzle, VirtualMuzzle, VirtualMuzzleGenerator } from "../muzzle";
 
 /**
  * VirtualMuzzle modify only muzzle transform.
  */
-class MuzzleTransformOverrideMuzzle implements IVirtualMuzzle {
-  private basedMuzzle: IMuzzle | null;
-  private readonly override: IMuzzleTransOverride;
+class MuzzleTransformOverrideMuzzle implements VirtualMuzzle {
+  private basedMuzzle: Muzzle | null;
+  private readonly override: MuzzleTransOverrider;
 
-  public constructor(override: IMuzzleTransOverride) {
+  public constructor(override: MuzzleTransOverrider) {
     this.override = override;
     this.basedMuzzle = null;
   }
@@ -23,7 +23,7 @@ class MuzzleTransformOverrideMuzzle implements IVirtualMuzzle {
    * @param data FireData when fired.
    * @param bullet Firing bullet.
    */
-  public fire(data: IFireData, bullet: IBullet): void {
+  public fire(data: FireData, bullet: Bullet): void {
     this.getBasedMuzzle().fire(data, bullet);
   }
 
@@ -46,12 +46,12 @@ class MuzzleTransformOverrideMuzzle implements IVirtualMuzzle {
    *
    * @param baseMuzzle basing muzzle
    */
-  public basedOn(baseMuzzle: IMuzzle): void {
+  public basedOn(baseMuzzle: Muzzle): void {
     this.basedMuzzle = baseMuzzle;
     this.override.basedOn(baseMuzzle);
   }
 
-  private getBasedMuzzle(): IMuzzle {
+  private getBasedMuzzle(): Muzzle {
     if (this.basedMuzzle === null) throw new Error("Not based on muzzle yet");
     return this.basedMuzzle;
   }
@@ -61,13 +61,13 @@ class MuzzleTransformOverrideMuzzle implements IVirtualMuzzle {
  * This override MuzzleTransform of muzzle.
  * Used for MuzzleTransformOverrideMuzzle.
  */
-interface IMuzzleTransOverride {
+interface MuzzleTransOverrider {
   /**
    * Set basing muzzle.
    *
    * @param baseMuzzle basing muzzle
    */
-  basedOn(baseMuzzle: IMuzzle): void;
+  basedOn(baseMuzzle: Muzzle): void;
 
   /**
    * Get muzzle transform.
@@ -89,8 +89,8 @@ const calcDirectionRad = (src: mat.Matrix, dest: mat.Matrix): number => {
 /**
  * Aiming enemy every frame.
  */
-class AimingOverride implements IMuzzleTransOverride {
-  private basedMuzzle: IMuzzle | null;
+class AimingOverride implements MuzzleTransOverrider {
+  private basedMuzzle: Muzzle | null;
 
   public constructor() {
     this.basedMuzzle = null;
@@ -100,7 +100,7 @@ class AimingOverride implements IMuzzleTransOverride {
    *
    * @param baseMuzzle basing muzzle
    */
-  public basedOn(baseMuzzle: IMuzzle): void {
+  public basedOn(baseMuzzle: Muzzle): void {
     this.basedMuzzle = baseMuzzle;
   }
 
@@ -124,8 +124,8 @@ class AimingOverride implements IMuzzleTransOverride {
 /**
  * Aim enemy at used frame.
  */
-class FixedAimOverride implements IMuzzleTransOverride {
-  private basedMuzzle: IMuzzle | null;
+class FixedAimOverride implements MuzzleTransOverrider {
+  private basedMuzzle: Muzzle | null;
   private aimingAngleRad: number;
   public constructor() {
     this.basedMuzzle = null;
@@ -136,7 +136,7 @@ class FixedAimOverride implements IMuzzleTransOverride {
    *
    * @param baseMuzzle basing muzzle
    */
-  public basedOn(baseMuzzle: IMuzzle): void {
+  public basedOn(baseMuzzle: Muzzle): void {
     this.basedMuzzle = baseMuzzle;
 
     // Set aiming angle
@@ -163,11 +163,11 @@ class FixedAimOverride implements IMuzzleTransOverride {
 /**
  * Generate VirtualMuzzle aiming enemy every frame.
  */
-export class AimingMuzzle implements IVirtualMuzzleGenerator {
+export class AimingMuzzle implements VirtualMuzzleGenerator {
   /**
    * Generate virtual muzzle.
    */
-  public generate(): IVirtualMuzzle {
+  public generate(): VirtualMuzzle {
     return new MuzzleTransformOverrideMuzzle(new AimingOverride());
   }
 }
@@ -175,11 +175,11 @@ export class AimingMuzzle implements IVirtualMuzzleGenerator {
 /**
  * Generate VirtualMuzzle aim enemy at used frame.
  */
-export class FixedAimMuzzle implements IVirtualMuzzleGenerator {
+export class FixedAimMuzzle implements VirtualMuzzleGenerator {
   /**
    * Generate virtual muzzle.
    */
-  public generate(): IVirtualMuzzle {
+  public generate(): VirtualMuzzle {
     return new MuzzleTransformOverrideMuzzle(new FixedAimOverride());
   }
 }

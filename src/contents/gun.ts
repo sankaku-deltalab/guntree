@@ -1,40 +1,39 @@
-import { IGun, IBullet } from "../gun";
+import { Gun, Bullet } from "../gun";
 import { TConstantOrLazy } from "../lazyEvaluative";
 import * as gunO from "../elements/gun";
 import * as mod from "./gunModifier";
 import * as le from "./lazyEvaluative";
 
-export const concat = (...guns: IGun[]): gunO.Concat =>
-  new gunO.Concat(...guns);
-export const sequential = (...guns: IGun[]): gunO.Sequential =>
+export const concat = (...guns: Gun[]): gunO.Concat => new gunO.Concat(...guns);
+export const sequential = (...guns: Gun[]): gunO.Sequential =>
   new gunO.Sequential(...guns);
-export const parallel = (...guns: IGun[]): gunO.Parallel =>
+export const parallel = (...guns: Gun[]): gunO.Parallel =>
   new gunO.Parallel(...guns);
 
 export const wait = (frames: TConstantOrLazy<number>): gunO.Wait =>
   new gunO.Wait(frames);
 
-export const fire = (bullet: IBullet): gunO.Fire => new gunO.Fire(bullet);
+export const fire = (bullet: Bullet): gunO.Fire => new gunO.Fire(bullet);
 
 export const nop = (): gunO.Nop => new gunO.Nop();
 
 export const repeat = (
   option: gunO.TRepeatOption,
-  ...guns: IGun[]
+  ...guns: Gun[]
 ): gunO.Repeat => {
   return new gunO.Repeat(option, new gunO.Concat(...guns));
 };
 
 export const parallelRepeat = (
   option: gunO.TRepeatOption,
-  ...guns: IGun[]
+  ...guns: Gun[]
 ): gunO.ParallelRepeat => {
   return new gunO.ParallelRepeat(option, new gunO.Concat(...guns));
 };
 
 export const paraRepeat = (
   option: gunO.TRepeatOption,
-  ...guns: IGun[]
+  ...guns: Gun[]
 ): gunO.ParallelRepeat => parallelRepeat(option, ...guns);
 
 export interface TNWayOption {
@@ -45,7 +44,7 @@ export interface TNWayOption {
 
 export const nWay = (
   option: TNWayOption,
-  ...guns: IGun[]
+  ...guns: Gun[]
 ): gunO.ParallelRepeat => {
   return paraRepeat(
     { times: option.ways, interval: 0, name: option.name },
@@ -60,7 +59,7 @@ export type TWhipOption = gunO.TRepeatOption & {
   name?: string;
 };
 
-export const whip = (option: TWhipOption, ...guns: IGun[]): gunO.Repeat => {
+export const whip = (option: TWhipOption, ...guns: Gun[]): gunO.Repeat => {
   const sr = option.speedRateRange;
   return repeat(
     { times: option.times, interval: 0, name: option.name },
@@ -77,7 +76,7 @@ export interface TSpreadOption {
 
 export const spread = (
   option: TWhipOption,
-  ...guns: IGun[]
+  ...guns: Gun[]
 ): gunO.ParallelRepeat => {
   const sr = option.speedRateRange;
   return paraRepeat(
@@ -89,14 +88,14 @@ export const spread = (
 
 export const mirror = (
   option: gunO.TMirrorOption,
-  ...guns: IGun[]
+  ...guns: Gun[]
 ): gunO.Mirror => {
   return new gunO.Mirror(option, concat(...guns));
 };
 
 export const alternate = (
   option: gunO.TMirrorOption,
-  ...guns: IGun[]
+  ...guns: Gun[]
 ): gunO.Alternate => {
   return new gunO.Alternate(option, concat(...guns));
 };

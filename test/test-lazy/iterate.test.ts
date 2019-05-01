@@ -1,4 +1,4 @@
-import { IRepeatState } from "guntree/firing-state";
+import { RepeatState } from "guntree/firing-state";
 import { Iterate } from "guntree/elements/lazyEvaluative";
 import { createLazyEvaluativeMockReturnOnce } from "../util";
 import {
@@ -86,7 +86,7 @@ describe("#Iterate", (): void => {
       // Given repeating progress
       const rsm = createRepeatStateManagerWithGet(
         jest.fn().mockImplementation(
-          (name: string): IRepeatState => {
+          (name: string): RepeatState => {
             if (name === target) return { finished, total: 4 };
             if (name === "c") return { finished: 2, total: 4 };
             return { finished: 3, total: 4 };
