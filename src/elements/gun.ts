@@ -1,121 +1,171 @@
-import { range } from 'lodash';
+import { range } from "lodash";
 
-import { IGun, IBullet } from '../gun';
-import { IFiringState, IRepeatState } from '../firing-state';
-import { TConstantOrLazy } from '../lazyEvaluative';
-import { InvertTransformModifier, ModifierGun, SetMuzzleImmediatelyModifier } from './gunModifier';
+import { IGun, IBullet } from "../gun";
+import { IFiringState, IRepeatState } from "../firing-state";
+import { TConstantOrLazy } from "../lazyEvaluative";
+import {
+  InvertTransformModifier,
+  ModifierGun,
+  SetMuzzleImmediatelyModifier
+} from "./gunModifier";
+
+export function* wait(frames: number): IterableIterator<void> {
+  for (const _ of range(frames)) {
+    yield;
+  }
+}
+
+const getNumberFromLazy = (
+  state: IFiringState,
+  numberOrLazy: TConstantOrLazy<number>
+): number => {
+  if (typeof numberOrLazy === "number") return numberOrLazy;
+  return numberOrLazy.calc(state);
+};
 
 /**
  * Fire bullet.
  */
 export class Fire implements IGun {
-    /**
-     * @param bullet Fired bullet
-     */
-    constructor(private readonly bullet: IBullet) { }
+  /** Bullet would fired */
+  private readonly bullet: IBullet;
 
-    *play(state: IFiringState): IterableIterator<void> {
-        state.fire(this.bullet);
-    }
+  /**
+   * @param bullet Fired bullet
+   */
+  public constructor(bullet: IBullet) {
+    this.bullet = bullet;
+  }
+
+  public *play(state: IFiringState): IterableIterator<void> {
+    state.fire(this.bullet);
+  }
 }
 
 /**
  * Do nothing.
  */
 export class Nop implements IGun {
-    constructor() { }
+  public constructor() {}
 
-    *play(state: IFiringState): IterableIterator<void> { }
+  public *play(_state: IFiringState): IterableIterator<void> {}
 }
 
-export type TRepeatOption = {
-    times: TConstantOrLazy<number>;
-    interval: TConstantOrLazy<number>;
-    name?: string;
-};
+export interface TRepeatOption {
+  times: TConstantOrLazy<number>;
+  interval: TConstantOrLazy<number>;
+  name?: string;
+}
 
 export class Repeat implements IGun {
-    constructor(
-        private readonly option: TRepeatOption,
-        private readonly gun: IGun) { }
+  private readonly option: TRepeatOption;
+  private readonly gun: IGun;
 
-    *play(state: IFiringState): IterableIterator<void> {
-        const name = this.option.name;
-        const repeatTimes = this.calcRepeatTimes(state);
-        const stateClones = range(repeatTimes).map(_ => state.copy());
-        const repeatStates = stateClones.map(
-            (clone, i) => clone.repeatStates.start({ finished: i, total: repeatTimes }, name),
-        );
+  public constructor(option: TRepeatOption, gun: IGun) {
+    this.option = option;
+    this.gun = gun;
+  }
 
-        for (const i of range(repeatTimes)) {
-            const clone = stateClones[i];
-            yield* this.gun.play(clone);
-            yield* wait(this.calcInterval(clone));
-            clone.repeatStates.finish(repeatStates[i], name);
-        }
+  public *play(state: IFiringState): IterableIterator<void> {
+    const name = this.option.name;
+    const repeatTimes = this.calcRepeatTimes(state);
+    const stateClones = range(repeatTimes).map(
+      (): IFiringState => state.copy()
+    );
+    const repeatStates = stateClones.map(
+      (clone, i): IRepeatState =>
+        clone.repeatStates.start({ finished: i, total: repeatTimes }, name)
+    );
+
+    for (const i of range(repeatTimes)) {
+      const clone = stateClones[i];
+      yield* this.gun.play(clone);
+      yield* wait(this.calcInterval(clone));
+      clone.repeatStates.finish(repeatStates[i], name);
     }
+  }
 
-    private calcRepeatTimes(state: IFiringState) {
-        if (typeof this.option.times === 'number') return this.option.times;
-        return this.option.times.calc(state);
-    }
+  private calcRepeatTimes(state: IFiringState): number {
+    if (typeof this.option.times === "number") return this.option.times;
+    return this.option.times.calc(state);
+  }
 
-    private calcInterval(state: IFiringState) {
-        if (typeof this.option.interval === 'number') return this.option.interval;
-        return this.option.interval.calc(state);
-    }
+  private calcInterval(state: IFiringState): number {
+    if (typeof this.option.interval === "number") return this.option.interval;
+    return this.option.interval.calc(state);
+  }
 }
 
 export class ParallelRepeat implements IGun {
-    constructor(
-        private readonly option: TRepeatOption,
-        private readonly gun: IGun) { }
+  private readonly option: TRepeatOption;
+  private readonly gun: IGun;
 
-    *play(state: IFiringState): IterableIterator<void> {
-        const repeatTimes = getNumberFromLazy(state, this.option.times);
+  public constructor(option: TRepeatOption, gun: IGun) {
+    this.option = option;
+    this.gun = gun;
+  }
 
-        if (repeatTimes === 0) return;
+  public *play(state: IFiringState): IterableIterator<void> {
+    const repeatTimes = getNumberFromLazy(state, this.option.times);
 
-        const name = this.option.name;
+    if (repeatTimes === 0) return;
 
-        const stateClones = range(repeatTimes).map(_ => state.copy());
-        const repeatStates = stateClones.map(
-            (clone, i) => clone.repeatStates.start({ finished: i, total: repeatTimes }, name),
-        );
-        const intervals = stateClones.map(s => getNumberFromLazy(s, this.option.interval));
-        const bootTimes = intervals.map((_, idx, ary) => {
-            let cum = 0;
-            for (const i in range(idx)) {
-                cum += ary[i];
-            }
-            return cum;
-        });
+    const name = this.option.name;
 
-        function* playChild(
-            st: IFiringState,
-            rs: IRepeatState,
-            boot: number,
-            interval: number,
-            gun: IGun,
-        ): IterableIterator<void> {
-            yield* wait(boot);
-            yield* gun.play(st);
-            yield* wait(interval);
-            st.repeatStates.finish(rs, name);
+    const stateClones = range(repeatTimes).map(
+      (): IFiringState => state.copy()
+    );
+    const repeatStates = stateClones.map(
+      (clone, i): IRepeatState =>
+        clone.repeatStates.start({ finished: i, total: repeatTimes }, name)
+    );
+    const intervals = stateClones.map(
+      (s): number => getNumberFromLazy(s, this.option.interval)
+    );
+    const bootTimes = intervals.map(
+      (_, idx, ary): number => {
+        let cum = 0;
+        for (const i in range(idx)) {
+          cum += ary[i];
         }
+        return cum;
+      }
+    );
 
-        const playProgresses = range(repeatTimes).map((i) => {
-            return playChild(stateClones[i], repeatStates[i], bootTimes[i], intervals[i], this.gun);
-        });
-
-        while (true) {
-            const doneList = playProgresses.map(p => p.next().done);
-            const allFinished = doneList.reduce((done1, done2) => done1 && done2);
-            if (allFinished) return;
-            yield;
-        }
-
+    function* playChild(
+      st: IFiringState,
+      rs: IRepeatState,
+      boot: number,
+      interval: number,
+      gun: IGun
+    ): IterableIterator<void> {
+      yield* wait(boot);
+      yield* gun.play(st);
+      yield* wait(interval);
+      st.repeatStates.finish(rs, name);
     }
+
+    const playProgresses = range(repeatTimes).map(
+      (i): IterableIterator<void> => {
+        return playChild(
+          stateClones[i],
+          repeatStates[i],
+          bootTimes[i],
+          intervals[i],
+          this.gun
+        );
+      }
+    );
+
+    while (true) {
+      const doneList = playProgresses.map((p): boolean => p.next().done);
+      const allFinished = doneList.reduce(
+        (done1, done2): boolean => done1 && done2
+      );
+      if (allFinished) return;
+      yield;
+    }
+  }
 }
 
 /**
@@ -123,17 +173,17 @@ export class ParallelRepeat implements IGun {
  * Child guns are played with FiringState without copy.
  */
 export class Concat implements IGun {
-    private readonly guns: IGun[];
+  private readonly guns: IGun[];
 
-    constructor(...guns: IGun[]) {
-        this.guns = guns;
-    }
+  public constructor(...guns: IGun[]) {
+    this.guns = guns;
+  }
 
-    *play(state: IFiringState): IterableIterator<void> {
-        for (const gun of this.guns) {
-            yield* gun.play(state);
-        }
+  public *play(state: IFiringState): IterableIterator<void> {
+    for (const gun of this.guns) {
+      yield* gun.play(state);
     }
+  }
 }
 
 /**
@@ -141,17 +191,17 @@ export class Concat implements IGun {
  * Each child guns are played with copied FiringState.
  */
 export class Sequential implements IGun {
-    private readonly guns: IGun[];
+  private readonly guns: IGun[];
 
-    constructor(...guns: IGun[]) {
-        this.guns = guns;
-    }
+  public constructor(...guns: IGun[]) {
+    this.guns = guns;
+  }
 
-    *play(state: IFiringState): IterableIterator<void> {
-        for (const gun of this.guns) {
-            yield* gun.play(state.copy());
-        }
+  public *play(state: IFiringState): IterableIterator<void> {
+    for (const gun of this.guns) {
+      yield* gun.play(state.copy());
     }
+  }
 }
 
 /**
@@ -159,74 +209,83 @@ export class Sequential implements IGun {
  * Each child guns are played with copied FiringState.
  */
 export class Parallel implements IGun {
-    private readonly guns: IGun[];
+  private readonly guns: IGun[];
 
-    constructor(...guns: IGun[]) {
-        this.guns = guns;
-    }
+  public constructor(...guns: IGun[]) {
+    this.guns = guns;
+  }
 
-    *play(state: IFiringState): IterableIterator<void> {
-        const progresses = this.guns.map(g => g.play(state.copy()));
-        while (true) {
-            const doneList = progresses.map(p => p.next().done);
-            const allFinished = doneList.reduce((done1, done2) => done1 && done2);
-            if (allFinished) return;
-            yield;
-        }
+  public *play(state: IFiringState): IterableIterator<void> {
+    const progresses = this.guns.map(
+      (g): IterableIterator<void> => g.play(state.copy())
+    );
+    while (true) {
+      const doneList = progresses.map((p): boolean => p.next().done);
+      const allFinished = doneList.reduce(
+        (done1, done2): boolean => done1 && done2
+      );
+      if (allFinished) return;
+      yield;
     }
+  }
 }
 
 /**
  * Wait input frames.
  */
 export class Wait implements IGun {
-    constructor(private readonly frames: TConstantOrLazy<number>) { }
+  private readonly frames: TConstantOrLazy<number>;
 
-    *play(state: IFiringState): IterableIterator<void> {
-        yield* wait(getNumberFromLazy(state, this.frames));
-    }
+  public constructor(frames: TConstantOrLazy<number>) {
+    this.frames = frames;
+  }
+
+  public *play(state: IFiringState): IterableIterator<void> {
+    yield* wait(getNumberFromLazy(state, this.frames));
+  }
 }
 
-export type TMirrorOption = {
-    invertedMuzzleName?: string,
-    mirrorTranslationX?: true,
-    mirrorTranslationY?: true,
-};
+export interface TMirrorOption {
+  invertedMuzzleName?: string;
+  mirrorTranslationX?: true;
+  mirrorTranslationY?: true;
+}
 
 /**
  * Mirror play gun and inverted gun as parallel.
  * Mirror can use another muzzle for inverted gun.
  */
 export class Mirror implements IGun {
-    private readonly parallel: IGun;
+  private readonly parallel: IGun;
 
-    constructor(option: TMirrorOption, gun: IGun) {
-        const invert = new ModifierGun(true, new InvertTransformModifier({
-            angle: true,
-            translationX: option.mirrorTranslationX,
-            translationY: option.mirrorTranslationY,
-        }));
-        const mirroredChild = [];
-        // Set muzzle if name was specified
-        if (option.invertedMuzzleName !== undefined) {
-            mirroredChild.push(
-                new ModifierGun(
-                    false,
-                    new SetMuzzleImmediatelyModifier(option.invertedMuzzleName),
-                ));
-        }
-        mirroredChild.push(invert);
-        mirroredChild.push(gun);
-
-        this.parallel = new Parallel(
-            gun,
-            new Concat(...mirroredChild),
-        );
+  public constructor(option: TMirrorOption, gun: IGun) {
+    const invert = new ModifierGun(
+      true,
+      new InvertTransformModifier({
+        angle: true,
+        translationX: option.mirrorTranslationX,
+        translationY: option.mirrorTranslationY
+      })
+    );
+    const mirroredChild = [];
+    // Set muzzle if name was specified
+    if (option.invertedMuzzleName !== undefined) {
+      mirroredChild.push(
+        new ModifierGun(
+          false,
+          new SetMuzzleImmediatelyModifier(option.invertedMuzzleName)
+        )
+      );
     }
+    mirroredChild.push(invert);
+    mirroredChild.push(gun);
 
-    *play(state: IFiringState): IterableIterator<void> {
-        yield* this.parallel.play(state);
-    }
+    this.parallel = new Parallel(gun, new Concat(...mirroredChild));
+  }
+
+  public *play(state: IFiringState): IterableIterator<void> {
+    yield* this.parallel.play(state);
+  }
 }
 
 /**
@@ -234,48 +293,34 @@ export class Mirror implements IGun {
  * Alternate can use another muzzle for inverted gun.
  */
 export class Alternate implements IGun {
-    private readonly parallel: IGun;
+  private readonly parallel: IGun;
 
-    constructor(option: TMirrorOption, gun: IGun) {
-        const invert = new ModifierGun(true, new InvertTransformModifier({
-            angle: true,
-            translationX: option.mirrorTranslationX,
-            translationY: option.mirrorTranslationY,
-        }));
-        const mirroredChild = [];
-        // Set muzzle if name was specified
-        if (option.invertedMuzzleName !== undefined) {
-            mirroredChild.push(
-                new ModifierGun(
-                    false,
-                    new SetMuzzleImmediatelyModifier(option.invertedMuzzleName),
-                ));
-        }
-        mirroredChild.push(invert);
-        mirroredChild.push(gun);
-
-        this.parallel = new Sequential(
-            gun,
-            new Concat(...mirroredChild),
-        );
+  public constructor(option: TMirrorOption, gun: IGun) {
+    const invert = new ModifierGun(
+      true,
+      new InvertTransformModifier({
+        angle: true,
+        translationX: option.mirrorTranslationX,
+        translationY: option.mirrorTranslationY
+      })
+    );
+    const mirroredChild = [];
+    // Set muzzle if name was specified
+    if (option.invertedMuzzleName !== undefined) {
+      mirroredChild.push(
+        new ModifierGun(
+          false,
+          new SetMuzzleImmediatelyModifier(option.invertedMuzzleName)
+        )
+      );
     }
+    mirroredChild.push(invert);
+    mirroredChild.push(gun);
 
-    *play(state: IFiringState): IterableIterator<void> {
-        yield* this.parallel.play(state);
-    }
-}
+    this.parallel = new Sequential(gun, new Concat(...mirroredChild));
+  }
 
-const getNumberFromLazy = (
-    state: IFiringState,
-    numberOrLazy: TConstantOrLazy<number>,
-): number => {
-    if (typeof numberOrLazy === 'number') return numberOrLazy;
-    return numberOrLazy.calc(state);
-
-};
-
-export function* wait(frames: number): IterableIterator<void> {
-    for (const _ of range(frames)) {
-        yield;
-    }
+  public *play(state: IFiringState): IterableIterator<void> {
+    yield* this.parallel.play(state);
+  }
 }
