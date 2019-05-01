@@ -1,6 +1,7 @@
 import { range } from "lodash";
 
-import { Gun, Bullet } from "../gun";
+import { Gun } from "../gun";
+import { Bullet } from "../bullet";
 import { FiringState, RepeatState } from "../firing-state";
 import { TConstantOrLazy } from "../lazyEvaluative";
 import {

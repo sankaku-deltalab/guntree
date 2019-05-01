@@ -8,7 +8,7 @@ import {
   RepeatStateManager
 } from "guntree/firing-state";
 import { Player } from "guntree/player";
-import { Bullet } from "guntree/gun";
+import { Bullet } from "guntree/bullet";
 import { Muzzle } from "guntree/muzzle";
 import { simpleMock } from "./util";
 

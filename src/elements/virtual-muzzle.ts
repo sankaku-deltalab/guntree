@@ -2,7 +2,7 @@ import * as mat from "transformation-matrix";
 
 import { decomposeTransform } from "../transform-util";
 import { FireData } from "../firing-state";
-import { Bullet } from "../gun";
+import { Bullet } from "../bullet";
 import { Muzzle, VirtualMuzzle, VirtualMuzzleGenerator } from "../muzzle";
 
 /**
