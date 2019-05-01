@@ -1,29 +1,29 @@
-import * as mat from 'transformation-matrix';
+import * as mat from "transformation-matrix";
 
-import { IBullet } from './gun';
-import { IFireData } from './firing-state';
+import { IBullet } from "./gun";
+import { IFireData } from "./firing-state";
 
 /**
  * Muzzle presents firing location and angle.
  */
 export interface IMuzzle {
-    /**
-     * Fire bullet.
-     *
-     * @param data FireData when fired.
-     * @param bullet Firing bullet.
-     */
-    fire(data: IFireData, bullet: IBullet): void;
+  /**
+   * Fire bullet.
+   *
+   * @param data FireData when fired.
+   * @param bullet Firing bullet.
+   */
+  fire(data: IFireData, bullet: IBullet): void;
 
-    /**
-     * Get muzzle transform.
-     */
-    getMuzzleTransform(): mat.Matrix;
+  /**
+   * Get muzzle transform.
+   */
+  getMuzzleTransform(): mat.Matrix;
 
-    /**
-     * Get enemy transform.
-     */
-    getEnemyTransform(): mat.Matrix;
+  /**
+   * Get enemy transform.
+   */
+  getEnemyTransform(): mat.Matrix;
 }
 
 /**
@@ -34,20 +34,20 @@ export interface IMuzzle {
  * When use VirtualMuzzle in guntree, Must used through VirtualMuzzleGenerator.
  */
 export interface IVirtualMuzzle extends IMuzzle {
-    /**
-     * Set basing muzzle.
-     *
-     * @param baseMuzzle basing muzzle
-     */
-    basedOn(baseMuzzle: IMuzzle): void;
+  /**
+   * Set basing muzzle.
+   *
+   * @param baseMuzzle basing muzzle
+   */
+  basedOn(baseMuzzle: IMuzzle): void;
 }
 
 /**
  * Generate VirtualMuzzle.
  */
 export interface IVirtualMuzzleGenerator {
-    /**
-     * Generate virtual muzzle.
-     */
-    generate(): IVirtualMuzzle;
+  /**
+   * Generate virtual muzzle.
+   */
+  generate(): IVirtualMuzzle;
 }

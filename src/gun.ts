@@ -1,7 +1,7 @@
-import { IFiringState } from './firing-state';
+import { IFiringState } from "./firing-state";
 
 export interface IGun {
-    play(state: IFiringState): IterableIterator<void>;
+  play(state: IFiringState): IterableIterator<void>;
 }
 
 /**
