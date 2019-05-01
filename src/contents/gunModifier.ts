@@ -98,9 +98,12 @@ export const addParameter = (
   name: string,
   adding: TConstantOrLazy<number>
 ): modO.ModifierGun => {
-  return modifyParameter(name, (stateConst, oldValue) => {
-    return oldValue + calcValueFromConstantOrLazy<number>(stateConst, adding);
-  });
+  return modifyParameter(
+    name,
+    (stateConst, oldValue): number => {
+      return oldValue + calcValueFromConstantOrLazy<number>(stateConst, adding);
+    }
+  );
 };
 
 export const mltParameter = (
@@ -121,7 +124,7 @@ export const resetParameter = (
 ): modO.ModifierGun => {
   return modifyParameter(
     name,
-    (stateConst, oldValue): number => {
+    (stateConst, _oldValue): number => {
       return calcValueFromConstantOrLazy<number>(stateConst, newValue);
     }
   );
