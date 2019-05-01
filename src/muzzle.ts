@@ -1,6 +1,6 @@
 import * as mat from "transformation-matrix";
 
-import { Bullet } from "./gun";
+import { Bullet } from "./bullet";
 import { FireData } from "./firing-state";
 
 /**

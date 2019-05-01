@@ -1,4 +1,4 @@
-import { Bullet } from "guntree/gun";
+import { Bullet } from "guntree/bullet";
 import { FiringState } from "guntree/firing-state";
 import { Fire } from "guntree/elements/gun";
 import { simpleMock } from "../util";

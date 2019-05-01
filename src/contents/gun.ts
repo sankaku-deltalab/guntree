@@ -1,4 +1,5 @@
-import { Gun, Bullet } from "../gun";
+import { Gun } from "../gun";
+import { Bullet } from "../bullet";
 import { TConstantOrLazy } from "../lazyEvaluative";
 import * as gunO from "../elements/gun";
 import * as mod from "./gunModifier";
