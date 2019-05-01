@@ -8,6 +8,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 - Update to run CI test on only master and develop branches
 - Update linter to eslint
 - Update code to apply eslint
+- Move `Bullet` from `gun` to `bullet` file
 
 ## [0.5.0] - 2019-04-25
 ### Fix
