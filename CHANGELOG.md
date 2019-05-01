@@ -10,6 +10,9 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 - Update code to apply eslint
 - Move `Bullet` from `gun` to `bullet` file
 
+### Added
+- Add bullet to contents
+
 ## [0.5.0] - 2019-04-25
 ### Fix
 - Fix circular reference in Player and FiringState
