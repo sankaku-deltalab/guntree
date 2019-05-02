@@ -71,7 +71,7 @@ export const whip = (option: TWhipOption, ...guns: Gun[]): gunO.Repeat => {
 
 export interface TSpreadOption {
   times: TConstantOrLazy<number>;
-  speedRange: [number, number];
+  speedRateRange: [TConstantOrLazy<number>, TConstantOrLazy<number>];
   name?: string;
 }
 
