@@ -52,9 +52,15 @@ export class Nop implements Gun {
   public *play(_state: FiringState): IterableIterator<void> {}
 }
 
+/**
+ * Repeat firing properties.
+ */
 export interface TRepeatOption {
+  /** Repeat times. */
   times: TConstantOrLazy<number>;
+  /** Repeat interval. */
   interval: TConstantOrLazy<number>;
+  /** Repeating name. Used by LazyEvaluative. */
   name?: string;
 }
 
@@ -242,9 +248,15 @@ export class Wait implements Gun {
   }
 }
 
+/**
+ * Mirror firing option.
+ */
 export interface TMirrorOption {
+  /** Muzzle name used for inverted firing. */
   invertedMuzzleName?: string;
+  /** Mirror firing translation x. */
   mirrorTranslationX?: true;
+  /** Mirror firing translation y. */
   mirrorTranslationY?: true;
 }
 
