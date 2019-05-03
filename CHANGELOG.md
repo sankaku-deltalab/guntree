@@ -10,6 +10,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 - Update code to apply eslint
 - Move `Bullet` from `gun` to `bullet` file
 - Add doccomment
+- Update `addTranslation` argument from array to object
 
 ### Added
 - Add bullet to contents
