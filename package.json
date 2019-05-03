@@ -8,7 +8,7 @@
     "build": "run-s clean build:lib",
     "build:lib": "tsc -p tsconfig.release.json",
     "test": "jest --coverage",
-    "prepublish": "run-s build",
+    "prepare": "run-s build",
     "clean": "rimraf ./lib",
     "lint": "eslint --ext .ts src/ test/",
     "generate-document": "typedoc --out public/ src/"
