@@ -1,5 +1,8 @@
 # GunTree
 
+![pipeline](https://gitlab.com/sankaku-deltalab/guntree/badges/master/pipeline.svg)
+![coverage](https://gitlab.com/sankaku-deltalab/guntree/badges/master/coverage.svg)
+
 GunTree is readable and extendable Danmaku describing package for shmups.
 
 ## How to describe Danmaku
@@ -7,7 +10,7 @@ GunTree is readable and extendable Danmaku describing package for shmups.
 ```javascript
 const fiveWayFire = nWay(
     { ways: 5, totalAngle: 45 }  // 5-way ...
-    fire({}),  // Fire
+    fire(bullet()),  // Fire
 );
 const guntree = repeat(
     { times: 2, interval: 30 },  // Repeat 2 times ...
@@ -37,6 +40,8 @@ npm install guntree
 
 GunTree control only firing progress.
 GunTree don't create bullets with collision and shape.
+
+[API](https://sankaku-deltalab.gitlab.io/guntree)
 
 ```javascript
 import * as mat from 'transformation-matrix';
@@ -72,7 +77,7 @@ const muzzle = {
 const player = createDefaultPlayer({ 'centerMuzzle': muzzle });  // Create player per weapons
 const guntree = ct.concat(
     ct.useMuzzle('centerMuzzle'),
-    ct.fire({}),
+    ct.fire(bullet()),
 );  // GunTree can used multiple weapons
 player.setGuntree(guntree);
 
