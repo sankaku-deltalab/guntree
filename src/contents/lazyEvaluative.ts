@@ -1,23 +1,81 @@
-import { TConstantOrLazy } from '../lazyEvaluative';
-import * as leO from '../elements/lazyEvaluative';
+import { TConstantOrLazy } from "../lazyEvaluative";
+import * as leO from "../elements/lazyEvaluative";
 
-export const linear = (start: TConstantOrLazy<number>,
-                       stop: TConstantOrLazy<number>,
-                       target?: string) => new leO.Linear(start, stop, target);
+/**
+ * Linear interpolate.
+ *
+ * ```typescript
+ * const leaningFire = repeat(
+ *   { times: 10, interval: 3, name: 'masterRepeat' },
+ *   addAngle(linear(0, 90, 'masterRepeat')),
+ *   fire(bullet()),
+ * );
+ * ```
+ *
+ * @param start Initial value.
+ * @param stop Stop value. Final value is not stop value (without when start = stop).
+ * @param target Repeating name. When not specified target, use current repeating.
+ */
+export const linear = (
+  start: TConstantOrLazy<number>,
+  stop: TConstantOrLazy<number>,
+  target?: string
+): leO.Linear => new leO.Linear(start, stop, target);
 
-export const centerizedLinear = (totalRange: TConstantOrLazy<number>,
-                                 target?: string) => new leO.CenterizedLinear(totalRange, target);
+/**
+ * Linear interpolate.
+ * Values average is zero.
+ *
+ * @param totalRange Range. Can receive non-positive value.
+ * @param target Repeating name. When not specified target, use current repeating.
+ */
+export const centerizedLinear = (
+  totalRange: TConstantOrLazy<number>,
+  target?: string
+): leO.CenterizedLinear => new leO.CenterizedLinear(totalRange, target);
 
-export const iterate = (array: (TConstantOrLazy<number>)[],
-                        option?: leO.TIterateOption) => new leO.Iterate(array, option);
+/**
+ * Iterate input at each repeating.
+ *
+ * @param array Would be iterated values.
+ * @param option Option.
+ */
+export const iterate = (
+  array: (TConstantOrLazy<number>)[],
+  option?: leO.TIterateOption
+): leO.Iterate => new leO.Iterate(array, option);
 
-export const round = (input: TConstantOrLazy<number>) => new leO.Round(input);
+/**
+ * Round number to int.
+ *
+ * @param input number.
+ */
+export const round = (input: TConstantOrLazy<number>): leO.Round =>
+  new leO.Round(input);
 
-export type TAddNWayAngleOption = {
-    totalAngle: TConstantOrLazy<number>;
-    name?: string;
-};
+/**
+ * Option for nWayAngle.
+ */
+export interface TAddNWayAngleOption {
+  /** Total angle. */
+  totalAngle: TConstantOrLazy<number>;
+  /** Repeating name. When not specified target, use current repeating. */
+  target?: string;
+}
 
-export const nWayAngle = (option: TAddNWayAngleOption) => new leO.CenterizedLinear(option.totalAngle, option.name);
+/**
+ * Same of CenterizedLinear but argument is expressed as N-Way firing.
+ *
+ * @param option Option.
+ */
+export const nWayAngle = (option: TAddNWayAngleOption): leO.CenterizedLinear =>
+  new leO.CenterizedLinear(option.totalAngle, option.target);
 
-export const createTransform = (option: leO.TCreateTransformOption) => new leO.CreateTransform(option);
+/**
+ * Create transform.
+ *
+ * @param option Option.
+ */
+export const createTransform = (
+  option: leO.TCreateTransformOption
+): leO.CreateTransform => new leO.CreateTransform(option);
