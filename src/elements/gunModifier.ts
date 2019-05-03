@@ -61,9 +61,15 @@ export class TransformModifier implements FireDataModifier {
   }
 }
 
+/**
+ * Invert option.
+ */
 export interface TInvertTransformOption {
+  /** Invert angle. */
   angle?: true;
+  /** Invert translation x. */
   translationX?: true;
+  /** Invert translation y. */
   translationY?: true;
 }
 

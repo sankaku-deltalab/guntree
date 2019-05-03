@@ -4,7 +4,7 @@ import { AimingMuzzle } from "guntree/elements/virtual-muzzle";
 import { Muzzle } from "guntree/muzzle";
 import { decomposeTransform } from "guntree/transform-util";
 import { FireData } from "guntree/firing-state";
-import { Bullet } from "guntree/gun";
+import { Bullet } from "guntree/bullet";
 import { simpleMock } from "../util";
 
 describe("#aimingMuzzle", (): void => {

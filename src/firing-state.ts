@@ -2,7 +2,7 @@ import * as mat from "transformation-matrix";
 
 import { Player } from "./player";
 import { Muzzle } from "./muzzle";
-import { Bullet } from ".";
+import { Bullet } from "./bullet";
 
 /**
  * FiringState contains information while firing.
