@@ -5,6 +5,10 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 
 ## [Unreleased]
 
+## [0.6.1] - 2019-05-03
+### Fixed
+- Use npm script `prepare` instead of `prepublish`
+
 ## [0.6.0] - 2019-05-03
 ### Changed
 - Update to run CI test on only master and develop branches
@@ -84,7 +88,8 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 ### Added
 - Initial release
 
-[Unreleased]: https://github.com/sankaku-deltalab/guntree/compare/0.6.0...HEAD
+[Unreleased]: https://github.com/sankaku-deltalab/guntree/compare/0.6.1...HEAD
+[0.6.1]: https://github.com/sankaku-deltalab/guntree/compare/0.6.0...0.6.1
 [0.6.0]: https://github.com/sankaku-deltalab/guntree/compare/0.5.0...0.6.0
 [0.5.0]: https://github.com/sankaku-deltalab/guntree/compare/0.4.3...0.5.0
 [0.4.3]: https://github.com/sankaku-deltalab/guntree/compare/0.4.2...0.4.3
