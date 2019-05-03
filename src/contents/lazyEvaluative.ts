@@ -20,8 +20,13 @@ export const iterate = (
 export const round = (input: TConstantOrLazy<number>): leO.Round =>
   new leO.Round(input);
 
+/**
+ * Option for nWayAngle.
+ */
 export interface TAddNWayAngleOption {
+  /** Total angle. */
   totalAngle: TConstantOrLazy<number>;
+  /** Repeating name. */
   name?: string;
 }
 
