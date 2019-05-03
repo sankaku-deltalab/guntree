@@ -59,8 +59,8 @@ export const round = (input: TConstantOrLazy<number>): leO.Round =>
 export interface TAddNWayAngleOption {
   /** Total angle. */
   totalAngle: TConstantOrLazy<number>;
-  /** Repeating name. */
-  name?: string;
+  /** Repeating name. When not specified target, use current repeating. */
+  target?: string;
 }
 
 /**
@@ -69,7 +69,7 @@ export interface TAddNWayAngleOption {
  * @param option Option.
  */
 export const nWayAngle = (option: TAddNWayAngleOption): leO.CenterizedLinear =>
-  new leO.CenterizedLinear(option.totalAngle, option.name);
+  new leO.CenterizedLinear(option.totalAngle, option.target);
 
 /**
  * Create transform.
