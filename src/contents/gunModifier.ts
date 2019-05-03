@@ -25,7 +25,7 @@ export const transform = (
  *
  * ```typescript
  * const fireFromRight = concat(
- *   addTranslation({ x: 0, y: 0.1 }),
+ *   addTranslation({ y: 0.1 }),
  *   fire(bullet()),
  * );
  * ```
@@ -33,12 +33,12 @@ export const transform = (
  * @param translation Added translation as [x, y].
  */
 export const addTranslation = (translation: {
-  x: TConstantOrLazy<number>;
-  y: TConstantOrLazy<number>;
+  x?: TConstantOrLazy<number>;
+  y?: TConstantOrLazy<number>;
 }): modO.ModifierGun => {
-  return transform(
-    le.createTransform({ translation: [translation.x, translation.y] })
-  );
+  const transX = translation.x === undefined ? 0 : translation.x;
+  const transY = translation.y === undefined ? 0 : translation.y;
+  return transform(le.createTransform({ translation: [transX, transY] }));
 };
 
 /**
