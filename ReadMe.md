@@ -1,9 +1,9 @@
 # GunTree
 
+GunTree is readable and extendable Danmaku describing package for shmups.
+
 ![pipeline](https://gitlab.com/sankaku-deltalab/guntree/badges/master/pipeline.svg)
 ![coverage](https://gitlab.com/sankaku-deltalab/guntree/badges/master/coverage.svg)
-
-GunTree is readable and extendable Danmaku describing package for shmups.
 
 ## How to describe Danmaku
 
