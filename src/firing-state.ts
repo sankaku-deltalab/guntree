@@ -323,10 +323,9 @@ export class DefaultRepeatStateManager implements RepeatStateManager {
   public copy(): DefaultRepeatStateManager {
     const clone = new DefaultRepeatStateManager();
     clone.repeatStateStack = [...this.repeatStateStack];
-    clone.repeatMap = copyMap(
-      this.repeatMap,
-      (rsStack): RepeatState[] => [...rsStack]
-    );
+    clone.repeatMap = copyMap(this.repeatMap, (rsStack): RepeatState[] => [
+      ...rsStack
+    ]);
     return clone;
   }
 }

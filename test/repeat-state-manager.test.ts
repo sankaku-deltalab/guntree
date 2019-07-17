@@ -136,17 +136,15 @@ describe("#RepeatStateManager", (): void => {
 
     // And cloned
     const clone = rsm.copy();
-    states.reverse().map(
-      (rs): void => {
-        // When get repeating state with name
-        const actual = clone.get();
+    states.reverse().map((rs): void => {
+      // When get repeating state with name
+      const actual = clone.get();
 
-        // Then dealt state is started repeat state
-        expect(actual).toBe(rs);
+      // Then dealt state is started repeat state
+      expect(actual).toBe(rs);
 
-        clone.finish(rs);
-      }
-    );
+      clone.finish(rs);
+    });
   });
 
   test("can copy self with named repeat states", (): void => {

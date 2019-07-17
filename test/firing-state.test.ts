@@ -64,12 +64,10 @@ describe("#FiringState", (): void => {
     state.calcModifiedFireData();
 
     // Then modifiers are called with fireData copy
-    modifiers.map(
-      (mod): void => {
-        expect(mod.modifyFireData).toBeCalledWith(state, fireDataClone);
-        expect(mod.modifyFireData).toBeCalledTimes(1);
-      }
-    );
+    modifiers.map((mod): void => {
+      expect(mod.modifyFireData).toBeCalledWith(state, fireDataClone);
+      expect(mod.modifyFireData).toBeCalledTimes(1);
+    });
 
     // And modifiers are called as reversed order
     expect(calledModifiers).toEqual(modifiers.reverse());

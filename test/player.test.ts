@@ -53,33 +53,30 @@ describe("#Player", (): void => {
     ${0}
     ${1}
     ${12}
-  `(
-    "can continue gun tree",
-    ({ gunTreeLength }): void => {
-      // Given FiringState as master with clone
-      const state = createFiringStateMock();
-      const stateMaster = createFiringStateMock(state);
+  `("can continue gun tree", ({ gunTreeLength }): void => {
+    // Given FiringState as master with clone
+    const state = createFiringStateMock();
+    const stateMaster = createFiringStateMock(state);
 
-      // And Player with gun tree
-      const gunTree = createGunMockConsumeFrames(gunTreeLength);
-      const player = new DefaultPlayer({}, (): FiringState => stateMaster);
-      player.setGunTree(gunTree);
+    // And Player with gun tree
+    const gunTree = createGunMockConsumeFrames(gunTreeLength);
+    const player = new DefaultPlayer({}, (): FiringState => stateMaster);
+    player.setGunTree(gunTree);
 
-      // When start player
-      const doneAtFirst = player.start();
-      expect(doneAtFirst).toBe(gunTreeLength === 0);
+    // When start player
+    const doneAtFirst = player.start();
+    expect(doneAtFirst).toBe(gunTreeLength === 0);
 
-      // And play full tick
-      for (const i of range(gunTreeLength)) {
-        expect(player.isRunning).toBe(true);
-        const done = player.tick();
-        expect(done).toBe(i === gunTreeLength - 1);
-      }
-
-      // Then playing was finished
-      expect(player.isRunning).toBe(false);
+    // And play full tick
+    for (const i of range(gunTreeLength)) {
+      expect(player.isRunning).toBe(true);
+      const done = player.tick();
+      expect(done).toBe(i === gunTreeLength - 1);
     }
-  );
+
+    // Then playing was finished
+    expect(player.isRunning).toBe(false);
+  });
 
   test("can set muzzle at constructed and get there", (): void => {
     // Given parameter name and value

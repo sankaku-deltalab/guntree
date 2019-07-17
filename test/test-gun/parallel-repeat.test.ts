@@ -156,12 +156,10 @@ describe("#ParallelRepeat", (): void => {
     }
 
     // Then lazyEvaluative calculated with each state clones
-    stateClones.map(
-      (clone): void => {
-        expect(le.calc).toBeCalledWith(clone);
-        expect(le.calc).toReturnWith(expectedInterval);
-      }
-    );
+    stateClones.map((clone): void => {
+      expect(le.calc).toBeCalledWith(clone);
+      expect(le.calc).toReturnWith(expectedInterval);
+    });
   });
 
   test("play gun at first frame of each repeating", (): void => {
