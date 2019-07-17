@@ -3959,7 +3959,7 @@ tr46@^1.0.1:
   dependencies:
     punycode "^2.1.0"
 
-transformation-matrix@^2.0.0:
+transformation-matrix@^2.0.5:
   version "2.0.5"
   resolved "https://registry.yarnpkg.com/transformation-matrix/-/transformation-matrix-2.0.5.tgz#562ac157880d7e276470b26b14c0e45cdb7770d8"
   integrity sha512-S6L67Z8V3WEyPm2/zDh3I3bO0OQwv88dh7IY2dIOVBfIZJ4WQGdEKOsh7phTgYkvfAmHRxfOPNt1ixN/zR6D/A==
