@@ -5,6 +5,10 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 
 ## [Unreleased]
 
+## [0.6.2] - 2019-07-17
+### Changed
+- Update dependencies
+
 ## [0.6.2] - 2019-05-04
 ### Changed
 - Update dependencies
@@ -92,7 +96,8 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 ### Added
 - Initial release
 
-[Unreleased]: https://github.com/sankaku-deltalab/guntree/compare/0.6.2...HEAD
+[Unreleased]: https://github.com/sankaku-deltalab/guntree/compare/0.6.3...HEAD
+[0.6.3]: https://github.com/sankaku-deltalab/guntree/compare/0.6.2...0.6.3
 [0.6.2]: https://github.com/sankaku-deltalab/guntree/compare/0.6.1...0.6.2
 [0.6.1]: https://github.com/sankaku-deltalab/guntree/compare/0.6.0...0.6.1
 [0.6.0]: https://github.com/sankaku-deltalab/guntree/compare/0.5.0...0.6.0
