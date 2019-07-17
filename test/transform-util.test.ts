@@ -51,17 +51,14 @@ describe("#decomposeTransform", (): void => {
     ${-90}
     ${-160}
     ${-180}
-  `(
-    "can decompose angle $angleDeg",
-    ({ angleDeg }): void => {
-      // Given transform matrix has rotateDeg
-      const trans = mat.transform(mat.rotateDEG(angleDeg));
+  `("can decompose angle $angleDeg", ({ angleDeg }): void => {
+    // Given transform matrix has rotateDeg
+    const trans = mat.transform(mat.rotateDEG(angleDeg));
 
-      // When decompose trans
-      const [_, r, __] = decomposeTransform(trans);
+    // When decompose trans
+    const [_, r, __] = decomposeTransform(trans);
 
-      // Then get original angle
-      expect(normalizeAngleDeg(r)).toBeCloseTo(normalizeAngleDeg(angleDeg));
-    }
-  );
+    // Then get original angle
+    expect(normalizeAngleDeg(r)).toBeCloseTo(normalizeAngleDeg(angleDeg));
+  });
 });

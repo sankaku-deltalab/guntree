@@ -14,25 +14,22 @@ describe("#CreateTransform", (): void => {
     ${0.5}
     ${1}
     ${1.2}
-  `(
-    "can use translation with single value",
-    ({ translation }): void => {
-      // Given repeating progress
-      const state = simpleMock<FiringState>();
+  `("can use translation with single value", ({ translation }): void => {
+    // Given repeating progress
+    const state = simpleMock<FiringState>();
 
-      // And CreateTransform with translation
-      const createTrans = new CreateTransform({ translation });
+    // And CreateTransform with translation
+    const createTrans = new CreateTransform({ translation });
 
-      // When eval CreateTransform
-      const actual = createTrans.calc(state);
+    // When eval CreateTransform
+    const actual = createTrans.calc(state);
 
-      // Then translated matrix was dealt
-      const expected = mat.translate(translation);
-      for (const key of matKeys) {
-        expect(actual[key]).toBeCloseTo(expected[key]);
-      }
+    // Then translated matrix was dealt
+    const expected = mat.translate(translation);
+    for (const key of matKeys) {
+      expect(actual[key]).toBeCloseTo(expected[key]);
     }
-  );
+  });
 
   test.each`
     translation
@@ -69,25 +66,22 @@ describe("#CreateTransform", (): void => {
     ${-1}  | ${0}
     ${0}   | ${8}
     ${0.5} | ${10}
-  `(
-    "can use translation with double value",
-    ({ tx, ty }): void => {
-      // Given repeating progress
-      const state = simpleMock<FiringState>();
+  `("can use translation with double value", ({ tx, ty }): void => {
+    // Given repeating progress
+    const state = simpleMock<FiringState>();
 
-      // And CreateTransform with translation
-      const createTrans = new CreateTransform({ translation: [tx, ty] });
+    // And CreateTransform with translation
+    const createTrans = new CreateTransform({ translation: [tx, ty] });
 
-      // When eval CreateTransform
-      const actual = createTrans.calc(state);
+    // When eval CreateTransform
+    const actual = createTrans.calc(state);
 
-      // Then translated matrix was dealt
-      const expected = mat.translate(tx, ty);
-      for (const key of matKeys) {
-        expect(actual[key]).toBeCloseTo(expected[key]);
-      }
+    // Then translated matrix was dealt
+    const expected = mat.translate(tx, ty);
+    for (const key of matKeys) {
+      expect(actual[key]).toBeCloseTo(expected[key]);
     }
-  );
+  });
 
   test.each`
     tx     | ty
@@ -125,25 +119,22 @@ describe("#CreateTransform", (): void => {
     ${90}
     ${-45}
     ${720}
-  `(
-    "can use rotate as degrees",
-    ({ rotationDeg }): void => {
-      // Given repeating progress
-      const state = simpleMock<FiringState>();
+  `("can use rotate as degrees", ({ rotationDeg }): void => {
+    // Given repeating progress
+    const state = simpleMock<FiringState>();
 
-      // And CreateTransform with angleDeg
-      const createTrans = new CreateTransform({ rotationDeg });
+    // And CreateTransform with angleDeg
+    const createTrans = new CreateTransform({ rotationDeg });
 
-      // When eval CreateTransform
-      const actual = createTrans.calc(state);
+    // When eval CreateTransform
+    const actual = createTrans.calc(state);
 
-      // Then rotated matrix was dealt
-      const expected = mat.rotateDEG(rotationDeg);
-      for (const key of matKeys) {
-        expect(actual[key]).toBeCloseTo(expected[key]);
-      }
+    // Then rotated matrix was dealt
+    const expected = mat.rotateDEG(rotationDeg);
+    for (const key of matKeys) {
+      expect(actual[key]).toBeCloseTo(expected[key]);
     }
-  );
+  });
 
   test.each`
     rotationDeg
@@ -181,25 +172,22 @@ describe("#CreateTransform", (): void => {
     ${0.5}
     ${1}
     ${1.2}
-  `(
-    "can use scale with single value",
-    ({ scale }): void => {
-      // Given repeating progress
-      const state = simpleMock<FiringState>();
+  `("can use scale with single value", ({ scale }): void => {
+    // Given repeating progress
+    const state = simpleMock<FiringState>();
 
-      // And CreateTransform with scale
-      const createTrans = new CreateTransform({ scale });
+    // And CreateTransform with scale
+    const createTrans = new CreateTransform({ scale });
 
-      // When eval CreateTransform
-      const actual = createTrans.calc(state);
+    // When eval CreateTransform
+    const actual = createTrans.calc(state);
 
-      // Then scale matrix was dealt
-      const expected = mat.scale(scale);
-      for (const key of matKeys) {
-        expect(actual[key]).toBeCloseTo(expected[key]);
-      }
+    // Then scale matrix was dealt
+    const expected = mat.scale(scale);
+    for (const key of matKeys) {
+      expect(actual[key]).toBeCloseTo(expected[key]);
     }
-  );
+  });
 
   test.each`
     scale
@@ -208,80 +196,71 @@ describe("#CreateTransform", (): void => {
     ${0.5}
     ${1}
     ${1.2}
-  `(
-    "can use scale with single lazyEvaluative value",
-    ({ scale }): void => {
-      // Given repeating progress
-      const state = simpleMock<FiringState>();
+  `("can use scale with single lazyEvaluative value", ({ scale }): void => {
+    // Given repeating progress
+    const state = simpleMock<FiringState>();
 
-      // And scale as lazyEvaluative
-      const scaleLe = createLazyEvaluativeMockReturnOnce(scale);
+    // And scale as lazyEvaluative
+    const scaleLe = createLazyEvaluativeMockReturnOnce(scale);
 
-      // And CreateTransform with scale
-      const createTrans = new CreateTransform({ scale: scaleLe });
+    // And CreateTransform with scale
+    const createTrans = new CreateTransform({ scale: scaleLe });
 
-      // When eval CreateTransform
-      const actual = createTrans.calc(state);
+    // When eval CreateTransform
+    const actual = createTrans.calc(state);
 
-      // Then scale matrix was dealt
-      const expected = mat.scale(scale);
-      for (const key of matKeys) {
-        expect(actual[key]).toBeCloseTo(expected[key]);
-      }
+    // Then scale matrix was dealt
+    const expected = mat.scale(scale);
+    for (const key of matKeys) {
+      expect(actual[key]).toBeCloseTo(expected[key]);
     }
-  );
+  });
 
   test.each`
     sx     | sy
     ${-1}  | ${0}
     ${0}   | ${8}
     ${0.5} | ${10}
-  `(
-    "can use scale with double value",
-    ({ sx, sy }): void => {
-      // Given repeating progress
-      const state = simpleMock<FiringState>();
+  `("can use scale with double value", ({ sx, sy }): void => {
+    // Given repeating progress
+    const state = simpleMock<FiringState>();
 
-      // And CreateTransform with scale
-      const createTrans = new CreateTransform({ scale: [sx, sy] });
+    // And CreateTransform with scale
+    const createTrans = new CreateTransform({ scale: [sx, sy] });
 
-      // When eval CreateTransform
-      const actual = createTrans.calc(state);
+    // When eval CreateTransform
+    const actual = createTrans.calc(state);
 
-      // Then rotated matrix was dealt
-      const expected = mat.scale(sx, sy);
-      for (const key of matKeys) {
-        expect(actual[key]).toBeCloseTo(expected[key]);
-      }
+    // Then rotated matrix was dealt
+    const expected = mat.scale(sx, sy);
+    for (const key of matKeys) {
+      expect(actual[key]).toBeCloseTo(expected[key]);
     }
-  );
+  });
 
   test.each`
     sx     | sy
     ${-1}  | ${0}
     ${0}   | ${8}
     ${0.5} | ${10}
-  `(
-    "can use scale with single lazyEvaluative value",
-    ({ sx, sy }): void => {
-      // Given repeating progress
-      const state = simpleMock<FiringState>();
+  `("can use scale with single lazyEvaluative value", ({ sx, sy }): void => {
+    // Given repeating progress
+    const state = simpleMock<FiringState>();
 
-      // And scale as lazyEvaluative
-      const sxLe = createLazyEvaluativeMockReturnOnce(sx);
-      const syLe = createLazyEvaluativeMockReturnOnce(sy);
+    // And scale as lazyEvaluative
+    const sxLe = createLazyEvaluativeMockReturnOnce(sx);
+    const syLe = createLazyEvaluativeMockReturnOnce(sy);
 
-      // And CreateTransform with scale
-      const createTrans = new CreateTransform({ scale: [sxLe, syLe] });
+    // And CreateTransform with scale
+    const createTrans = new CreateTransform({ scale: [sxLe, syLe] });
 
-      // When eval CreateTransform
-      const actual = createTrans.calc(state);
+    // When eval CreateTransform
+    const actual = createTrans.calc(state);
 
-      // Then rotated matrix was dealt
-      const expected = mat.scale(sx, sy);
-      for (const key of matKeys) {
-        expect(actual[key]).toBeCloseTo(expected[key]);
-      }
+    // Then rotated matrix was dealt
+    const expected = mat.scale(sx, sy);
+    for (const key of matKeys) {
+      expect(actual[key]).toBeCloseTo(expected[key]);
     }
-  );
+  });
 });

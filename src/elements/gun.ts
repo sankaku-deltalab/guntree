@@ -122,18 +122,16 @@ export class ParallelRepeat implements Gun {
       (clone, i): RepeatState =>
         clone.repeatStates.start({ finished: i, total: repeatTimes }, name)
     );
-    const intervals = stateClones.map(
-      (s): number => getNumberFromLazy(s, this.option.interval)
+    const intervals = stateClones.map((s): number =>
+      getNumberFromLazy(s, this.option.interval)
     );
-    const bootTimes = intervals.map(
-      (_, idx, ary): number => {
-        let cum = 0;
-        for (const i in range(idx)) {
-          cum += ary[i];
-        }
-        return cum;
+    const bootTimes = intervals.map((_, idx, ary): number => {
+      let cum = 0;
+      for (const i in range(idx)) {
+        cum += ary[i];
       }
-    );
+      return cum;
+    });
 
     function* playChild(
       st: FiringState,

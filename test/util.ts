@@ -39,11 +39,9 @@ export const createFiringStateMock = (
 ): FiringState => {
   const state = simpleMock<FiringState>();
   let copyFunction = jest.fn();
-  clones.map(
-    (clone): void => {
-      copyFunction = copyFunction.mockReturnValueOnce(clone);
-    }
-  );
+  clones.map((clone): void => {
+    copyFunction = copyFunction.mockReturnValueOnce(clone);
+  });
   state.copy = copyFunction;
   state.pushModifier = jest.fn();
   return state;
@@ -54,11 +52,9 @@ export const createRepeatStateManagerMock = (
 ): RepeatStateManager => {
   const rsm = simpleMock<RepeatStateManager>();
   let copyFunction = jest.fn();
-  clones.map(
-    (clone): void => {
-      copyFunction = copyFunction.mockReturnValueOnce(clone);
-    }
-  );
+  clones.map((clone): void => {
+    copyFunction = copyFunction.mockReturnValueOnce(clone);
+  });
   rsm.copy = copyFunction;
   rsm.start = jest
     .fn()
