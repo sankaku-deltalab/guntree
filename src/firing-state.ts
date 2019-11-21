@@ -236,7 +236,10 @@ export class DefaultFireData implements FireData {
   public constructor() {
     this.transform = mat.translate(0);
     this.muzzle = null;
-    this.parameters = new Map([["speed", 1], ["size", 1]]);
+    this.parameters = new Map([
+      ["speed", 1],
+      ["size", 1]
+    ]);
     this.texts = new Map();
   }
 
