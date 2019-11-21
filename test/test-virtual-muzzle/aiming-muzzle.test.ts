@@ -8,10 +8,19 @@ import { Bullet } from "guntree/bullet";
 import { simpleMock } from "../util";
 
 describe("#aimingMuzzle", (): void => {
-  test("deal muzzle transform aiming enemy every frame", (): void => {
+  test.each`
+    enemyMoveDelta               | expectedRotDeg
+    ${{ x: Math.sqrt(3), y: 1 }} | ${30}
+    ${{ x: 1, y: 0 }}            | ${0}
+    ${{ x: 1, y: 1 }}            | ${45}
+    ${{ x: 0, y: 1 }}            | ${90}
+    ${{ x: -1, y: 1 }}           | ${135}
+    ${{ x: -1, y: 0 }}           | ${180}
+    ${{ x: -1, y: -1 }}          | ${-135}
+  `("aiming enemy every time", ({ enemyMoveDelta, expectedRotDeg }): void => {
     // Given base muzzle
     const baseTrans = mat.rotateDEG(12);
-    const enemyTrans = mat.translate(1, 0);
+    const enemyTrans = mat.translate(0, 0);
     const baseMuzzle = simpleMock<Muzzle>();
     baseMuzzle.getMuzzleTransform = jest.fn().mockReturnValue(baseTrans);
     baseMuzzle.getEnemyTransform = jest.fn().mockReturnValue(enemyTrans);
@@ -22,15 +31,15 @@ describe("#aimingMuzzle", (): void => {
 
     // When change enemy translate
     // aiming angle become 30 deg
-    enemyTrans.e += Math.sqrt(3) - 1;
-    enemyTrans.f += 1;
+    enemyTrans.e += enemyMoveDelta.x;
+    enemyTrans.f += enemyMoveDelta.y;
 
     // And calcMuzzleTransform of aimingMuzzle
     const aimingTrans = aiming.getMuzzleTransform();
 
     // Then calculated transform aim enemy
     const [_, rotDeg, __] = decomposeTransform(aimingTrans);
-    expect(rotDeg).toBeCloseTo(30);
+    expect(rotDeg).toBeCloseTo(expectedRotDeg);
   });
 
   test("call based muzzle fire when self fire was called", (): void => {
