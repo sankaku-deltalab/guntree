@@ -162,9 +162,10 @@ export class DefaultFiringState implements FiringState {
     const fdClone = this.fireData.copy();
 
     // Apply modifiers
-    this.modifiers
-      .reverse()
-      .map((mod): void => mod.modifyFireData(this, fdClone));
+    const reversedMods = [...this.modifiers].reverse();
+    for (const mod of reversedMods) {
+      mod.modifyFireData(this, fdClone);
+    }
 
     // Apply muzzle transform
     fdClone.transform = mat.transform(
