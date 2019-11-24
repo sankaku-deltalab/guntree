@@ -19,12 +19,13 @@ describe("#InvertTransformModifier", (): void => {
     // And FireData with transform
     const initialAngle = 13;
     const fd = createFireData(mat.rotateDEG(initialAngle));
+    state.fireData = fd;
 
     // And InvertTransformModifier with angle inverting option
     const invertMod = new InvertTransformModifier({ angle: true });
 
     // When modify InvertTransformModifier
-    invertMod.modifyFireData(state, fd);
+    invertMod.createModifier(state)(state, fd);
 
     // Then modified transform was inverted angle
     const [_, modifiedAngle, __] = decomposeTransform(fd.transform);
@@ -39,12 +40,13 @@ describe("#InvertTransformModifier", (): void => {
     const initialTransX = 13;
     const fd = createFireData(mat.translate(initialTransX, 0));
     const oldTrans = fd.transform;
+    state.fireData = fd;
 
     // And InvertTransformModifier with translation x inverting option
     const invertMod = new InvertTransformModifier({ translationX: true });
 
     // When modify InvertTransformModifier
-    invertMod.modifyFireData(state, fd);
+    invertMod.createModifier(state)(state, fd);
 
     // Then modified transform was inverted angle
     expect(fd.transform).not.toBe(oldTrans);
@@ -60,12 +62,13 @@ describe("#InvertTransformModifier", (): void => {
     const initialTransY = 13;
     const fd = createFireData(mat.translate(0, initialTransY));
     const oldTrans = fd.transform;
+    state.fireData = fd;
 
     // And InvertTransformModifier with translation y inverting option
     const invertMod = new InvertTransformModifier({ translationY: true });
 
     // When modify InvertTransformModifier
-    invertMod.modifyFireData(state, fd);
+    invertMod.createModifier(state)(state, fd);
 
     // Then modified transform was inverted angle
     expect(fd.transform).not.toBe(oldTrans);

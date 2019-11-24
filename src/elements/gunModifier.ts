@@ -1,7 +1,7 @@
 import * as mat from "transformation-matrix";
 
 import { Gun } from "../gun";
-import { FiringState, FireDataModifier, FireData } from "../firing-state";
+import { FiringState, FireData } from "../firing-state";
 import {
   TConstantOrLazy,
   calcValueFromConstantOrLazy,
@@ -38,12 +38,19 @@ export class ModifierGun implements Gun {
     modifyLater: boolean,
     modifier: FireDataModifier
   ): void {
+    const mod = modifier.createModifier(state);
     if (modifyLater) {
-      state.pushModifier(modifier);
+      state.pushModifier(mod);
     } else {
-      modifier.modifyFireData(state, state.fireData);
+      mod(state, state.fireData);
     }
   }
+}
+
+export interface FireDataModifier {
+  createModifier(
+    state: FiringState
+  ): (stateConst: FiringState, fireData: FireData) => void;
 }
 
 /**
@@ -55,9 +62,14 @@ export class TransformModifier implements FireDataModifier {
     this.trans = trans;
   }
 
-  public modifyFireData(stateConst: FiringState, fireData: FireData): void {
-    const transConst = calcTransFormFromConstantOrLazy(stateConst, this.trans);
-    fireData.transform = mat.transform(transConst, fireData.transform);
+  public createModifier(
+    state: FiringState
+  ): (stateConst: FiringState, fireData: FireData) => void {
+    const transConst = calcTransFormFromConstantOrLazy(state, this.trans);
+
+    return (_stateConst: FiringState, fireData: FireData): void => {
+      fireData.transform = mat.transform(transConst, fireData.transform);
+    };
   }
 }
 
@@ -82,18 +94,23 @@ export class InvertTransformModifier implements FireDataModifier {
     this.option = option;
   }
 
-  public modifyFireData(stateConst: FiringState, fireData: FireData): void {
-    const [t, angleDeg, scale] = decomposeTransform(fireData.transform);
+  public createModifier(
+    state: FiringState
+  ): (stateConst: FiringState, fireData: FireData) => void {
+    const [t, angleDeg, scale] = decomposeTransform(state.fireData.transform);
     const xRate = this.option.translationX ? -1 : 1;
     const yRate = this.option.translationY ? -1 : 1;
     const angleRate = this.option.angle ? -1 : 1;
     const translateNew = { x: t.x * xRate, y: t.y * yRate };
     const angleDegNew = angleDeg * angleRate;
-    fireData.transform = mat.transform(
-      mat.translate(translateNew.x, translateNew.y),
-      mat.rotateDEG(angleDegNew),
-      mat.scale(scale.x, scale.y)
-    );
+
+    return (_stateConst: FiringState, fireData: FireData): void => {
+      fireData.transform = mat.transform(
+        mat.translate(translateNew.x, translateNew.y),
+        mat.rotateDEG(angleDegNew),
+        mat.scale(scale.x, scale.y)
+      );
+    };
   }
 }
 
@@ -109,11 +126,15 @@ export class SetParameterImmediatelyModifier implements FireDataModifier {
     this.value = value;
   }
 
-  public modifyFireData(stateConst: FiringState, fireData: FireData): void {
-    fireData.parameters.set(
-      this.name,
-      calcValueFromConstantOrLazy(stateConst, this.value)
-    );
+  public createModifier(
+    _state: FiringState
+  ): (stateConst: FiringState, fireData: FireData) => void {
+    return (stateConst: FiringState, fireData: FireData): void => {
+      fireData.parameters.set(
+        this.name,
+        calcValueFromConstantOrLazy(stateConst, this.value)
+      );
+    };
   }
 }
 
@@ -135,11 +156,15 @@ export class ModifyParameterModifier implements FireDataModifier {
     this.modifier = modifier;
   }
 
-  public modifyFireData(stateConst: FiringState, fireData: FireData): void {
-    const oldValue = fireData.parameters.get(this.name);
-    if (oldValue === undefined)
-      throw new Error(`parameter <${this.name}> was not set`);
-    fireData.parameters.set(this.name, this.modifier(stateConst, oldValue));
+  public createModifier(
+    _state: FiringState
+  ): (stateConst: FiringState, fireData: FireData) => void {
+    return (stateConst: FiringState, fireData: FireData): void => {
+      const oldValue = fireData.parameters.get(this.name);
+      if (oldValue === undefined)
+        throw new Error(`parameter <${this.name}> was not set`);
+      fireData.parameters.set(this.name, this.modifier(stateConst, oldValue));
+    };
   }
 }
 
@@ -155,11 +180,15 @@ export class SetTextImmediatelyModifier implements FireDataModifier {
     this.text = text;
   }
 
-  public modifyFireData(stateConst: FiringState, fireData: FireData): void {
-    fireData.texts.set(
-      this.name,
-      calcValueFromConstantOrLazy(stateConst, this.text)
-    );
+  public createModifier(
+    _state: FiringState
+  ): (stateConst: FiringState, fireData: FireData) => void {
+    return (stateConst: FiringState, fireData: FireData): void => {
+      fireData.texts.set(
+        this.name,
+        calcValueFromConstantOrLazy(stateConst, this.text)
+      );
+    };
   }
 }
 
@@ -173,9 +202,13 @@ export class SetMuzzleImmediatelyModifier implements FireDataModifier {
     this.name = name;
   }
 
-  public modifyFireData(stateConst: FiringState, _fireData: FireData): void {
-    const muzzleName = calcValueFromConstantOrLazy(stateConst, this.name);
-    stateConst.muzzle = stateConst.getMuzzleByName(muzzleName);
+  public createModifier(
+    _state: FiringState
+  ): (stateConst: FiringState, fireData: FireData) => void {
+    return (stateConst: FiringState, _fireData: FireData): void => {
+      const muzzleName = calcValueFromConstantOrLazy(stateConst, this.name);
+      stateConst.muzzle = stateConst.getMuzzleByName(muzzleName);
+    };
   }
 }
 
@@ -190,11 +223,15 @@ export class AttachVirtualMuzzleImmediatelyModifier
     this.virtualMuzzleGenerator = virtualMuzzleGenerator;
   }
 
-  public modifyFireData(stateConst: FiringState, _fireData: FireData): void {
-    if (stateConst.muzzle === null)
-      throw new Error("Muzzle was not set at FiringState");
-    const muzzle = this.virtualMuzzleGenerator.generate();
-    muzzle.basedOn(stateConst.muzzle);
-    stateConst.muzzle = muzzle;
+  public createModifier(
+    _state: FiringState
+  ): (stateConst: FiringState, fireData: FireData) => void {
+    return (stateConst: FiringState, _fireData: FireData): void => {
+      if (stateConst.muzzle === null)
+        throw new Error("Muzzle was not set at FiringState");
+      const muzzle = this.virtualMuzzleGenerator.generate();
+      muzzle.basedOn(stateConst.muzzle);
+      stateConst.muzzle = muzzle;
+    };
   }
 }

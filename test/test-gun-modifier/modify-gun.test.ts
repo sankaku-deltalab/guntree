@@ -1,32 +1,30 @@
-import { FiringState, FireData, FireDataModifier } from "guntree/firing-state";
-import { ModifierGun } from "guntree/elements/gunModifier";
+import { FiringState } from "guntree/firing-state";
+import { ModifierGun, FireDataModifier } from "guntree/elements/gunModifier";
 import { simpleMock } from "../util";
 
 describe("#ModifyGun", (): void => {
   test("can modify FireData immediately", (): void => {
     // Given FireDataModifier
     const fdMod = simpleMock<FireDataModifier>();
-    fdMod.modifyFireData = jest.fn();
+    const mod = jest.fn();
+    fdMod.createModifier = jest.fn().mockReturnValue(mod);
 
     // And ModifierGun with immediately
     const modGun = new ModifierGun(false, fdMod);
 
     // When play ModifierGun
     const firingState = simpleMock<FiringState>();
-    firingState.fireData = simpleMock<FireData>();
     modGun.play(firingState).next();
 
     // Then modified
-    expect(fdMod.modifyFireData).toBeCalledWith(
-      firingState,
-      firingState.fireData
-    );
+    expect(fdMod.createModifier).toBeCalledWith(firingState);
   });
 
   test("can modify FireData later", (): void => {
     // Given FireDataModifier
     const fdMod = simpleMock<FireDataModifier>();
-    fdMod.modifyFireData = jest.fn();
+    const mod = jest.fn();
+    fdMod.createModifier = jest.fn().mockReturnValue(mod);
 
     // And ModifierGun with later
     const modGun = new ModifierGun(true, fdMod);
@@ -37,6 +35,6 @@ describe("#ModifyGun", (): void => {
     modGun.play(firingState).next();
 
     // Then modifier was pushed
-    expect(firingState.pushModifier).toBeCalledWith(fdMod);
+    expect(firingState.pushModifier).toBeCalledWith(mod);
   });
 });

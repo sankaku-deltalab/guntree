@@ -5,7 +5,8 @@ import { LazyEvaluative } from "guntree/lazyEvaluative";
 import {
   FiringState,
   RepeatStateManager,
-  RepeatState
+  RepeatState,
+  DefaultFireData
 } from "guntree/firing-state";
 
 export const simpleMock = <T>(): T => {
@@ -44,6 +45,12 @@ export const createFiringStateMock = (
   });
   state.copy = copyFunction;
   state.pushModifier = jest.fn();
+  state.fireData = new DefaultFireData();
+  state.fire = jest.fn().mockImplementation(() => {
+    const muzzle = state.muzzle;
+    if (muzzle === null) return;
+    muzzle.fire(state.fireData, simpleMock());
+  });
   return state;
 };
 

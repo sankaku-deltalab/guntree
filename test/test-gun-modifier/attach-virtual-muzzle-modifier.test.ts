@@ -27,7 +27,7 @@ describe("#AttachVirtualMuzzleImmediately", (): void => {
     );
 
     // When modify AttachVirtualMuzzleImmediatelyModifier
-    attachMuzzleMod.modifyFireData(state, fd);
+    attachMuzzleMod.createModifier(state)(state, fd);
 
     // Then muzzle was attached
     expect(state.muzzle).toBe(virtualMuzzle);

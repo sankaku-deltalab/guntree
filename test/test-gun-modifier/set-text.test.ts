@@ -22,7 +22,7 @@ describe("#SetTextImmediatelyModifier", (): void => {
     const setTextMod = new SetTextImmediatelyModifier(name, text);
 
     // When modify SetTextImmediately
-    setTextMod.modifyFireData(state, fd);
+    setTextMod.createModifier(state)(state, fd);
 
     // Then text was set
     expect(fd.texts).toEqual(new Map([[name, text]]));
@@ -42,7 +42,7 @@ describe("#SetTextImmediatelyModifier", (): void => {
     const setTextMod = new SetTextImmediatelyModifier(name, text);
 
     // When modify SetTextImmediately
-    setTextMod.modifyFireData(state, fd);
+    setTextMod.createModifier(state)(state, fd);
 
     // Then text was set
     expect(fd.texts).toEqual(new Map([[name, text]]));
@@ -62,7 +62,7 @@ describe("#SetTextImmediatelyModifier", (): void => {
     const setTextMod = new SetTextImmediatelyModifier(name, textLe);
 
     // When modify SetTextImmediately
-    setTextMod.modifyFireData(state, fd);
+    setTextMod.createModifier(state)(state, fd);
 
     // Then text was set
     expect(fd.texts).toEqual(new Map([[name, textConst]]));

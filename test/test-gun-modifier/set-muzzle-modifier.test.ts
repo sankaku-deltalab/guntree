@@ -26,7 +26,7 @@ describe("#SetMuzzleImmediatelyModifier", (): void => {
     const setMuzzle = new SetMuzzleImmediatelyModifier(name);
 
     // When modify SetMuzzleImmediatelyModifier
-    setMuzzle.modifyFireData(state, fd);
+    setMuzzle.createModifier(state)(state, fd);
 
     // Then muzzle was set
     expect(state.muzzle).toBe(muzzle);
@@ -51,7 +51,7 @@ describe("#SetMuzzleImmediatelyModifier", (): void => {
     const setMuzzle = new SetMuzzleImmediatelyModifier(nameLe);
 
     // When modify SetMuzzleImmediatelyModifier
-    setMuzzle.modifyFireData(state, fd);
+    setMuzzle.createModifier(state)(state, fd);
 
     // Then muzzle was set
     expect(state.muzzle).toBe(muzzle);

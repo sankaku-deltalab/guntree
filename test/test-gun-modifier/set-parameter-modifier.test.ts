@@ -22,7 +22,7 @@ describe("#SetParameterImmediatelyModifier", (): void => {
     const setParameterMod = new SetParameterImmediatelyModifier(name, value);
 
     // When modify SetParameterImmediately
-    setParameterMod.modifyFireData(state, fd);
+    setParameterMod.createModifier(state)(state, fd);
 
     // Then parameter was set
     expect(fd.parameters).toEqual(new Map([[name, value]]));
@@ -42,7 +42,7 @@ describe("#SetParameterImmediatelyModifier", (): void => {
     const setParameterMod = new SetParameterImmediatelyModifier(name, value);
 
     // When modify SetParameterImmediately
-    setParameterMod.modifyFireData(state, fd);
+    setParameterMod.createModifier(state)(state, fd);
 
     // Then parameter was set
     expect(fd.parameters).toEqual(new Map([[name, value]]));
@@ -62,7 +62,7 @@ describe("#SetParameterImmediatelyModifier", (): void => {
     const setParameterMod = new SetParameterImmediatelyModifier(name, valueLe);
 
     // When modify SetParameterImmediately
-    setParameterMod.modifyFireData(state, fd);
+    setParameterMod.createModifier(state)(state, fd);
 
     // Then parameter was set
     expect(fd.parameters).toEqual(new Map([[name, valueConst]]));
