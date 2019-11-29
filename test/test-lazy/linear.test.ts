@@ -7,7 +7,12 @@ import {
 import { createLazyEvaluativeMockReturnOnce } from "../util";
 
 describe("#Linear", (): void => {
-  test.each([[0, 1, 10], [0, 2, 10], [1, 2, 15], [1, 4, 12.5]])(
+  test.each([
+    [0, 1, 10],
+    [0, 2, 10],
+    [1, 2, 15],
+    [1, 4, 12.5]
+  ])(
     "deal linear value with respect to repeating progress (%i, %i)",
     async (finished, total, expected): Promise<void> => {
       // Given repeating progress

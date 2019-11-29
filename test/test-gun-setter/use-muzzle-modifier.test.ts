@@ -1,5 +1,5 @@
 import { FiringState, FireData } from "guntree/firing-state";
-import { SetMuzzleImmediatelyModifier } from "guntree/elements/gunModifier";
+import { UseMuzzleUpdater } from "guntree/elements/gunSetter";
 import { Muzzle } from "guntree/muzzle";
 import { simpleMock, createLazyEvaluativeMockReturnOnce } from "../util";
 
@@ -10,7 +10,7 @@ const createFiringState = (muzzle: Muzzle): FiringState => {
   return state;
 };
 
-describe("#SetMuzzleImmediatelyModifier", (): void => {
+describe("#UseMuzzleUpdater", (): void => {
   test("can set muzzle gotten from FiringState", (): void => {
     // Given Muzzle
     const muzzle = simpleMock<Muzzle>();
@@ -21,12 +21,12 @@ describe("#SetMuzzleImmediatelyModifier", (): void => {
     // And FireData
     const fd = simpleMock<FireData>();
 
-    // And SetMuzzleImmediatelyModifier
+    // And UseMuzzleUpdater
     const name = "a";
-    const setMuzzle = new SetMuzzleImmediatelyModifier(name);
+    const setMuzzle = new UseMuzzleUpdater(name);
 
-    // When modify SetMuzzleImmediatelyModifier
-    setMuzzle.modifyFireData(state, fd);
+    // When use UseMuzzleUpdater
+    setMuzzle.updateFiringState(state);
 
     // Then muzzle was set
     expect(state.muzzle).toBe(muzzle);
@@ -45,13 +45,13 @@ describe("#SetMuzzleImmediatelyModifier", (): void => {
     // And FireData
     const fd = simpleMock<FireData>();
 
-    // And SetMuzzleImmediatelyModifier
+    // And UseMuzzleUpdater
     const nameConst = "a";
     const nameLe = createLazyEvaluativeMockReturnOnce(nameConst);
-    const setMuzzle = new SetMuzzleImmediatelyModifier(nameLe);
+    const setMuzzle = new UseMuzzleUpdater(nameLe);
 
-    // When modify SetMuzzleImmediatelyModifier
-    setMuzzle.modifyFireData(state, fd);
+    // When use UseMuzzleUpdater
+    setMuzzle.updateFiringState(state);
 
     // Then muzzle was set
     expect(state.muzzle).toBe(muzzle);

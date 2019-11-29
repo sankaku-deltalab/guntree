@@ -24,7 +24,7 @@ describe("#ModifyParameterModifier", (): void => {
     const setParameterMod = new ModifyParameterModifier(name, modifier);
 
     // When play SetParameterImmediately
-    setParameterMod.modifyFireData(state, fd);
+    setParameterMod.createModifier(state)(state, fd);
 
     // Then parameter was set
     expect(fd.parameters).toEqual(new Map([[name, value]]));
@@ -46,7 +46,7 @@ describe("#ModifyParameterModifier", (): void => {
     const setParameterMod = new ModifyParameterModifier(unsetName, modifier);
 
     // When play SetParameterImmediately
-    const mod = (): void => setParameterMod.modifyFireData(state, fd);
+    const mod = (): void => setParameterMod.createModifier(state)(state, fd);
 
     // Then error was thrown
     expect(mod).toThrow(Error);

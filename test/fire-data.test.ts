@@ -39,7 +39,11 @@ describe("#FireData", (): void => {
     const fd = new DefaultFireData();
 
     // And parameters was set in FireData
-    fd.parameters = new Map([["a", 0], ["b", -1], ["1", 1.5]]);
+    fd.parameters = new Map([
+      ["a", 0],
+      ["b", -1],
+      ["1", 1.5]
+    ]);
 
     // When copy FireData
     const clone = fd.copy();
@@ -55,7 +59,11 @@ describe("#FireData", (): void => {
     const fd = new DefaultFireData();
 
     // And texts was set in FireData
-    fd.texts = new Map([["a", "123"], ["b", "wqr"], ["1", ""]]);
+    fd.texts = new Map([
+      ["a", "123"],
+      ["b", "wqr"],
+      ["1", ""]
+    ]);
 
     // When copy FireData
     const clone = fd.copy();
