@@ -1,9 +1,9 @@
 import { FiringState, FireData } from "guntree/firing-state";
-import { AttachVirtualMuzzleImmediatelyModifier } from "guntree/elements/gunModifier";
+import { AttachVirtualMuzzleUpdater } from "guntree/elements/gunSetter";
 import { Muzzle, VirtualMuzzle, VirtualMuzzleGenerator } from "guntree/muzzle";
 import { simpleMock } from "../util";
 
-describe("#AttachVirtualMuzzleImmediately", (): void => {
+describe("#AttachVirtualMuzzleUpdater", (): void => {
   test("attach virtual muzzle to current FiringState muzzle", (): void => {
     // Given Virtual muzzle generator
     const virtualMuzzle = simpleMock<VirtualMuzzle>();
@@ -17,17 +17,17 @@ describe("#AttachVirtualMuzzleImmediately", (): void => {
     // And FireData
     const fd = simpleMock<FireData>();
 
-    // And AttachVirtualMuzzleImmediatelyModifier
+    // And AttachVirtualMuzzleUpdater
     const virtualMuzzleGenerator = simpleMock<VirtualMuzzleGenerator>();
     virtualMuzzleGenerator.generate = jest
       .fn()
       .mockReturnValueOnce(virtualMuzzle);
-    const attachMuzzleMod = new AttachVirtualMuzzleImmediatelyModifier(
+    const attachMuzzleMod = new AttachVirtualMuzzleUpdater(
       virtualMuzzleGenerator
     );
 
-    // When modify AttachVirtualMuzzleImmediatelyModifier
-    attachMuzzleMod.createModifier(state)(state, fd);
+    // When use AttachVirtualMuzzleUpdater
+    attachMuzzleMod.updateFiringState(state);
 
     // Then muzzle was attached
     expect(state.muzzle).toBe(virtualMuzzle);

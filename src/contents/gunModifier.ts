@@ -6,7 +6,6 @@ import {
 } from "../lazyEvaluative";
 import * as modO from "../elements/gunModifier";
 import * as le from "../contents/lazyEvaluative";
-import { VirtualMuzzleGenerator } from "../muzzle";
 import { FiringState } from "../firing-state";
 
 /**
@@ -42,29 +41,6 @@ export const addTranslation = (translation: {
 };
 
 /**
- * Define parameter.
- *
- * ```typescript
- * const dangerousFire = concat(
- *   useParameter('dangerousness', 9999),
- *   fire(bullet()),
- * );
- * ```
- *
- * @param name Parameter name.
- * @param value Initial parameter value.
- */
-export const useParameter = (
-  name: string,
-  value: TConstantOrLazy<number>
-): modO.ModifierGun => {
-  return new modO.ModifierGun(
-    false,
-    new modO.SetParameterImmediatelyModifier(name, value)
-  );
-};
-
-/**
  * Modify parameter.
  *
  * @param name Parameter name.
@@ -77,71 +53,6 @@ export const modifyParameter = (
   return new modO.ModifierGun(
     true,
     new modO.ModifyParameterModifier(name, modifier)
-  );
-};
-
-/**
- * Use muzzle.
- * Every firing need muzzle.
- *
- * ```typescript
- * const firing = concat(
- *   useMuzzle('centerMuzzle'),
- *   fire(bullet()),
- * );
- * ```
- *
- * @param name Muzzle name
- */
-export const useMuzzle = (name: TConstantOrLazy<string>): modO.ModifierGun => {
-  return new modO.ModifierGun(
-    false,
-    new modO.SetMuzzleImmediatelyModifier(name)
-  );
-};
-
-/**
- * Attach virtual muzzle to current muzzle.
- *
- * ```typescript
- * const aimingFireFromCenter = concat(
- *   useMuzzle('centerMuzzle'),
- *   useVirtualMuzzle(aimingMuzzle()),
- *   fire(bullet()),
- * );
- * ```
- *
- * @param virtualMuzzleGenerator Generate attaching virtual muzzle.
- */
-export const useVirtualMuzzle = (
-  virtualMuzzleGenerator: VirtualMuzzleGenerator
-): modO.ModifierGun => {
-  return new modO.ModifierGun(
-    false,
-    new modO.AttachVirtualMuzzleImmediatelyModifier(virtualMuzzleGenerator)
-  );
-};
-
-/**
- * Define text.
- *
- * ```typescript
- * const dangerousFire = concat(
- *   useText('isDangerous', 'yes'),
- *   fire(bullet()),
- * );
- * ```
- *
- * @param name Text name.
- * @param text Initial text.
- */
-export const useText = (
-  name: string,
-  text: TConstantOrLazy<string>
-): modO.ModifierGun => {
-  return new modO.ModifierGun(
-    false,
-    new modO.SetTextImmediatelyModifier(name, text)
   );
 };
 

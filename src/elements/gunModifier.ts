@@ -4,10 +4,8 @@ import { Gun } from "../gun";
 import { FiringState, FireData } from "../firing-state";
 import {
   TConstantOrLazy,
-  calcValueFromConstantOrLazy,
   calcTransFormFromConstantOrLazy
 } from "../lazyEvaluative";
-import { VirtualMuzzleGenerator } from "../muzzle";
 import { decomposeTransform } from "../transform-util";
 
 /**
@@ -115,30 +113,6 @@ export class InvertTransformModifier implements FireDataModifier {
 }
 
 /**
- * Set parameter in FireData when played.
- */
-export class SetParameterImmediatelyModifier implements FireDataModifier {
-  private readonly name: string;
-  private readonly value: TConstantOrLazy<number>;
-
-  public constructor(name: string, value: TConstantOrLazy<number>) {
-    this.name = name;
-    this.value = value;
-  }
-
-  public createModifier(
-    _state: FiringState
-  ): (stateConst: FiringState, fireData: FireData) => void {
-    return (stateConst: FiringState, fireData: FireData): void => {
-      fireData.parameters.set(
-        this.name,
-        calcValueFromConstantOrLazy(stateConst, this.value)
-      );
-    };
-  }
-}
-
-/**
  * Modify parameter with given function later.
  */
 export class ModifyParameterModifier implements FireDataModifier {
@@ -164,74 +138,6 @@ export class ModifyParameterModifier implements FireDataModifier {
       if (oldValue === undefined)
         throw new Error(`parameter <${this.name}> was not set`);
       fireData.parameters.set(this.name, this.modifier(stateConst, oldValue));
-    };
-  }
-}
-
-/**
- * Set text in FireData when played.
- */
-export class SetTextImmediatelyModifier implements FireDataModifier {
-  private readonly name: string;
-  private readonly text: TConstantOrLazy<string>;
-
-  public constructor(name: string, text: TConstantOrLazy<string>) {
-    this.name = name;
-    this.text = text;
-  }
-
-  public createModifier(
-    _state: FiringState
-  ): (stateConst: FiringState, fireData: FireData) => void {
-    return (stateConst: FiringState, fireData: FireData): void => {
-      fireData.texts.set(
-        this.name,
-        calcValueFromConstantOrLazy(stateConst, this.text)
-      );
-    };
-  }
-}
-
-/**
- * Set muzzle in FireData when played.
- */
-export class SetMuzzleImmediatelyModifier implements FireDataModifier {
-  private readonly name: TConstantOrLazy<string>;
-
-  public constructor(name: TConstantOrLazy<string>) {
-    this.name = name;
-  }
-
-  public createModifier(
-    _state: FiringState
-  ): (stateConst: FiringState, fireData: FireData) => void {
-    return (stateConst: FiringState, _fireData: FireData): void => {
-      const muzzleName = calcValueFromConstantOrLazy(stateConst, this.name);
-      stateConst.muzzle = stateConst.getMuzzleByName(muzzleName);
-    };
-  }
-}
-
-/**
- * Attach virtual muzzle to current muzzle.
- */
-export class AttachVirtualMuzzleImmediatelyModifier
-  implements FireDataModifier {
-  private readonly virtualMuzzleGenerator: VirtualMuzzleGenerator;
-
-  public constructor(virtualMuzzleGenerator: VirtualMuzzleGenerator) {
-    this.virtualMuzzleGenerator = virtualMuzzleGenerator;
-  }
-
-  public createModifier(
-    _state: FiringState
-  ): (stateConst: FiringState, fireData: FireData) => void {
-    return (stateConst: FiringState, _fireData: FireData): void => {
-      if (stateConst.muzzle === null)
-        throw new Error("Muzzle was not set at FiringState");
-      const muzzle = this.virtualMuzzleGenerator.generate();
-      muzzle.basedOn(stateConst.muzzle);
-      stateConst.muzzle = muzzle;
     };
   }
 }

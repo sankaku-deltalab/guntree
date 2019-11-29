@@ -4,11 +4,8 @@ import { Gun } from "../gun";
 import { Bullet } from "../bullet";
 import { FiringState, RepeatState } from "../firing-state";
 import { TConstantOrLazy } from "../lazyEvaluative";
-import {
-  InvertTransformModifier,
-  ModifierGun,
-  SetMuzzleImmediatelyModifier
-} from "./gunModifier";
+import { InvertTransformModifier, ModifierGun } from "./gunModifier";
+import { UseMuzzleUpdater, SetterGun } from "./gunSetter";
 
 export function* wait(frames: number): IterableIterator<void> {
   for (const _ of range(frames)) {
@@ -280,10 +277,7 @@ export class Mirror implements Gun {
     // Set muzzle if name was specified
     if (option.invertedMuzzleName !== undefined) {
       mirroredChild.push(
-        new ModifierGun(
-          false,
-          new SetMuzzleImmediatelyModifier(option.invertedMuzzleName)
-        )
+        new SetterGun(new UseMuzzleUpdater(option.invertedMuzzleName))
       );
     }
     mirroredChild.push(invert);
@@ -317,10 +311,7 @@ export class Alternate implements Gun {
     // Set muzzle if name was specified
     if (option.invertedMuzzleName !== undefined) {
       mirroredChild.push(
-        new ModifierGun(
-          false,
-          new SetMuzzleImmediatelyModifier(option.invertedMuzzleName)
-        )
+        new SetterGun(new UseMuzzleUpdater(option.invertedMuzzleName))
       );
     }
     mirroredChild.push(invert);
