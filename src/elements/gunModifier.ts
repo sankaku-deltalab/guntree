@@ -9,39 +9,20 @@ import {
 import { decomposeTransform } from "../transform-util";
 
 /**
- * ModifierGun update FireData when fired or immediately.
+ * ModifierGun update FireData when fired.
  */
 export class ModifierGun implements Gun {
-  private readonly modifyLater: boolean;
   private readonly modifier: FireDataModifier;
+
   /**
-   * @param modifyLater Use modifier later or immediately
    * @param modifier Used modifier
    */
-  public constructor(modifyLater: boolean, modifier: FireDataModifier) {
-    this.modifyLater = modifyLater;
+  public constructor(modifier: FireDataModifier) {
     this.modifier = modifier;
   }
 
   public *play(state: FiringState): IterableIterator<void> {
-    ModifierGun.modifyImmediatelyOrLater(
-      state,
-      this.modifyLater,
-      this.modifier
-    );
-  }
-
-  private static modifyImmediatelyOrLater(
-    state: FiringState,
-    modifyLater: boolean,
-    modifier: FireDataModifier
-  ): void {
-    const mod = modifier.createModifier(state);
-    if (modifyLater) {
-      state.pushModifier(mod);
-    } else {
-      mod(state, state.fireData);
-    }
+    state.pushModifier(this.modifier.createModifier(state));
   }
 }
 

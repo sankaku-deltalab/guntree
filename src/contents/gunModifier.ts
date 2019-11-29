@@ -16,7 +16,7 @@ import { FiringState } from "../firing-state";
 export const transform = (
   trans: TConstantOrLazy<mat.Matrix>
 ): modO.ModifierGun => {
-  return new modO.ModifierGun(true, new modO.TransformModifier(trans));
+  return new modO.ModifierGun(new modO.TransformModifier(trans));
 };
 
 /**
@@ -50,10 +50,7 @@ export const modifyParameter = (
   name: string,
   modifier: (stateConst: FiringState, oldValue: number) => number
 ): modO.ModifierGun => {
-  return new modO.ModifierGun(
-    true,
-    new modO.ModifyParameterModifier(name, modifier)
-  );
+  return new modO.ModifierGun(new modO.ModifyParameterModifier(name, modifier));
 };
 
 /**
@@ -274,5 +271,5 @@ export const resetSize = (
 export const invert = (
   option: modO.TInvertTransformOption
 ): modO.ModifierGun => {
-  return new modO.ModifierGun(true, new modO.InvertTransformModifier(option));
+  return new modO.ModifierGun(new modO.InvertTransformModifier(option));
 };

@@ -266,7 +266,6 @@ export class Mirror implements Gun {
 
   public constructor(option: TMirrorOption, gun: Gun) {
     const invert = new ModifierGun(
-      true,
       new InvertTransformModifier({
         angle: true,
         translationX: option.mirrorTranslationX,
@@ -300,7 +299,6 @@ export class Alternate implements Gun {
 
   public constructor(option: TMirrorOption, gun: Gun) {
     const invert = new ModifierGun(
-      true,
       new InvertTransformModifier({
         angle: true,
         translationX: option.mirrorTranslationX,
