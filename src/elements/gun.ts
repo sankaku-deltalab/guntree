@@ -4,11 +4,8 @@ import { Gun } from "../gun";
 import { Bullet } from "../bullet";
 import { FiringState, RepeatState } from "../firing-state";
 import { TConstantOrLazy } from "../lazyEvaluative";
-import {
-  InvertTransformModifier,
-  ModifierGun,
-  SetMuzzleImmediatelyModifier
-} from "./gunModifier";
+import { InvertTransformModifier, ModifierGun } from "./gunModifier";
+import { UseMuzzleUpdater, SetterGun } from "./gunSetter";
 
 export function* wait(frames: number): IterableIterator<void> {
   for (const _ of range(frames)) {
@@ -47,9 +44,9 @@ export class Fire implements Gun {
  * Do nothing.
  */
 export class Nop implements Gun {
-  public constructor() {}
-
-  public *play(_state: FiringState): IterableIterator<void> {}
+  public *play(_state: FiringState): IterableIterator<void> {
+    /** Do nothing */
+  }
 }
 
 /**
@@ -159,7 +156,9 @@ export class ParallelRepeat implements Gun {
     );
 
     while (true) {
-      const doneList = playProgresses.map((p): boolean => p.next().done);
+      const doneList = playProgresses.map(
+        (p): boolean => p.next().done !== false
+      );
       const allFinished = doneList.reduce(
         (done1, done2): boolean => done1 && done2
       );
@@ -221,7 +220,7 @@ export class Parallel implements Gun {
       (g): IterableIterator<void> => g.play(state.copy())
     );
     while (true) {
-      const doneList = progresses.map((p): boolean => p.next().done);
+      const doneList = progresses.map((p): boolean => p.next().done !== false);
       const allFinished = doneList.reduce(
         (done1, done2): boolean => done1 && done2
       );
@@ -267,7 +266,6 @@ export class Mirror implements Gun {
 
   public constructor(option: TMirrorOption, gun: Gun) {
     const invert = new ModifierGun(
-      true,
       new InvertTransformModifier({
         angle: true,
         translationX: option.mirrorTranslationX,
@@ -278,10 +276,7 @@ export class Mirror implements Gun {
     // Set muzzle if name was specified
     if (option.invertedMuzzleName !== undefined) {
       mirroredChild.push(
-        new ModifierGun(
-          false,
-          new SetMuzzleImmediatelyModifier(option.invertedMuzzleName)
-        )
+        new SetterGun(new UseMuzzleUpdater(option.invertedMuzzleName))
       );
     }
     mirroredChild.push(invert);
@@ -304,7 +299,6 @@ export class Alternate implements Gun {
 
   public constructor(option: TMirrorOption, gun: Gun) {
     const invert = new ModifierGun(
-      true,
       new InvertTransformModifier({
         angle: true,
         translationX: option.mirrorTranslationX,
@@ -315,10 +309,7 @@ export class Alternate implements Gun {
     // Set muzzle if name was specified
     if (option.invertedMuzzleName !== undefined) {
       mirroredChild.push(
-        new ModifierGun(
-          false,
-          new SetMuzzleImmediatelyModifier(option.invertedMuzzleName)
-        )
+        new SetterGun(new UseMuzzleUpdater(option.invertedMuzzleName))
       );
     }
     mirroredChild.push(invert);

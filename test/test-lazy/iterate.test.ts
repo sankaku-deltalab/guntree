@@ -81,7 +81,10 @@ describe("#Iterate", (): void => {
   });
 
   test("use repeating specified by target with string", (): void => {
-    const pairs: [string, number][] = [["a", 0], ["b", 1]];
+    const pairs: [string, number][] = [
+      ["a", 0],
+      ["b", 1]
+    ];
     for (const [target, finished] of pairs) {
       // Given repeating progress
       const rsm = createRepeatStateManagerWithGet(

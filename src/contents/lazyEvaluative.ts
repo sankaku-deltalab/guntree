@@ -41,7 +41,7 @@ export const centerizedLinear = (
  * @param option Option.
  */
 export const iterate = (
-  array: (TConstantOrLazy<number>)[],
+  array: TConstantOrLazy<number>[],
   option?: leO.TIterateOption
 ): leO.Iterate => new leO.Iterate(array, option);
 

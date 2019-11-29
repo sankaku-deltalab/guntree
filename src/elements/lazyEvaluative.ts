@@ -43,7 +43,7 @@ export interface TIterateOption {
  * Iterate values in argument with repeating.
  */
 export class Iterate implements LazyEvaluative<number> {
-  private readonly array: (TConstantOrLazy<number>)[];
+  private readonly array: TConstantOrLazy<number>[];
   private readonly option?: TIterateOption;
   /**
    *
@@ -51,7 +51,7 @@ export class Iterate implements LazyEvaluative<number> {
    * @param option
    */
   public constructor(
-    array: (TConstantOrLazy<number>)[],
+    array: TConstantOrLazy<number>[],
     option?: TIterateOption
   ) {
     this.array = array;
