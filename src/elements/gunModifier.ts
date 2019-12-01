@@ -74,16 +74,16 @@ export class InvertTransformModifier implements FireDataModifier {
   }
 
   public createModifier(
-    state: FiringState
+    _state: FiringState
   ): (stateConst: FiringState, fireData: FireData) => void {
-    const [t, angleDeg, scale] = decomposeTransform(state.fireData.transform);
     const xRate = this.option.translationX ? -1 : 1;
     const yRate = this.option.translationY ? -1 : 1;
     const angleRate = this.option.angle ? -1 : 1;
-    const translateNew = { x: t.x * xRate, y: t.y * yRate };
-    const angleDegNew = angleDeg * angleRate;
 
     return (_stateConst: FiringState, fireData: FireData): void => {
+      const [t, angleDeg, scale] = decomposeTransform(fireData.transform);
+      const translateNew = { x: t.x * xRate, y: t.y * yRate };
+      const angleDegNew = angleDeg * angleRate;
       fireData.transform = mat.transform(
         mat.translate(translateNew.x, translateNew.y),
         mat.rotateDEG(angleDegNew),
