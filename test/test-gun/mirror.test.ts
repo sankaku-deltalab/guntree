@@ -6,7 +6,7 @@ import {
   DefaultFireData,
   DefaultRepeatStateManager
 } from "guntree/firing-state";
-import { Mirror, Fire } from "guntree/elements/gun";
+import { Mirror, Fire, Concat } from "guntree/elements/gun";
 import { Muzzle } from "guntree/muzzle";
 import { decomposeTransform } from "guntree/transform-util";
 import {
@@ -14,6 +14,7 @@ import {
   createGunMockConsumeFrames,
   createFiringStateMock
 } from "../util";
+import { TransformModifier, ModifierGun } from "guntree/elements";
 
 describe("#Mirror", (): void => {
   test("play child gun and inverted child gun as parallel", (): void => {
@@ -46,14 +47,20 @@ describe("#Mirror", (): void => {
       new DefaultFireData(),
       new DefaultRepeatStateManager()
     );
-    state.fireData.transform = mat.rotateDEG(defaultAngle);
+    state.fireData.transform = mat.rotateDEG(0);
     const muzzle = simpleMock<Muzzle>();
     muzzle.getMuzzleTransform = jest.fn().mockReturnValue(mat.translate(0));
     muzzle.fire = jest.fn();
     state.muzzle = muzzle;
 
     // And Mirror with fire gun
-    const mirror = new Mirror({}, new Fire(simpleMock()));
+    const mirror = new Mirror(
+      {},
+      new Concat(
+        new ModifierGun(new TransformModifier(mat.rotateDEG(defaultAngle))),
+        new Fire(simpleMock())
+      )
+    );
 
     // When play Mirror
     mirror.play(state).next();
