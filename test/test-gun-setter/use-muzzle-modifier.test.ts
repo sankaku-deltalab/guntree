@@ -1,4 +1,4 @@
-import { FiringState, FireData } from "guntree/firing-state";
+import { FiringState } from "guntree/firing-state";
 import { UseMuzzleUpdater } from "guntree/elements/gunSetter";
 import { Muzzle } from "guntree/muzzle";
 import { simpleMock, createLazyEvaluativeMockReturnOnce } from "../util";
@@ -17,9 +17,6 @@ describe("#UseMuzzleUpdater", (): void => {
 
     // And firing state
     const state = createFiringState(muzzle);
-
-    // And FireData
-    const fd = simpleMock<FireData>();
 
     // And UseMuzzleUpdater
     const name = "a";
@@ -41,9 +38,6 @@ describe("#UseMuzzleUpdater", (): void => {
 
     // And firing state
     const state = createFiringState(muzzle);
-
-    // And FireData
-    const fd = simpleMock<FireData>();
 
     // And UseMuzzleUpdater
     const nameConst = "a";

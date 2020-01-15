@@ -1,4 +1,4 @@
-import { FiringState, FireData } from "guntree/firing-state";
+import { FiringState } from "guntree/firing-state";
 import { AttachVirtualMuzzleUpdater } from "guntree/elements/gunSetter";
 import { Muzzle, VirtualMuzzle, VirtualMuzzleGenerator } from "guntree/muzzle";
 import { simpleMock } from "../util";
@@ -13,9 +13,6 @@ describe("#AttachVirtualMuzzleUpdater", (): void => {
     const state = simpleMock<FiringState>();
     const baseMuzzle = simpleMock<Muzzle>();
     state.muzzle = baseMuzzle;
-
-    // And FireData
-    const fd = simpleMock<FireData>();
 
     // And AttachVirtualMuzzleUpdater
     const virtualMuzzleGenerator = simpleMock<VirtualMuzzleGenerator>();

@@ -8,7 +8,6 @@ import {
   DefaultRepeatStateManager
 } from "guntree/firing-state";
 import { Alternate, Fire } from "guntree/elements/gun";
-import { InvertTransformModifier } from "guntree/elements";
 import { Muzzle } from "guntree/muzzle";
 import { decomposeTransform } from "guntree/transform-util";
 import {
