@@ -2,12 +2,12 @@ import { range } from "lodash";
 
 import { FiringState } from "guntree/firing-state";
 import { DefaultPlayer } from "guntree/player";
-import { Muzzle } from "guntree/muzzle";
 import {
   simpleMock,
   createGunMockConsumeFrames,
   createFiringStateMock
 } from "./util";
+import { Owner } from "guntree/owner";
 
 describe("#Player", (): void => {
   test("can start gun tree", (): void => {
@@ -21,7 +21,8 @@ describe("#Player", (): void => {
     const gunTree = createGunMockConsumeFrames(0);
 
     // And Player
-    const player = new DefaultPlayer({}, (): FiringState => stateMaster);
+    const owner = simpleMock<Owner>();
+    const player = new DefaultPlayer(owner, (): FiringState => stateMaster);
 
     // When set gun tree to player
     player.setGunTree(gunTree);
@@ -39,7 +40,8 @@ describe("#Player", (): void => {
     const stateMaster = createFiringStateMock(state);
 
     // And Player
-    const player = new DefaultPlayer({}, (): FiringState => stateMaster);
+    const owner = simpleMock<Owner>();
+    const player = new DefaultPlayer(owner, (): FiringState => stateMaster);
 
     // When start player without gun tree
     const starting = (): boolean => player.start();
@@ -59,8 +61,9 @@ describe("#Player", (): void => {
     const stateMaster = createFiringStateMock(state);
 
     // And Player with gun tree
+    const owner = simpleMock<Owner>();
     const gunTree = createGunMockConsumeFrames(gunTreeLength);
-    const player = new DefaultPlayer({}, (): FiringState => stateMaster);
+    const player = new DefaultPlayer(owner, (): FiringState => stateMaster);
     player.setGunTree(gunTree);
 
     // When start player
@@ -78,17 +81,21 @@ describe("#Player", (): void => {
     expect(player.isRunning).toBe(false);
   });
 
-  test("can set muzzle at constructed and get there", (): void => {
-    // Given parameter name and value
-    const muzzle = simpleMock<Muzzle>();
-
-    // And Player with muzzle
-    const player = new DefaultPlayer({ a: muzzle }, simpleMock());
+  test("can deal muzzle", (): void => {
+    // Given Player with owner
+    const owner = simpleMock<Owner>();
+    const muzzleTrans = jest.fn();
+    owner.getMuzzleTransform = jest.fn().mockReturnValueOnce(muzzleTrans);
+    const player = new DefaultPlayer(owner, simpleMock());
 
     // When get muzzle from player
-    const gottenMuzzle = player.getMuzzle("a");
+    const muzzle = player.getMuzzle("a");
 
-    // Then gotten muzzle be set muzzle
-    expect(gottenMuzzle).toBe(muzzle);
+    // And get muzzle transform
+    const trans = muzzle.getMuzzleTransform();
+
+    // Then gotten transform was dealt from owner
+    expect(owner.getMuzzleTransform).toBeCalled();
+    expect(trans).toBe(muzzleTrans);
   });
 });
