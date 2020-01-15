@@ -4,7 +4,6 @@ import * as mat from "transformation-matrix";
 import {
   DefaultFiringState,
   FireData,
-  FireDataModifier,
   RepeatStateManager
 } from "guntree/firing-state";
 import { Player } from "guntree/player";
@@ -46,13 +45,12 @@ describe("#FiringState", (): void => {
     state.fireData.copy = jest.fn().mockReturnValueOnce(fireDataClone);
 
     // And modifiers
-    const calledModifiers: FireDataModifier[] = [];
+    const calledModifiers: jest.Mock[] = [];
     const modifiers = range(3).map(
-      (): FireDataModifier => {
-        const mod = simpleMock<FireDataModifier>();
-        mod.modifyFireData = jest
-          .fn()
-          .mockImplementation((): number => calledModifiers.push(mod));
+      (): jest.Mock => {
+        const mod = jest.fn().mockImplementation(() => {
+          calledModifiers.push(mod);
+        });
         return mod;
       }
     );
@@ -65,8 +63,8 @@ describe("#FiringState", (): void => {
 
     // Then modifiers are called with fireData copy
     modifiers.map((mod): void => {
-      expect(mod.modifyFireData).toBeCalledWith(state, fireDataClone);
-      expect(mod.modifyFireData).toBeCalledTimes(1);
+      expect(mod).toBeCalledWith(state, fireDataClone);
+      expect(mod).toBeCalledTimes(1);
     });
 
     // And modifiers are called as reversed order

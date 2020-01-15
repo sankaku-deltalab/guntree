@@ -1,5 +1,5 @@
 import { FiringState, FireData } from "guntree/firing-state";
-import { SetTextImmediatelyModifier } from "guntree/elements/gunModifier";
+import { UseTextUpdater } from "guntree/elements/gunSetter";
 import { simpleMock, createLazyEvaluativeMockReturnOnce } from "../util";
 
 const createFireData = (texts: Map<string, string>): FireData => {
@@ -8,24 +8,24 @@ const createFireData = (texts: Map<string, string>): FireData => {
   return fd;
 };
 
-describe("#SetTextImmediatelyModifier", (): void => {
+describe("#UseTextUpdater", (): void => {
   test("can set text with unset name", (): void => {
     // Given firing state
     const state = simpleMock<FiringState>();
 
     // And FireData
-    const fd = createFireData(new Map());
+    state.fireData = createFireData(new Map());
 
-    // And SetTextImmediatelyModifier
+    // And UseTextUpdater
     const name = "a";
     const text = "aa";
-    const setTextMod = new SetTextImmediatelyModifier(name, text);
+    const setTextMod = new UseTextUpdater(name, text);
 
-    // When modify SetTextImmediately
-    setTextMod.modifyFireData(state, fd);
+    // When use UseTextUpdater
+    setTextMod.updateFiringState(state);
 
     // Then text was set
-    expect(fd.texts).toEqual(new Map([[name, text]]));
+    expect(state.fireData.texts).toEqual(new Map([[name, text]]));
   });
 
   test("can set text with already set name", (): void => {
@@ -35,17 +35,17 @@ describe("#SetTextImmediatelyModifier", (): void => {
     // And FireData
     const name = "a";
     const initialText = "aa";
-    const fd = createFireData(new Map([[name, initialText]]));
+    state.fireData = createFireData(new Map([[name, initialText]]));
 
-    // And SetTextImmediatelyModifier
+    // And UseTextUpdater
     const text = "bb";
-    const setTextMod = new SetTextImmediatelyModifier(name, text);
+    const setTextMod = new UseTextUpdater(name, text);
 
-    // When modify SetTextImmediately
-    setTextMod.modifyFireData(state, fd);
+    // When use UseTextUpdater
+    setTextMod.updateFiringState(state);
 
     // Then text was set
-    expect(fd.texts).toEqual(new Map([[name, text]]));
+    expect(state.fireData.texts).toEqual(new Map([[name, text]]));
   });
 
   test("can set text with lazyEvaluative text", (): void => {
@@ -53,18 +53,18 @@ describe("#SetTextImmediatelyModifier", (): void => {
     const state = simpleMock<FiringState>();
 
     // And FireData
-    const fd = createFireData(new Map());
+    state.fireData = createFireData(new Map());
 
-    // And SetTextImmediatelyModifier
+    // And UseTextUpdater
     const name = "a";
     const textConst = "aa";
     const textLe = createLazyEvaluativeMockReturnOnce(textConst);
-    const setTextMod = new SetTextImmediatelyModifier(name, textLe);
+    const setTextMod = new UseTextUpdater(name, textLe);
 
-    // When modify SetTextImmediately
-    setTextMod.modifyFireData(state, fd);
+    // When use UseTextUpdater
+    setTextMod.updateFiringState(state);
 
     // Then text was set
-    expect(fd.texts).toEqual(new Map([[name, textConst]]));
+    expect(state.fireData.texts).toEqual(new Map([[name, textConst]]));
   });
 });
