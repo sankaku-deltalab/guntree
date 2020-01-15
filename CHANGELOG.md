@@ -5,6 +5,10 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 
 ## [Unreleased]
 
+## [0.7.1] - 2020-01-15
+### Fixed
+- Add owner to index
+
 ## [0.7.0] - 2020-01-15
 ### Changed
 - Update ReadMe
@@ -113,7 +117,9 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 ### Added
 - Initial release
 
-[Unreleased]: https://github.com/sankaku-deltalab/guntree/compare/0.6.6...HEAD
+[Unreleased]: https://github.com/sankaku-deltalab/guntree/compare/0.7.1...HEAD
+[0.7.1]: https://github.com/sankaku-deltalab/guntree/compare/0.7.0...0.7.1
+[0.7.0]: https://github.com/sankaku-deltalab/guntree/compare/0.6.6...0.7.0
 [0.6.6]: https://github.com/sankaku-deltalab/guntree/compare/0.6.5...0.6.6
 [0.6.5]: https://github.com/sankaku-deltalab/guntree/compare/0.6.4...0.6.5
 [0.6.4]: https://github.com/sankaku-deltalab/guntree/compare/0.6.3...0.6.4
