@@ -6,4 +6,5 @@ export * from "./player";
 export * from "./transform-util";
 export * from "./bullet";
 export * from "./contents";
+export * from "./owner";
 export * from "./interface";
