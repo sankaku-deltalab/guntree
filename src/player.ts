@@ -6,6 +6,8 @@ import {
   DefaultRepeatStateManager
 } from "./firing-state";
 import { Muzzle } from "./muzzle";
+import { Owner } from "./owner";
+import { RawMuzzle } from "./raw-muzzle";
 
 /**
  * Player play guntree.
@@ -42,18 +44,20 @@ export interface Player {
 }
 
 export class DefaultPlayer implements Player {
+  private readonly owner: Owner;
   private gunTree: Gun | null;
   private firingProgress: IterableIterator<void> | null;
-  private readonly muzzle: { [key: string]: Muzzle };
+  private readonly muzzle: Map<string, Muzzle>;
   private readonly firingStateGenerator: (player: Player) => FiringState;
 
   public constructor(
-    muzzle: { [key: string]: Muzzle },
+    owner: Owner,
     firingStateGenerator: (player: Player) => FiringState
   ) {
+    this.owner = owner;
     this.gunTree = null;
     this.firingProgress = null;
-    this.muzzle = muzzle;
+    this.muzzle = new Map();
     this.firingStateGenerator = firingStateGenerator;
   }
 
@@ -62,9 +66,13 @@ export class DefaultPlayer implements Player {
   }
 
   public getMuzzle(muzzleName: string): Muzzle {
-    if (!(muzzleName in this.muzzle))
-      throw new Error(`muzzle ${muzzleName} is not set`);
-    return this.muzzle[muzzleName];
+    const mzl = this.muzzle.get(muzzleName);
+    if (!mzl) {
+      const muzzle = new RawMuzzle(this.owner, muzzleName);
+      this.muzzle.set(muzzleName, muzzle);
+      return muzzle;
+    }
+    return mzl;
   }
 
   public setGunTree(gunTree: Gun): void {
@@ -93,11 +101,9 @@ export class DefaultPlayer implements Player {
  *
  * @param muzzle Muzzles used for firing
  */
-export const createDefaultPlayer = (muzzle: {
-  [key: string]: Muzzle;
-}): Player => {
+export const createDefaultPlayer = (owner: Owner): Player => {
   return new DefaultPlayer(
-    muzzle,
+    owner,
     (player): FiringState => {
       return new DefaultFiringState(
         player,

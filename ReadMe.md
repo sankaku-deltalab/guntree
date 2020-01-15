@@ -46,11 +46,10 @@ GunTree don't create bullets with any collision and shape.
 ```typescript
 import * as gt from 'guntree';
 
-class Muzzle implements gt.Muzzle {
+class Owner implements gt.Owner {
     fire(
         data: gt.FireData,
-        bullet: gt.Bullet,
-        elapsedMS: number)
+        bullet: gt.Bullet)
     {
         const [location, angleDeg, scale] = decomposeTransform(data.transform);
         const speed = data.parameters.get('speed');
@@ -60,14 +59,14 @@ class Muzzle implements gt.Muzzle {
         // ...
     }
 
-    getMuzzleTransform() {
+    getMuzzleTransform(muzzleName: string) {
         // Return global transform of muzzle
         return gt.composeTransform(
             { x: 0.25, y: 0.0, rotationDeg: 35 }
         );
     }
 
-    getEnemyTransform() {
+    getEnemyTransform(muzzleName: string) {
         // Return global transform of enemy
         return gt.composeTransform(
             { x: -0.45, y: 0.0.25, rotationDeg: 0 }
@@ -75,7 +74,7 @@ class Muzzle implements gt.Muzzle {
     }
 };
 
-const player = gt.createDefaultPlayer({ 'centerMuzzle': muzzle });  // Create player per weapons or enemies
+const player = gt.createDefaultPlayer(new Owner());  // Create player per weapons or enemies
 const guntree = gt.concat(
     gt.useMuzzle('centerMuzzle'),
     gt.fire(bullet()),
