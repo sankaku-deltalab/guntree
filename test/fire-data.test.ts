@@ -18,6 +18,20 @@ describe("#FireData", (): void => {
     }
   );
 
+  test("can copy self with muzzleName", (): void => {
+    // Given FireData
+    const fd = new DefaultFireData();
+
+    // And muzzleName was set in FireData
+    fd.muzzleName = "a";
+
+    // When copy FireData
+    const clone = fd.copy();
+
+    // Then copy's muzzleName is equal to original
+    expect(clone.muzzleName).toEqual(fd.muzzleName);
+  });
+
   test("can copy self with transform", (): void => {
     // Given FireData
     const fd = new DefaultFireData();
