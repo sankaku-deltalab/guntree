@@ -5,6 +5,10 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 
 ## [Unreleased]
 
+## [0.8.0] - 2020-01-16
+### Changed
+- FireData contain muzzle name
+
 ## [0.7.1] - 2020-01-15
 ### Fixed
 - Add owner to index
@@ -117,7 +121,8 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 ### Added
 - Initial release
 
-[Unreleased]: https://github.com/sankaku-deltalab/guntree/compare/0.7.1...HEAD
+[Unreleased]: https://github.com/sankaku-deltalab/guntree/compare/0.8.0...HEAD
+[0.8.0]: https://github.com/sankaku-deltalab/guntree/compare/0.7.1...0.8.0
 [0.7.1]: https://github.com/sankaku-deltalab/guntree/compare/0.7.0...0.7.1
 [0.7.0]: https://github.com/sankaku-deltalab/guntree/compare/0.6.6...0.7.0
 [0.6.6]: https://github.com/sankaku-deltalab/guntree/compare/0.6.5...0.6.6

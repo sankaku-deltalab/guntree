@@ -81,6 +81,7 @@ export class UseMuzzleUpdater implements FiringStateUpdater {
   public updateFiringState(state: FiringState): void {
     const muzzleName = calcValueFromConstantOrLazy(state, this.name);
     state.muzzle = state.getMuzzleByName(muzzleName);
+    state.fireData.muzzleName = muzzleName;
   }
 }
 

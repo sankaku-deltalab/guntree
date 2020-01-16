@@ -1,6 +1,6 @@
 {
   "name": "guntree",
-  "version": "0.7.1",
+  "version": "0.8.0",
   "main": "lib/index.js",
   "types": "lib/index.d.ts",
   "license": "MIT",

@@ -61,6 +61,9 @@ export interface FireData {
   /** Parameters express string value. */
   texts: Map<string, string>;
 
+  /** Using muzzle name. */
+  muzzleName: string | null;
+
   /** Copy this data. */
   copy(): FireData;
 }
@@ -226,7 +229,7 @@ export class DefaultFireData implements FireData {
   public transform: mat.Matrix;
 
   /** Muzzle name fire bullet */
-  public muzzle: Muzzle | null;
+  public muzzleName: string | null;
 
   /** Parameters express real value. */
   public parameters: Map<string, number>;
@@ -236,7 +239,7 @@ export class DefaultFireData implements FireData {
 
   public constructor() {
     this.transform = mat.translate(0);
-    this.muzzle = null;
+    this.muzzleName = null;
     this.parameters = new Map([
       ["speed", 1],
       ["size", 1]
@@ -246,6 +249,7 @@ export class DefaultFireData implements FireData {
 
   public copy(): DefaultFireData {
     const clone = new DefaultFireData();
+    clone.muzzleName = this.muzzleName;
     clone.transform = Object.assign({}, this.transform);
     clone.parameters = copyMap(this.parameters);
     clone.texts = copyMap(this.texts);

@@ -1,4 +1,4 @@
-import { FiringState } from "guntree/firing-state";
+import { FiringState, FireData } from "guntree/firing-state";
 import { UseMuzzleUpdater } from "guntree/elements/gunSetter";
 import { Muzzle } from "guntree/muzzle";
 import { simpleMock, createLazyEvaluativeMockReturnOnce } from "../util";
@@ -7,6 +7,7 @@ const createFiringState = (muzzle: Muzzle): FiringState => {
   const state = simpleMock<FiringState>();
   state.muzzle = null;
   state.getMuzzleByName = jest.fn().mockReturnValueOnce(muzzle);
+  state.fireData = simpleMock<FireData>();
   return state;
 };
 
@@ -52,5 +53,23 @@ describe("#UseMuzzleUpdater", (): void => {
 
     // And set muzzle was gotten from state.getMuzzleByName
     expect(state.getMuzzleByName).toBeCalledWith(nameConst);
+  });
+
+  test("can set muzzle name", (): void => {
+    // Given Muzzle
+    const muzzle = simpleMock<Muzzle>();
+
+    // And firing state
+    const state = createFiringState(muzzle);
+
+    // And UseMuzzleUpdater
+    const name = "a";
+    const setMuzzle = new UseMuzzleUpdater(name);
+
+    // When use UseMuzzleUpdater
+    setMuzzle.updateFiringState(state);
+
+    // Then muzzleName was set
+    expect(state.fireData.muzzleName).toBe(name);
   });
 });
