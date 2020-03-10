@@ -22,9 +22,7 @@ export interface FiringState {
    *
    * @param modifier modifier would applied when fire bullet
    */
-  pushModifier(
-    modifier: (stateConst: FiringState, fireData: FireData) => void
-  ): void;
+  pushModifier(modifier: (fireData: FireData) => void): void;
 
   /** Calculate modified fire data. */
   calcModifiedFireData(): FireData;
@@ -117,10 +115,7 @@ export class DefaultFiringState implements FiringState {
   public muzzle: Muzzle | null;
 
   /** Function would applied to fireData when fire bullet, */
-  private readonly modifiers: ((
-    stateConst: FiringState,
-    fireData: FireData
-  ) => void)[];
+  private readonly modifiers: ((fireData: FireData) => void)[];
 
   /** Player playing with this state */
   private readonly player: Player;
@@ -153,9 +148,7 @@ export class DefaultFiringState implements FiringState {
    *
    * @param modifier Function would applied when fire bullet
    */
-  public pushModifier(
-    modifier: (stateConst: FiringState, fireData: FireData) => void
-  ): void {
+  public pushModifier(modifier: (fireData: FireData) => void): void {
     this.modifiers.push(modifier);
   }
 
@@ -167,7 +160,7 @@ export class DefaultFiringState implements FiringState {
     // Apply modifiers
     const reversedMods = [...this.modifiers].reverse();
     for (const mod of reversedMods) {
-      mod(this, fdClone);
+      mod(fdClone);
     }
 
     // Apply muzzle transform

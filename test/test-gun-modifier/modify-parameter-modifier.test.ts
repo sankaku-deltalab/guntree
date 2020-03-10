@@ -20,11 +20,13 @@ describe("#ModifyParameterModifier", (): void => {
 
     // And ModifyParameterModifier
     const value = 1;
-    const modifier = jest.fn().mockReturnValueOnce(value);
+    const modifier = jest
+      .fn()
+      .mockReturnValueOnce(jest.fn().mockReturnValueOnce(value));
     const setParameterMod = new ModifyParameterModifier(name, modifier);
 
     // When play SetParameterImmediately
-    setParameterMod.createModifier(state)(state, fd);
+    setParameterMod.createModifier(state)(fd);
 
     // Then parameter was set
     expect(fd.parameters).toEqual(new Map([[name, value]]));
@@ -46,7 +48,7 @@ describe("#ModifyParameterModifier", (): void => {
     const setParameterMod = new ModifyParameterModifier(unsetName, modifier);
 
     // When play SetParameterImmediately
-    const mod = (): void => setParameterMod.createModifier(state)(state, fd);
+    const mod = (): void => setParameterMod.createModifier(state)(fd);
 
     // Then error was thrown
     expect(mod).toThrow(Error);

@@ -63,7 +63,7 @@ describe("#FiringState", (): void => {
 
     // Then modifiers are called with fireData copy
     modifiers.map((mod): void => {
-      expect(mod).toBeCalledWith(state, fireDataClone);
+      expect(mod).toBeCalledWith(fireDataClone);
       expect(mod).toBeCalledTimes(1);
     });
 

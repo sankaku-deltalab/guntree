@@ -48,7 +48,7 @@ export const addTranslation = (translation: {
  */
 export const modifyParameter = (
   name: string,
-  modifier: (stateConst: FiringState, oldValue: number) => number
+  modifier: (stateConst: FiringState) => (oldValue: number) => number
 ): modO.ModifierGun => {
   return new modO.ModifierGun(new modO.ModifyParameterModifier(name, modifier));
 };
@@ -89,8 +89,9 @@ export const addParameter = (
   name: string,
   adding: TConstantOrLazy<number>
 ): modO.ModifierGun => {
-  return modifyParameter(name, (stateConst, oldValue): number => {
-    return oldValue + calcValueFromConstantOrLazy<number>(stateConst, adding);
+  return modifyParameter(name, state => {
+    const addingConst = calcValueFromConstantOrLazy<number>(state, adding);
+    return (oldValue): number => oldValue + addingConst;
   });
 };
 
@@ -106,14 +107,15 @@ export const addParameter = (
  * ```
  *
  * @param name Parameter name.
- * @param adding Multiplier.
+ * @param multiplier Multiplier.
  */
 export const mltParameter = (
   name: string,
-  adding: TConstantOrLazy<number>
+  multiplier: TConstantOrLazy<number>
 ): modO.ModifierGun => {
-  return modifyParameter(name, (stateConst, oldValue): number => {
-    return oldValue * calcValueFromConstantOrLazy<number>(stateConst, adding);
+  return modifyParameter(name, state => {
+    const mltConst = calcValueFromConstantOrLazy<number>(state, multiplier);
+    return (oldValue): number => oldValue * mltConst;
   });
 };
 
@@ -135,8 +137,9 @@ export const resetParameter = (
   name: string,
   newValue: TConstantOrLazy<number>
 ): modO.ModifierGun => {
-  return modifyParameter(name, (stateConst, _oldValue): number => {
-    return calcValueFromConstantOrLazy<number>(stateConst, newValue);
+  return modifyParameter(name, state => {
+    const valueConst = calcValueFromConstantOrLazy<number>(state, newValue);
+    return (): number => valueConst;
   });
 };
 

@@ -27,9 +27,7 @@ export class ModifierGun implements Gun {
 }
 
 export interface FireDataModifier {
-  createModifier(
-    state: FiringState
-  ): (stateConst: FiringState, fireData: FireData) => void;
+  createModifier(state: FiringState): (fireData: FireData) => void;
 }
 
 /**
@@ -41,12 +39,10 @@ export class TransformModifier implements FireDataModifier {
     this.trans = trans;
   }
 
-  public createModifier(
-    state: FiringState
-  ): (stateConst: FiringState, fireData: FireData) => void {
+  public createModifier(state: FiringState): (fireData: FireData) => void {
     const transConst = calcTransFormFromConstantOrLazy(state, this.trans);
 
-    return (_stateConst: FiringState, fireData: FireData): void => {
+    return (fireData: FireData): void => {
       fireData.transform = mat.transform(transConst, fireData.transform);
     };
   }
@@ -73,14 +69,12 @@ export class InvertTransformModifier implements FireDataModifier {
     this.option = option;
   }
 
-  public createModifier(
-    _state: FiringState
-  ): (stateConst: FiringState, fireData: FireData) => void {
+  public createModifier(_state: FiringState): (fireData: FireData) => void {
     const xRate = this.option.translationX ? -1 : 1;
     const yRate = this.option.translationY ? -1 : 1;
     const angleRate = this.option.angle ? -1 : 1;
 
-    return (_stateConst: FiringState, fireData: FireData): void => {
+    return (fireData: FireData): void => {
       const [t, angleDeg, scale] = decomposeTransform(fireData.transform);
       const translateNew = { x: t.x * xRate, y: t.y * yRate };
       const angleDegNew = angleDeg * angleRate;
@@ -99,26 +93,24 @@ export class InvertTransformModifier implements FireDataModifier {
 export class ModifyParameterModifier implements FireDataModifier {
   private readonly name: string;
   private readonly modifier: (
-    stateConst: FiringState,
-    oldValue: number
-  ) => number;
+    stateConst: FiringState
+  ) => (oldValue: number) => number;
 
   public constructor(
     name: string,
-    modifier: (stateConst: FiringState, oldValue: number) => number
+    modifier: (stateConst: FiringState) => (oldValue: number) => number
   ) {
     this.name = name;
     this.modifier = modifier;
   }
 
-  public createModifier(
-    _state: FiringState
-  ): (stateConst: FiringState, fireData: FireData) => void {
-    return (stateConst: FiringState, fireData: FireData): void => {
+  public createModifier(state: FiringState): (fireData: FireData) => void {
+    const mod = this.modifier(state);
+    return (fireData: FireData): void => {
       const oldValue = fireData.parameters.get(this.name);
       if (oldValue === undefined)
         throw new Error(`parameter <${this.name}> was not set`);
-      fireData.parameters.set(this.name, this.modifier(stateConst, oldValue));
+      fireData.parameters.set(this.name, mod(oldValue));
     };
   }
 }

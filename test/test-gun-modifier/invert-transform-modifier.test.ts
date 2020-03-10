@@ -25,7 +25,7 @@ describe("#InvertTransformModifier", (): void => {
     const invertMod = new InvertTransformModifier({ angle: true });
 
     // When modify InvertTransformModifier
-    invertMod.createModifier(state)(state, fd);
+    invertMod.createModifier(state)(fd);
 
     // Then modified transform was inverted angle
     const [_, modifiedAngle, __] = decomposeTransform(fd.transform);
@@ -46,7 +46,7 @@ describe("#InvertTransformModifier", (): void => {
     const invertMod = new InvertTransformModifier({ translationX: true });
 
     // When modify InvertTransformModifier
-    invertMod.createModifier(state)(state, fd);
+    invertMod.createModifier(state)(fd);
 
     // Then modified transform was inverted angle
     expect(fd.transform).not.toBe(oldTrans);
@@ -68,7 +68,7 @@ describe("#InvertTransformModifier", (): void => {
     const invertMod = new InvertTransformModifier({ translationY: true });
 
     // When modify InvertTransformModifier
-    invertMod.createModifier(state)(state, fd);
+    invertMod.createModifier(state)(fd);
 
     // Then modified transform was inverted angle
     expect(fd.transform).not.toBe(oldTrans);

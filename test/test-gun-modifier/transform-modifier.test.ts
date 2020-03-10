@@ -24,7 +24,7 @@ describe("#TransformModifier", (): void => {
     const transformMod = new TransformModifier(trans);
 
     // When modify FireData
-    transformMod.createModifier(state)(state, fd);
+    transformMod.createModifier(state)(fd);
 
     // Then transform in fireData was transformed
     const expectedTrans = mat.transform(initialTrans, trans);
@@ -45,7 +45,7 @@ describe("#TransformModifier", (): void => {
     const transformMod = new TransformModifier(transLe);
 
     // When modify FireData
-    transformMod.createModifier(state)(state, fd);
+    transformMod.createModifier(state)(fd);
 
     // Then transform in fireData was transformed
     const expectedTrans = mat.transform(initialTrans, transConst);
