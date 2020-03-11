@@ -1,39 +1,29 @@
 import * as mat from "transformation-matrix";
 
+import { FiringState } from "guntree/firing-state";
 import {
-  DefaultFiringState,
-  DefaultRepeatStateManager,
-  DefaultFireData,
-  FireData
-} from "guntree/firing-state";
-import { simpleMock } from "../util";
-import {
-  fire,
-  bullet,
   repeat,
   addParameter,
   useParameter,
   centerizedLinear
 } from "guntree/contents";
 import { Muzzle } from "guntree/muzzle";
-import { decomposeTransform } from "guntree/transform-util";
-import { Player } from "guntree/player";
+import { FireData } from "guntree/fire-data";
+import { simpleMock, createGunMockWithCallback } from "../util";
 
 describe.only("#repeat", (): void => {
   test("can add parameter twice", (): void => {
     // Given firing state
     const muzzle = simpleMock<Muzzle>();
     muzzle.getMuzzleTransform = jest.fn().mockReturnValue(mat.rotateDEG(0));
-    const rsm = new DefaultRepeatStateManager();
-    const fd = new DefaultFireData();
-    const player = simpleMock<Player>();
-    player.getMuzzle = jest.fn().mockReturnValue(muzzle);
-    const fs = new DefaultFiringState(player, fd, rsm);
-    fs.muzzle = muzzle;
+    const fs = new FiringState();
+    fs.setMuzzle(muzzle);
 
     const params: number[] = [];
-    muzzle.fire = jest.fn().mockImplementation((data: FireData) => {
-      const p = data.parameters.get("param");
+    const fire = createGunMockWithCallback((_owner, state) => {
+      const fd = new FireData();
+      state.modifyFireData(fd);
+      const p = fd.parameters.get("param");
       if (p === undefined) throw new Error();
       params.push(p);
     });
@@ -46,10 +36,10 @@ describe.only("#repeat", (): void => {
       repeat(
         { times: 2, interval: 0 },
         addParameter("param", centerizedLinear(4)),
-        fire(bullet())
+        fire
       )
     );
-    const progress = gun.play(fs);
+    const progress = gun.play(simpleMock(), fs);
     while (true) {
       const r = progress.next();
       if (r.done) break;

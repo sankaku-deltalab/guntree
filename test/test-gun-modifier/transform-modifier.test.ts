@@ -1,6 +1,7 @@
 import * as mat from "transformation-matrix";
 
-import { FiringState, FireData } from "guntree/firing-state";
+import { FiringState } from "guntree/firing-state";
+import { FireData } from "guntree/fire-data";
 import { TransformModifier } from "guntree/elements/gunModifier";
 import { simpleMock, createLazyEvaluativeMockReturnOnce } from "../util";
 

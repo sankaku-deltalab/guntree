@@ -3,8 +3,6 @@ import * as mat from "transformation-matrix";
 import { FixedAimMuzzle } from "guntree/elements/virtual-muzzle";
 import { Muzzle } from "guntree/muzzle";
 import { decomposeTransform } from "guntree/transform-util";
-import { FireData } from "guntree/firing-state";
-import { Bullet } from "guntree/bullet";
 import { simpleMock } from "../util";
 
 describe("#fixedAimMuzzle", (): void => {
@@ -31,30 +29,6 @@ describe("#fixedAimMuzzle", (): void => {
     // Then calculated transform aimed enemy at used
     const [_, rotDeg, __] = decomposeTransform(aimedTrans);
     expect(rotDeg).toBeCloseTo(30);
-  });
-
-  test("call based muzzle fire when self fire was called", (): void => {
-    // Given base muzzle
-    const baseMuzzle = simpleMock<Muzzle>();
-    baseMuzzle.fire = jest.fn();
-    baseMuzzle.getMuzzleTransform = jest.fn().mockReturnValue(mat.translate(0));
-    baseMuzzle.getEnemyTransform = jest.fn().mockReturnValue(mat.translate(0));
-
-    // And fixedAim based on base muzzle
-    const fixedAim = new FixedAimMuzzle().generate();
-    fixedAim.basedOn(baseMuzzle);
-
-    // And FireData
-    const fireData = simpleMock<FireData>();
-
-    // And Bullet
-    const bullet = simpleMock<Bullet>();
-
-    // When call fire of fixedAim muzzle
-    fixedAim.fire(fireData, bullet);
-
-    // Then base muzzle fire was called
-    expect(baseMuzzle.fire).toBeCalledWith(fireData, bullet);
   });
 
   test("use based muzzle enemy transform", (): void => {

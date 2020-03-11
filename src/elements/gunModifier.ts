@@ -1,15 +1,22 @@
 import * as mat from "transformation-matrix";
 
 import { Gun } from "../gun";
-import { FiringState, FireData } from "../firing-state";
+import { FiringState } from "../firing-state";
 import {
   TConstantOrLazy,
   calcTransFormFromConstantOrLazy
 } from "../lazyEvaluative";
 import { decomposeTransform } from "../transform-util";
+import { FireData } from "guntree/fire-data";
+import { Owner } from "guntree/owner";
+
+export interface FireDataModifier {
+  createModifier(state: FiringState): (fireData: FireData) => void;
+}
 
 /**
  * ModifierGun update FireData when fired.
+ * Played before fire, and modify when fired.
  */
 export class ModifierGun implements Gun {
   private readonly modifier: FireDataModifier;
@@ -21,13 +28,9 @@ export class ModifierGun implements Gun {
     this.modifier = modifier;
   }
 
-  public *play(state: FiringState): IterableIterator<void> {
+  public *play(_owner: Owner, state: FiringState): IterableIterator<void> {
     state.pushModifier(this.modifier.createModifier(state));
   }
-}
-
-export interface FireDataModifier {
-  createModifier(state: FiringState): (fireData: FireData) => void;
 }
 
 /**
@@ -93,12 +96,12 @@ export class InvertTransformModifier implements FireDataModifier {
 export class ModifyParameterModifier implements FireDataModifier {
   private readonly name: string;
   private readonly modifier: (
-    stateConst: FiringState
+    state: FiringState
   ) => (oldValue: number) => number;
 
   public constructor(
     name: string,
-    modifier: (stateConst: FiringState) => (oldValue: number) => number
+    modifier: (state: FiringState) => (oldValue: number) => number
   ) {
     this.name = name;
     this.modifier = modifier;

@@ -6,7 +6,7 @@ import {
 } from "../lazyEvaluative";
 import * as modO from "../elements/gunModifier";
 import * as le from "../contents/lazyEvaluative";
-import { FiringState } from "../firing-state";
+import { FiringState } from "guntree/firing-state";
 
 /**
  * Transform firing transformation matrix.
@@ -48,7 +48,7 @@ export const addTranslation = (translation: {
  */
 export const modifyParameter = (
   name: string,
-  modifier: (stateConst: FiringState) => (oldValue: number) => number
+  modifier: (state: FiringState) => (oldValue: number) => number
 ): modO.ModifierGun => {
   return new modO.ModifierGun(new modO.ModifyParameterModifier(name, modifier));
 };

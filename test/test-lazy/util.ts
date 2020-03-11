@@ -1,16 +1,17 @@
 import { simpleMock } from "../util";
-import { RepeatStateManager, FiringState } from "guntree/firing-state";
+import { FiringState } from "guntree/firing-state";
+import { RepeatingManager } from "guntree/repeating-manager";
 
 export const createRepeatStateManagerWithGet = (
   getFunc: jest.Mock
-): RepeatStateManager => {
-  const rsm = simpleMock<RepeatStateManager>();
+): RepeatingManager => {
+  const rsm = simpleMock<RepeatingManager>();
   rsm.get = getFunc;
   return rsm;
 };
 
 export const createFiringStateWithRSM = (
-  rsm: RepeatStateManager
+  rsm: RepeatingManager
 ): FiringState => {
   const state = simpleMock<FiringState>();
   state.repeatStates = rsm;

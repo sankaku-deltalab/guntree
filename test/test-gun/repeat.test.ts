@@ -1,12 +1,15 @@
 import { range } from "lodash";
 
-import { FiringState, RepeatStateManager } from "guntree/firing-state";
+import { FiringState } from "guntree/firing-state";
+import { RepeatingManager } from "guntree/repeating-manager";
+import { Owner } from "guntree/owner";
 import { Repeat } from "guntree/elements/gun";
 import {
   createLazyEvaluativeMockReturnOnce,
   createGunMockConsumeFrames,
   createFiringStateMock,
-  createRepeatStateManagerMock
+  createRepeatStateManagerMock,
+  simpleMock
 } from "../util";
 
 const createFiringStateWithRSM = (
@@ -22,7 +25,7 @@ const createFiringStateWithRSM = (
   );
   const state = createFiringStateMock(...stateClones);
   state.repeatStates = createRepeatStateManagerMock(
-    ...stateClones.map((s): RepeatStateManager => s.repeatStates)
+    ...stateClones.map((s): RepeatingManager => s.repeatStates)
   );
   return [state, stateClones];
 };
@@ -48,7 +51,7 @@ describe("#Repeat", (): void => {
         { times, interval },
         createGunMockConsumeFrames(0)
       );
-      const progress = repeat.play(state);
+      const progress = repeat.play(simpleMock(), state);
       let consumedFrames = 0;
       while (true) {
         const r = progress.next();
@@ -85,7 +88,7 @@ describe("#Repeat", (): void => {
 
       // When play Repeat
       const repeat = new Repeat({ times, interval }, gun);
-      const progress = repeat.play(state);
+      const progress = repeat.play(simpleMock(), state);
       let consumedFrames = 0;
       while (true) {
         const r = progress.next();
@@ -112,7 +115,7 @@ describe("#Repeat", (): void => {
       { interval, times: le },
       createGunMockConsumeFrames(0)
     );
-    const progress = repeat.play(state);
+    const progress = repeat.play(simpleMock(), state);
     let consumedFrames = 0;
     while (true) {
       const r = progress.next();
@@ -149,7 +152,8 @@ describe("#Repeat", (): void => {
       { times, interval: le },
       createGunMockConsumeFrames(0)
     );
-    const progress = repeat.play(state);
+    const owner = simpleMock<Owner>();
+    const progress = repeat.play(owner, state);
     while (true) {
       const r = progress.next();
       if (r.done) break;
@@ -174,7 +178,8 @@ describe("#Repeat", (): void => {
     // When play Repeat
     const interval = 6;
     const repeat = new Repeat({ times, interval }, childGun);
-    const progress = repeat.play(state);
+    const owner = simpleMock<Owner>();
+    const progress = repeat.play(owner, state);
 
     const callFrames = range(times).map(
       (i): number => i * (interval + childFrames)
@@ -186,7 +191,7 @@ describe("#Repeat", (): void => {
 
       // Then play guns at expected frames
       if (callFrames[firedCount] === consumedFrames) {
-        expect(childGun.play).toBeCalledWith(stateClones[firedCount]);
+        expect(childGun.play).toBeCalledWith(owner, stateClones[firedCount]);
         firedCount += 1;
       }
 

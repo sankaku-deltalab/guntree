@@ -1,8 +1,6 @@
 import * as mat from "transformation-matrix";
 
 import { decomposeTransform } from "../transform-util";
-import { FireData } from "../firing-state";
-import { Bullet } from "../bullet";
 import { Muzzle, VirtualMuzzle, VirtualMuzzleGenerator } from "../muzzle";
 
 /**
@@ -15,16 +13,6 @@ class MuzzleTransformOverrideMuzzle implements VirtualMuzzle {
   public constructor(override: MuzzleTransOverrider) {
     this.override = override;
     this.basedMuzzle = null;
-  }
-
-  /**
-   * Fire bullet.
-   *
-   * @param data FireData when fired.
-   * @param bullet Firing bullet.
-   */
-  public fire(data: FireData, bullet: Bullet): void {
-    this.getBasedMuzzle().fire(data, bullet);
   }
 
   /**

@@ -1,30 +1,22 @@
 import * as mat from "transformation-matrix";
 
-import { FiringState, FireData } from "guntree/firing-state";
+import { FiringState } from "guntree/firing-state";
+import { FireData } from "guntree/fire-data";
 import { InvertTransformModifier } from "guntree/elements/gunModifier";
-import { simpleMock } from "../util";
 import { decomposeTransform } from "guntree/transform-util";
-
-const createFireData = (trans: mat.Matrix): FireData => {
-  const fd = simpleMock<FireData>();
-  fd.transform = trans;
-  return fd;
-};
 
 describe("#InvertTransformModifier", (): void => {
   test("can invert angle", (): void => {
     // Given FiringState
-    const state = simpleMock<FiringState>();
-
-    // And FireData with transform
-    const initialAngle = 13;
-    const fd = createFireData(mat.rotateDEG(initialAngle));
-    state.fireData = fd;
+    const state = new FiringState();
 
     // And InvertTransformModifier with angle inverting option
+    const initialAngle = 13;
     const invertMod = new InvertTransformModifier({ angle: true });
 
     // When modify InvertTransformModifier
+    const fd = new FireData();
+    fd.transform = mat.rotateDEG(initialAngle);
     invertMod.createModifier(state)(fd);
 
     // Then modified transform was inverted angle
@@ -32,46 +24,20 @@ describe("#InvertTransformModifier", (): void => {
     expect(modifiedAngle).toBeCloseTo(-initialAngle);
   });
 
-  test("can invert translation x", (): void => {
-    // Given FiringState
-    const state = simpleMock<FiringState>();
-
-    // And FireData with transform
-    const initialTransX = 13;
-    const fd = createFireData(mat.translate(initialTransX, 0));
-    const oldTrans = fd.transform;
-    state.fireData = fd;
-
-    // And InvertTransformModifier with translation x inverting option
-    const invertMod = new InvertTransformModifier({ translationX: true });
-
-    // When modify InvertTransformModifier
-    invertMod.createModifier(state)(fd);
-
-    // Then modified transform was inverted angle
-    expect(fd.transform).not.toBe(oldTrans);
-    const [modifiedTrans, _, __] = decomposeTransform(fd.transform);
-    expect(modifiedTrans.x).toBeCloseTo(-initialTransX);
-  });
-
   test("can invert translation y", (): void => {
     // Given FiringState
-    const state = simpleMock<FiringState>();
-
-    // And FireData with transform
-    const initialTransY = 13;
-    const fd = createFireData(mat.translate(0, initialTransY));
-    const oldTrans = fd.transform;
-    state.fireData = fd;
+    const state = new FiringState();
 
     // And InvertTransformModifier with translation y inverting option
+    const initialTransY = 13;
     const invertMod = new InvertTransformModifier({ translationY: true });
 
     // When modify InvertTransformModifier
+    const fd = new FireData();
+    fd.transform = mat.translate(0, initialTransY);
     invertMod.createModifier(state)(fd);
 
-    // Then modified transform was inverted angle
-    expect(fd.transform).not.toBe(oldTrans);
+    // Then modified transform was inverted translation Y
     const [modifiedTrans, _, __] = decomposeTransform(fd.transform);
     expect(modifiedTrans.y).toBeCloseTo(-initialTransY);
   });

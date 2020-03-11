@@ -1,5 +1,6 @@
 import { FiringState } from "./firing-state";
+import { Owner } from "./owner";
 
 export interface Gun {
-  play(state: FiringState): IterableIterator<void>;
+  play(owner: Owner, state: FiringState): IterableIterator<void>;
 }

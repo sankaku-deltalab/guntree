@@ -1,5 +1,5 @@
 import * as mat from "transformation-matrix";
-import { FireData } from "./firing-state";
+import { FireData } from "./fire-data";
 import { Bullet } from "./bullet";
 
 export interface Owner {

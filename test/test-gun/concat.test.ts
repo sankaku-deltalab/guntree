@@ -4,6 +4,7 @@ import { Gun } from "guntree/gun";
 import { FiringState } from "guntree/firing-state";
 import { Concat } from "guntree/elements/gun";
 import { simpleMock, createGunMockConsumeFrames } from "../util";
+import { Owner } from "guntree/owner";
 
 describe("#Concat", (): void => {
   test("play multiple guns as sequentially with state without copy", (): void => {
@@ -22,7 +23,8 @@ describe("#Concat", (): void => {
     const concat = new Concat(...guns);
 
     // When play Concat
-    const progress = concat.play(state);
+    const owner = simpleMock<Owner>();
+    const progress = concat.play(owner, state);
     let consumedFrames = 0;
     while (true) {
       const r = progress.next();
@@ -31,7 +33,7 @@ describe("#Concat", (): void => {
       // Then play child guns as sequentially with state without copy
       const idx = Math.floor(consumedFrames / childFrames);
       expect(guns[idx].play).toBeCalledTimes(1);
-      expect(guns[idx].play).toBeCalledWith(state);
+      expect(guns[idx].play).toBeCalledWith(owner, state);
 
       for (const gun of guns.slice(idx + 1)) {
         expect(gun.play).toBeCalledTimes(0);

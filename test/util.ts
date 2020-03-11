@@ -2,12 +2,9 @@ import { range } from "lodash";
 
 import { Gun } from "guntree/gun";
 import { LazyEvaluative } from "guntree/lazyEvaluative";
-import {
-  FiringState,
-  RepeatStateManager,
-  RepeatState,
-  DefaultFireData
-} from "guntree/firing-state";
+import { FiringState } from "guntree/firing-state";
+import { RepeatingManager, RepeatState } from "guntree/repeating-manager";
+import { Owner } from "guntree/owner";
 
 export const simpleMock = <T>(): T => {
   const cls = jest.fn<T, []>();
@@ -35,6 +32,21 @@ export const createGunMockConsumeFrames = (frames: number): Gun => {
   return gun;
 };
 
+export const createGunMockWithCallback = (
+  callback: (owner: Owner, state: FiringState) => void
+): Gun => {
+  const gun = simpleMock<Gun>();
+  gun.play = jest.fn().mockImplementation(
+    (owner: Owner, state: FiringState): IterableIterator<void> => {
+      function* playing(): IterableIterator<void> {
+        callback(owner, state);
+      }
+      return playing();
+    }
+  );
+  return gun;
+};
+
 export const createFiringStateMock = (
   ...clones: FiringState[]
 ): FiringState => {
@@ -45,19 +57,13 @@ export const createFiringStateMock = (
   });
   state.copy = copyFunction;
   state.pushModifier = jest.fn();
-  state.fireData = new DefaultFireData();
-  state.fire = jest.fn().mockImplementation(() => {
-    const muzzle = state.muzzle;
-    if (muzzle === null) return;
-    muzzle.fire(state.fireData, simpleMock());
-  });
   return state;
 };
 
 export const createRepeatStateManagerMock = (
-  ...clones: RepeatStateManager[]
-): RepeatStateManager => {
-  const rsm = simpleMock<RepeatStateManager>();
+  ...clones: RepeatingManager[]
+): RepeatingManager => {
+  const rsm = simpleMock<RepeatingManager>();
   let copyFunction = jest.fn();
   clones.map((clone): void => {
     copyFunction = copyFunction.mockReturnValueOnce(clone);

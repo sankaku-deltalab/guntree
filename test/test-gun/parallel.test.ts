@@ -3,7 +3,12 @@ import { range } from "lodash";
 import { Gun } from "guntree/gun";
 import { FiringState } from "guntree/firing-state";
 import { Parallel } from "guntree/elements/gun";
-import { createGunMockConsumeFrames, createFiringStateMock } from "../util";
+import { Owner } from "guntree/owner";
+import {
+  createGunMockConsumeFrames,
+  createFiringStateMock,
+  simpleMock
+} from "../util";
 
 describe("#Parallel", (): void => {
   test("play multiple guns as parallel and each guns are played with cloned state", (): void => {
@@ -24,7 +29,8 @@ describe("#Parallel", (): void => {
     const sec = new Parallel(...guns);
 
     // When play Concat
-    const progress = sec.play(state);
+    const owner = simpleMock<Owner>();
+    const progress = sec.play(owner, state);
     let consumedFrames = 0;
     while (true) {
       const r = progress.next();
@@ -33,7 +39,7 @@ describe("#Parallel", (): void => {
       // Then play child guns as parallel with state without copy
       for (const idx of range(gunNum)) {
         expect(guns[idx].play).toBeCalledTimes(1);
-        expect(guns[idx].play).toBeCalledWith(clones[idx]);
+        expect(guns[idx].play).toBeCalledWith(owner, clones[idx]);
       }
 
       consumedFrames += 1;

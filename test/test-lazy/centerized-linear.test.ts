@@ -1,4 +1,4 @@
-import { RepeatState } from "guntree/firing-state";
+import { RepeatState } from "guntree/repeating-manager";
 import { CenterizedLinear } from "guntree/elements/lazyEvaluative";
 import { createLazyEvaluativeMockReturnOnce } from "../util";
 import {

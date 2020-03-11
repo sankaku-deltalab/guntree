@@ -5,13 +5,16 @@ import {
   calcValueFromConstantOrLazy
 } from "../lazyEvaluative";
 import { VirtualMuzzleGenerator } from "../muzzle";
+import { RawMuzzle } from "guntree/raw-muzzle";
+import { Owner } from "guntree/owner";
 
 export interface FiringStateUpdater {
-  updateFiringState(state: FiringState): void;
+  updateFiringState(owner: Owner, state: FiringState): void;
 }
 
 /**
  * SetterGun update FiringState when played.
+ * Played and effects before fired.
  */
 export class SetterGun implements Gun {
   private readonly updater: FiringStateUpdater;
@@ -23,8 +26,8 @@ export class SetterGun implements Gun {
     this.updater = updater;
   }
 
-  public *play(state: FiringState): IterableIterator<void> {
-    this.updater.updateFiringState(state);
+  public *play(owner: Owner, state: FiringState): IterableIterator<void> {
+    this.updater.updateFiringState(owner, state);
   }
 }
 
@@ -40,8 +43,8 @@ export class UseParameterUpdater implements FiringStateUpdater {
     this.value = value;
   }
 
-  public updateFiringState(state: FiringState): void {
-    state.fireData.parameters.set(
+  public updateFiringState(_owner: Owner, state: FiringState): void {
+    state.parameters.set(
       this.name,
       calcValueFromConstantOrLazy(state, this.value)
     );
@@ -60,11 +63,8 @@ export class UseTextUpdater implements FiringStateUpdater {
     this.text = text;
   }
 
-  public updateFiringState(state: FiringState): void {
-    state.fireData.texts.set(
-      this.name,
-      calcValueFromConstantOrLazy(state, this.text)
-    );
+  public updateFiringState(_owner: Owner, state: FiringState): void {
+    state.texts.set(this.name, calcValueFromConstantOrLazy(state, this.text));
   }
 }
 
@@ -78,10 +78,9 @@ export class UseMuzzleUpdater implements FiringStateUpdater {
     this.name = name;
   }
 
-  public updateFiringState(state: FiringState): void {
+  public updateFiringState(owner: Owner, state: FiringState): void {
     const muzzleName = calcValueFromConstantOrLazy(state, this.name);
-    state.muzzle = state.getMuzzleByName(muzzleName);
-    state.fireData.muzzleName = muzzleName;
+    state.setMuzzle(new RawMuzzle(owner, muzzleName));
   }
 }
 
@@ -95,11 +94,9 @@ export class AttachVirtualMuzzleUpdater implements FiringStateUpdater {
     this.virtualMuzzleGenerator = virtualMuzzleGenerator;
   }
 
-  public updateFiringState(state: FiringState): void {
-    if (state.muzzle === null)
-      throw new Error("Muzzle was not set at FiringState");
+  public updateFiringState(owner: Owner, state: FiringState): void {
     const muzzle = this.virtualMuzzleGenerator.generate();
-    muzzle.basedOn(state.muzzle);
-    state.muzzle = muzzle;
+    muzzle.basedOn(state.getMuzzle());
+    state.setMuzzle(muzzle);
   }
 }

@@ -1,4 +1,5 @@
-import { FiringState, FireData } from "guntree/firing-state";
+import { FiringState } from "guntree/firing-state";
+import { FireData } from "guntree/fire-data";
 import { ModifyParameterModifier } from "guntree/elements/gunModifier";
 import { simpleMock } from "../util";
 

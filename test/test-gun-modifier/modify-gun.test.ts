@@ -15,7 +15,7 @@ describe("#ModifyGun", (): void => {
     // When play ModifierGun
     const firingState = simpleMock<FiringState>();
     firingState.pushModifier = jest.fn();
-    modGun.play(firingState).next();
+    modGun.play(simpleMock(), firingState).next();
 
     // Then modifier was pushed
     expect(firingState.pushModifier).toBeCalledWith(mod);

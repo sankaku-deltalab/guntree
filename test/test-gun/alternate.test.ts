@@ -1,19 +1,15 @@
 import * as mat from "transformation-matrix";
 
-import {
-  FiringState,
-  FireData,
-  DefaultFiringState,
-  DefaultFireData,
-  DefaultRepeatStateManager
-} from "guntree/firing-state";
-import { Alternate, Fire } from "guntree/elements/gun";
-import { Muzzle } from "guntree/muzzle";
+import { FiringState } from "guntree/firing-state";
+import { Alternate } from "guntree/elements/gun";
 import { decomposeTransform } from "guntree/transform-util";
+import { FireData } from "guntree/fire-data";
+import { Owner } from "guntree/owner";
 import {
   simpleMock,
   createGunMockConsumeFrames,
-  createFiringStateMock
+  createFiringStateMock,
+  createGunMockWithCallback
 } from "../util";
 
 const createFiringState = (...clones: FiringState[]): FiringState => {
@@ -23,7 +19,7 @@ const createFiringState = (...clones: FiringState[]): FiringState => {
 };
 
 describe("#Alternate", (): void => {
-  test("play child gun and inverted child gun as sequential", (): void => {
+  test("play child gun and inverted child gun as parallel", (): void => {
     // Given FiringState
     const stateClone1 = createFiringState();
     const stateClone2 = createFiringState();
@@ -34,82 +30,69 @@ describe("#Alternate", (): void => {
     const alternate = new Alternate({}, childGun);
 
     // When play Alternate
-    const progress = alternate.play(state);
+    const owner = simpleMock<Owner>();
+    const progress = alternate.play(owner, state);
     while (true) {
       const r = progress.next();
       if (r.done) break;
     }
 
     // Then child gun played twice
-    expect(childGun.play).toBeCalledWith(stateClone1);
-    expect(childGun.play).toBeCalledWith(stateClone2);
+    expect(childGun.play).toBeCalledWith(owner, stateClone1);
+    expect(childGun.play).toBeCalledWith(owner, stateClone2);
   });
 
   test("invert angle in second firing", (): void => {
     // Given FiringState
-    const defaultAngle = 30;
-    const state = new DefaultFiringState(
-      simpleMock(),
-      new DefaultFireData(),
-      new DefaultRepeatStateManager()
-    );
-    state.fireData.transform = mat.rotateDEG(defaultAngle);
-    const muzzle = simpleMock<Muzzle>();
-    muzzle.getMuzzleTransform = jest.fn().mockReturnValue(mat.translate(0));
-    muzzle.fire = jest.fn();
-    state.muzzle = muzzle;
+    const originalAngle = 30;
+    const state = new FiringState();
 
     // And Alternate with fire gun
-    const mirror = new Alternate({}, new Fire(simpleMock()));
+    const angles: number[] = [];
+    const fire = createGunMockWithCallback((_owner, state) => {
+      const fd = new FireData();
+      fd.transform = mat.rotateDEG(originalAngle);
+      state.modifyFireData(fd);
+      const [_pos, rot, _scale] = decomposeTransform(fd.transform);
+      angles.push(rot);
+    });
+    const alternate = new Alternate({}, fire);
 
     // When play Alternate
-    mirror.play(state).next();
+    alternate.play(simpleMock(), state).next();
 
     // Then seconds firing angle was inverted
-    const muzzleFire = muzzle.fire as jest.Mock;
-    const actualFireData1 = muzzleFire.mock.calls[0][0] as FireData;
-    const [_, actualAngle1, __] = decomposeTransform(actualFireData1.transform);
-    const actualFireData2 = muzzleFire.mock.calls[1][0] as FireData;
-    const [___, actualAngle2, ____] = decomposeTransform(
-      actualFireData2.transform
-    );
-    expect(actualAngle1).toBeCloseTo(defaultAngle);
-    expect(actualAngle2).toBeCloseTo(-defaultAngle);
+    expect(angles[0]).toBeCloseTo(originalAngle);
+    expect(angles[1]).toBeCloseTo(-originalAngle);
   });
 
   test("can specify another muzzle for inverted firing", (): void => {
-    // Given FiringState
-    const muzzle = simpleMock<Muzzle>();
-    const stateClone1 = createFiringState();
-    const stateClone2 = createFiringState();
-    const state = createFiringState(stateClone1, stateClone2);
-    const getMuzzleByName = jest.fn().mockReturnValueOnce(muzzle);
-    state.getMuzzleByName = getMuzzleByName;
-    stateClone1.getMuzzleByName = getMuzzleByName;
-    stateClone2.getMuzzleByName = getMuzzleByName;
+    // Given owner
+    const muzzle2 = "m2";
+    const muzzleAngle2 = 45;
+    const owner = simpleMock<Owner>();
+    owner.getMuzzleTransform = jest.fn().mockImplementation((name: string) => {
+      if (name === muzzle2) return mat.rotateDEG(muzzleAngle2);
+      throw new Error();
+    });
 
-    // And Alternate with child gun
-    const muzzleName = "a";
-    const childGun = createGunMockConsumeFrames(0);
-    const alternate = new Alternate(
-      { invertedMuzzleName: muzzleName },
-      childGun
-    );
+    // And Alternate gun
+    const angles: number[] = [];
+    const fire = createGunMockWithCallback((_owner, state) => {
+      const fd = new FireData();
+      state.modifyFireData(fd);
+      const [_pos, rot, _scale] = decomposeTransform(fd.transform);
+      angles.push(rot);
+    });
+    const alternate = new Alternate({ invertedMuzzleName: muzzle2 }, fire);
 
     // When play Alternate
-    const progress = alternate.play(state);
-    while (true) {
-      const r = progress.next();
-      if (r.done) break;
-    }
+    const state = new FiringState();
+    alternate.play(owner, state).next();
 
-    // Then child gun played twice
-    expect(childGun.play).toBeCalledWith(stateClone1);
-    expect(childGun.play).toBeCalledWith(stateClone2);
-
-    // And second playing state was set muzzle
-    expect(stateClone2.muzzle).toBe(muzzle);
-    expect(state.getMuzzleByName).toBeCalledWith(muzzleName);
+    // Then seconds firing used another muzzle
+    expect(angles[0]).toBeCloseTo(0);
+    expect(angles[1]).toBeCloseTo(muzzleAngle2);
   });
 
   test("consume frames equal to double of child frames", (): void => {
@@ -125,7 +108,7 @@ describe("#Alternate", (): void => {
 
     // When play Alternate
     let consumedFrames = 0;
-    const progress = alternate.play(state);
+    const progress = alternate.play(simpleMock(), state);
     while (true) {
       const r = progress.next();
       if (r.done) break;
@@ -136,73 +119,27 @@ describe("#Alternate", (): void => {
     expect(consumedFrames).toBe(childFrames * 2);
   });
 
-  test("can invert translation x", (): void => {
-    // Given FiringState
-    const defaultTransX = 0.25;
-    const state = new DefaultFiringState(
-      simpleMock(),
-      new DefaultFireData(),
-      new DefaultRepeatStateManager()
-    );
-    state.fireData.transform = mat.translate(defaultTransX, 0);
-    const muzzle = simpleMock<Muzzle>();
-    muzzle.getMuzzleTransform = jest.fn().mockReturnValue(mat.translate(0));
-    muzzle.fire = jest.fn();
-    state.muzzle = muzzle;
-
-    // And Alternate with fire gun
-    const mirror = new Alternate(
-      { mirrorTranslationX: true },
-      new Fire(simpleMock())
-    );
-
-    // When play Alternate
-    mirror.play(state).next();
-
-    // Then seconds firing translation x was inverted
-    const muzzleFire = muzzle.fire as jest.Mock;
-    const actualFireData1 = muzzleFire.mock.calls[0][0] as FireData;
-    const [actualTrans1, _, __] = decomposeTransform(actualFireData1.transform);
-    const actualFireData2 = muzzleFire.mock.calls[1][0] as FireData;
-    const [actualTrans2, ___, ____] = decomposeTransform(
-      actualFireData2.transform
-    );
-    expect(actualTrans1.x).toBeCloseTo(defaultTransX);
-    expect(actualTrans2.x).toBeCloseTo(-defaultTransX);
-  });
-
   test("can invert translation y", (): void => {
     // Given FiringState
-    const defaultTransY = 0.25;
-    const state = new DefaultFiringState(
-      simpleMock(),
-      new DefaultFireData(),
-      new DefaultRepeatStateManager()
-    );
-    state.fireData.transform = mat.translate(0, defaultTransY);
-    const muzzle = simpleMock<Muzzle>();
-    muzzle.getMuzzleTransform = jest.fn().mockReturnValue(mat.translate(0));
-    muzzle.fire = jest.fn();
-    state.muzzle = muzzle;
+    const originalTranslateY = 30;
+    const state = new FiringState();
 
     // And Alternate with fire gun
-    const mirror = new Alternate(
-      { mirrorTranslationY: true },
-      new Fire(simpleMock())
-    );
+    const transY: number[] = [];
+    const fire = createGunMockWithCallback((_owner, state) => {
+      const fd = new FireData();
+      fd.transform = mat.translate(0, originalTranslateY);
+      state.modifyFireData(fd);
+      const [pos, _rot, _scale] = decomposeTransform(fd.transform);
+      transY.push(pos.y);
+    });
+    const alternate = new Alternate({ mirrorTranslationY: true }, fire);
 
     // When play Alternate
-    mirror.play(state).next();
+    alternate.play(simpleMock(), state).next();
 
-    // Then seconds firing translation y was inverted
-    const muzzleFire = muzzle.fire as jest.Mock;
-    const actualFireData1 = muzzleFire.mock.calls[0][0] as FireData;
-    const [actualTrans1, _, __] = decomposeTransform(actualFireData1.transform);
-    const actualFireData2 = muzzleFire.mock.calls[1][0] as FireData;
-    const [actualTrans2, ___, ____] = decomposeTransform(
-      actualFireData2.transform
-    );
-    expect(actualTrans1.y).toBeCloseTo(defaultTransY);
-    expect(actualTrans2.y).toBeCloseTo(-defaultTransY);
+    // Then seconds firing translation Y was inverted
+    expect(transY[0]).toBeCloseTo(originalTranslateY);
+    expect(transY[1]).toBeCloseTo(-originalTranslateY);
   });
 });
