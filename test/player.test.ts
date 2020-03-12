@@ -9,7 +9,7 @@ import {
 import { Owner } from "guntree/owner";
 
 describe("#Player", (): void => {
-  test("can start gun tree", (): void => {
+  test("start gun tree", (): void => {
     // Given FiringState as master with clone
     const state = createFiringStateMock();
     const stateMaster = createFiringStateMock(state);
@@ -23,7 +23,7 @@ describe("#Player", (): void => {
     const player = new Player();
 
     // When start player
-    player.start(owner, gunTree);
+    player.start(false, owner, gunTree);
 
     // Then gun tree was played
     expect(gunTree.play).toBeCalledTimes(1);
@@ -41,7 +41,7 @@ describe("#Player", (): void => {
     // When start player
     const owner = simpleMock<Owner>();
     const gunTree = createGunMockConsumeFrames(gunTreeLength);
-    const doneAtFirst = player.start(owner, gunTree);
+    const doneAtFirst = player.start(false, owner, gunTree);
     expect(doneAtFirst).toBe(gunTreeLength === 0);
 
     // And play full tick
@@ -53,5 +53,32 @@ describe("#Player", (): void => {
 
     // Then playing was finished
     expect(player.isRunning()).toBe(false);
+  });
+
+  test.each`
+    gunTreeLength | ticks
+    ${12}         | ${30}
+  `("can continue gun tree as loop", ({ gunTreeLength, ticks }): void => {
+    // Given Player
+    const player = new Player();
+
+    // When start player
+    const owner = simpleMock<Owner>();
+    const gunTree = createGunMockConsumeFrames(gunTreeLength);
+    const doneAtFirst = player.start(true, owner, gunTree);
+    expect(doneAtFirst).toBe(false);
+
+    // And play multiple tick
+    for (const _ of range(ticks)) {
+      expect(player.isRunning()).toBe(true);
+      const done = player.tick();
+      expect(done).toBe(false);
+    }
+
+    // Then playing is not finished
+    expect(player.isRunning()).toBe(true);
+
+    // And gun was played
+    expect(gunTree.play).toBeCalledTimes(Math.ceil(ticks / gunTreeLength));
   });
 });
