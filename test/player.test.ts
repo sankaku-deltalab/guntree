@@ -34,7 +34,7 @@ describe("#Player", (): void => {
     ${0}
     ${1}
     ${12}
-  `("can continue gun tree", ({ gunTreeLength }): void => {
+  `("can continue gun tree as fixed framerate", ({ gunTreeLength }): void => {
     // Given Player
     const player = new Player();
 
@@ -81,4 +81,64 @@ describe("#Player", (): void => {
     // And gun was played
     expect(gunTree.play).toBeCalledTimes(Math.ceil(ticks / gunTreeLength));
   });
+
+  test.each`
+    gunTreeLength
+    ${0}
+    ${1}
+    ${12}
+  `("can continue gun tree as dynamic framerate", ({ gunTreeLength }): void => {
+    // Given Player
+    const player = new Player();
+
+    // When start player
+    const owner = simpleMock<Owner>();
+    const gunTree = createGunMockConsumeFrames(gunTreeLength);
+    const doneAtFirst = player.start(false, owner, gunTree);
+    expect(doneAtFirst).toBe(gunTreeLength === 0);
+
+    // And play full time
+    const updateNum = gunTreeLength * 2;
+    const deltaSec = 1 / 60 / 2;
+    for (const i of range(updateNum)) {
+      expect(player.isRunning()).toBe(true);
+      const done = player.update(deltaSec);
+      expect(done).toBe(i === updateNum - 1);
+    }
+
+    // Then playing was finished
+    expect(player.isRunning()).toBe(false);
+  });
+
+  test.each`
+    gunTreeLength | ticks
+    ${12}         | ${30}
+  `(
+    "can continue gun tree as dynamic framerate and loop",
+    ({ gunTreeLength, ticks }): void => {
+      // Given Player
+      const player = new Player();
+
+      // When start player
+      const owner = simpleMock<Owner>();
+      const gunTree = createGunMockConsumeFrames(gunTreeLength);
+      const doneAtFirst = player.start(true, owner, gunTree);
+      expect(doneAtFirst).toBe(false);
+
+      // And play multiple tick
+      const updateNum = ticks * 2;
+      const deltaSec = 1 / 60 / 2;
+      for (const _ of range(updateNum)) {
+        expect(player.isRunning()).toBe(true);
+        const done = player.update(deltaSec);
+        expect(done).toBe(false);
+      }
+
+      // Then playing is not finished
+      expect(player.isRunning()).toBe(true);
+
+      // And gun was played
+      expect(gunTree.play).toBeCalledTimes(Math.ceil(ticks / gunTreeLength));
+    }
+  );
 });
