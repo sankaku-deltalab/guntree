@@ -1,21 +1,12 @@
 import { range } from "lodash";
 
 import { Player } from "guntree/player";
-import {
-  simpleMock,
-  createGunMockConsumeFrames,
-  createFiringStateMock
-} from "./util";
+import { simpleMock, createGunMockConsumeFrames } from "./util";
 import { Owner } from "guntree/owner";
 
 describe("#Player", (): void => {
   test("start gun tree", (): void => {
-    // Given FiringState as master with clone
-    const state = createFiringStateMock();
-    const stateMaster = createFiringStateMock(state);
-    stateMaster.repeatStates = simpleMock();
-
-    // And gun tree
+    // Given gun tree
     const gunTree = createGunMockConsumeFrames(0);
 
     // And Player
@@ -27,6 +18,64 @@ describe("#Player", (): void => {
 
     // Then gun tree was played
     expect(gunTree.play).toBeCalledTimes(1);
+  });
+
+  test.each`
+    loop
+    ${true}
+    ${false}
+  `(
+    "emit event when firing cycle was finished when $loop",
+    ({ loop }): void => {
+      // Given gun tree
+      const gunFrames = 3;
+      const gunTree = createGunMockConsumeFrames(gunFrames);
+
+      // And Player
+      const finishedCallback = jest.fn();
+      const player = new Player();
+      player.events.on("finished", finishedCallback);
+
+      // When start player
+      const owner = simpleMock<Owner>();
+      player.start(loop, owner, gunTree);
+
+      // And continue
+      for (const _ of range(gunFrames)) {
+        expect(player.isRunning()).toBe(true);
+        expect(finishedCallback).not.toBeCalled();
+        player.tick();
+      }
+
+      // Then finished event was called when finished
+      expect(finishedCallback).toBeCalled();
+    }
+  );
+
+  test("can stop loop if request stop when finished with event", (): void => {
+    // Given gun tree
+    const gunFrames = 3;
+    const gunTree = createGunMockConsumeFrames(gunFrames);
+
+    // And Player with stopping callback
+    const player = new Player();
+    const finishedCallback = (): void => {
+      player.requestStop();
+    };
+    player.events.on("finished", finishedCallback);
+
+    // When start player without loop
+    const owner = simpleMock<Owner>();
+    player.start(true, owner, gunTree);
+
+    // And continue
+    for (const _ of range(gunFrames)) {
+      expect(player.isRunning()).toBe(true);
+      player.tick();
+    }
+
+    // Then player was not running
+    expect(player.isRunning()).toBe(false);
   });
 
   test.each`

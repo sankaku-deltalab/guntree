@@ -5,8 +5,10 @@ import { Owner } from "./owner";
 import { FireData } from "./fire-data";
 import { Bullet } from "./bullet";
 
+type PlayerEvent = EventEmitter<{ fired: [FireData, Bullet]; finished: [] }>;
+
 export interface PlayerLike {
-  events: EventEmitter<{ fired: [FireData, Bullet] }>;
+  events: PlayerEvent;
 
   /**
    * Start playing guntree.
@@ -58,7 +60,11 @@ export interface PlayerLike {
 }
 
 class FixedFrameratePlayer implements PlayerLike {
-  public readonly events = new EventEmitter<{ fired: [FireData, Bullet] }>();
+  public readonly events = new EventEmitter<{
+    fired: [FireData, Bullet];
+    finished: [];
+  }>();
+
   private loop = false;
   private owner?: Owner;
   private gunTree?: Gun;
@@ -106,6 +112,7 @@ class FixedFrameratePlayer implements PlayerLike {
     const r = this.firingProgress.next();
 
     if (!r.done) return false;
+    this.events.emit("finished");
     if (r.done && this.loop) {
       if (!this.owner || !this.gunTree || !this.firingState) throw new Error();
       return this.start(true, this.owner, this.gunTree, this.firingState);
@@ -127,7 +134,7 @@ export class Player implements PlayerLike {
     this.player = player;
   }
 
-  get events(): EventEmitter<{ fired: [FireData, Bullet] }> {
+  get events(): PlayerEvent {
     return this.player.events;
   }
 
