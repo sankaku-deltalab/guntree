@@ -7,7 +7,7 @@ describe("#Nop", (): void => {
     const fire = new Nop();
 
     // When play Nop with one frame
-    const progress = fire.play(simpleMock(), simpleMock());
+    const progress = fire.play(simpleMock(), simpleMock(), simpleMock());
     const result = progress.next();
 
     // Then progress was finished

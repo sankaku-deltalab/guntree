@@ -20,7 +20,7 @@ describe.only("#repeat", (): void => {
     fs.setMuzzle(muzzle);
 
     const params: number[] = [];
-    const fire = createGunMockWithCallback((_owner, state) => {
+    const fire = createGunMockWithCallback((_owner, _player, state) => {
       const fd = new FireData();
       state.modifyFireData(fd);
       const p = fd.parameters.get("param");
@@ -39,7 +39,7 @@ describe.only("#repeat", (): void => {
         fire
       )
     );
-    const progress = gun.play(simpleMock(), fs);
+    const progress = gun.play(simpleMock(), simpleMock(), fs);
     while (true) {
       const r = progress.next();
       if (r.done) break;

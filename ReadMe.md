@@ -38,24 +38,31 @@ yarn install guntree
 npm install guntree
 ```
 
-## Usage
-
-GunTree control only firing progress.
-GunTree don't create bullets with any collision and shape.
-
-[API](https://sankaku-deltalab.gitlab.io/guntree)
+## Example
 
 ```typescript
+// your-weapon.ts
 import * as gt from "guntree";
 
-class Owner implements gt.Owner {
-  fire(data: gt.FireData, bullet: gt.Bullet) {
-    const [location, angleDeg, scale] = gt.decomposeTransform(data.transform);
-    const speed = data.parameters.get("speed");
-    const size = state.parameters.get("size");
+export class YourWeapon implements gt.Owner {
+  private player = new gt.Player();
+  private gunTree = gt.concat(
+    gt.useMuzzle("centerMuzzle"),
+    gt.repeat(
+      { times: 10, interval: 30 },
+      gt.fire(gt.bullet())
+    ));
 
-    // Create bullet in your game.
-    // ...
+  constructor() {
+    this.player.events.on("fired", (data: gt.FireData, bullet: gt.Bullet) => {
+      const [location, angleDeg, scale] = gt.decomposeTransform(data.transform);
+      const elapsedSec = data.elapsedSec; // Seconds between fired and finish current frame
+      const speed = data.parameters.get("speed");
+      const size = state.parameters.get("size");
+
+      // Create bullet in your game.
+      // ...
+    });
   }
 
   getMuzzleTransform(muzzleName: string) {
@@ -67,20 +74,58 @@ class Owner implements gt.Owner {
     // Return global transform of enemy
     return gt.composeTransform({ x: -0.45, y: 0.25, rotationDeg: 0 });
   }
-}
 
-const owner = new Owner();
-const player = new gt.Player(); // Create player per weapons or enemies
-const guntree = gt.concat(
-  gt.useMuzzle("centerMuzzle"),
-  gt.fire(bullet())
-); // GunTree can be used with multiple players
+  startFiring(loop = false): boolean {
+    return player.start(loop, this, this.gunTree);
+  }
 
-player.start(owner, guntree);
-while (player.isRunning()) {
-  player.tick(); // Play 1 frame
+  isFiring(): boolean {
+    return player.isRunning();
+  }
+
+  stopFiring(): void {
+    player.requestStop();
+  }
+
+  forceStopFiring(): void {
+    player.forceStop();
+  }
+
+  fixedFramerateUpdate(): boolean {
+    return player.tick();
+  }
+
+  dynamicFramerateUpdate(deltaSeconds: number): boolean {
+    return player.update(deltaSeconds);
+  }
 }
 ```
+
+```typescript
+// your-game.ts
+import { YourWeapon } from "your-weapon";
+
+const weapon = new YourWeapon();
+weapon.start();
+
+
+let prevTimestampMS = 0;
+
+function updateGame(timestampMS: number): void {
+  const elapsedMS = timestampMS - prevTimestampMS;
+  prevTimestampMS = timestampMS;
+  weapon.dynamicFramerateUpdate(elapsedMS / 1000); // Update weapon
+  window.requestAnimationFrame(updateGame);
+}
+
+window.requestAnimationFrame(updateGame);
+```
+
+GunTree control only firing progress.
+GunTree don't create bullets with any collision and shape.
+
+[API](https://sankaku-deltalab.gitlab.io/guntree)
+
 
 ## Licence
 

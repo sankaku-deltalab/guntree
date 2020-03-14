@@ -9,6 +9,7 @@ import {
 import { decomposeTransform } from "../transform-util";
 import { FireData } from "guntree/fire-data";
 import { Owner } from "guntree/owner";
+import { PlayerLike } from "guntree/player";
 
 export interface FireDataModifier {
   createModifier(state: FiringState): (fireData: FireData) => void;
@@ -28,7 +29,11 @@ export class ModifierGun implements Gun {
     this.modifier = modifier;
   }
 
-  public *play(_owner: Owner, state: FiringState): IterableIterator<void> {
+  public *play(
+    _owner: Owner,
+    player: PlayerLike,
+    state: FiringState
+  ): IterableIterator<void> {
     state.pushModifier(this.modifier.createModifier(state));
   }
 }

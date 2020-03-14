@@ -5,10 +5,18 @@ import { LazyEvaluative } from "guntree/lazyEvaluative";
 import { FiringState } from "guntree/firing-state";
 import { RepeatingManager, RepeatState } from "guntree/repeating-manager";
 import { Owner } from "guntree/owner";
+import { PlayerLike } from "guntree/player";
 
-export const simpleMock = <T>(): T => {
-  const cls = jest.fn<T, []>();
-  return new cls();
+export const simpleMock = <T>(values?: { [key: string]: unknown }): T => {
+  const cls = jest.fn();
+  const obj = new cls();
+
+  if (values === undefined) return obj;
+
+  for (const [key, value] of Object.entries(values)) {
+    obj[key] = value;
+  }
+  return obj;
 };
 
 export const createLazyEvaluativeMockReturnOnce = <T>(
@@ -33,13 +41,17 @@ export const createGunMockConsumeFrames = (frames: number): Gun => {
 };
 
 export const createGunMockWithCallback = (
-  callback: (owner: Owner, state: FiringState) => void
+  callback: (owner: Owner, player: PlayerLike, state: FiringState) => void
 ): Gun => {
   const gun = simpleMock<Gun>();
   gun.play = jest.fn().mockImplementation(
-    (owner: Owner, state: FiringState): IterableIterator<void> => {
+    (
+      owner: Owner,
+      player: PlayerLike,
+      state: FiringState
+    ): IterableIterator<void> => {
       function* playing(): IterableIterator<void> {
-        callback(owner, state);
+        callback(owner, player, state);
       }
       return playing();
     }

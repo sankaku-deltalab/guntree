@@ -14,11 +14,15 @@ export class FireData {
   /** Parameters express string value. */
   public texts = new Map<string, string>();
 
+  /** Seconds between fired and finish current frame. */
+  public elapsedSec = 0;
+
   public copy(): FireData {
     const clone = new FireData();
     clone.transform = Object.assign({}, this.transform);
     clone.parameters = copyMap(this.parameters);
     clone.texts = copyMap(this.texts);
+    clone.elapsedSec = this.elapsedSec;
     return clone;
   }
 }

@@ -7,6 +7,7 @@ import {
 import { VirtualMuzzleGenerator } from "../muzzle";
 import { RawMuzzle } from "guntree/raw-muzzle";
 import { Owner } from "guntree/owner";
+import { PlayerLike } from "guntree/player";
 
 export interface FiringStateUpdater {
   updateFiringState(owner: Owner, state: FiringState): void;
@@ -26,7 +27,11 @@ export class SetterGun implements Gun {
     this.updater = updater;
   }
 
-  public *play(owner: Owner, state: FiringState): IterableIterator<void> {
+  public *play(
+    owner: Owner,
+    player: PlayerLike,
+    state: FiringState
+  ): IterableIterator<void> {
     this.updater.updateFiringState(owner, state);
   }
 }

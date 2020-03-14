@@ -12,7 +12,7 @@ describe("#Wait", (): void => {
     const wait = new Wait(waitFrames);
 
     // When play Concat
-    const progress = wait.play(simpleMock(), state);
+    const progress = wait.play(simpleMock(), simpleMock(), state);
     let consumedFrames = 0;
     while (true) {
       const r = progress.next();
@@ -36,7 +36,7 @@ describe("#Wait", (): void => {
     const wait = new Wait(le);
 
     // When play Concat
-    const progress = wait.play(simpleMock(), state);
+    const progress = wait.play(simpleMock(), simpleMock(), state);
     let consumedFrames = 0;
     while (true) {
       const r = progress.next();

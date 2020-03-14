@@ -9,6 +9,7 @@ import { UseMuzzleUpdater, SetterGun } from "./gunSetter";
 import { FireData } from "guntree/fire-data";
 import { RepeatState } from "guntree/repeating-manager";
 import { Owner } from "guntree/owner";
+import { PlayerLike } from "guntree/player";
 
 export function* wait(frames: number): IterableIterator<void> {
   for (const _ of range(frames)) {
@@ -40,10 +41,15 @@ export class Fire implements Gun {
     this.fireData = fireData;
   }
 
-  public *play(owner: Owner, state: FiringState): IterableIterator<void> {
+  public *play(
+    owner: Owner,
+    player: PlayerLike,
+    state: FiringState
+  ): IterableIterator<void> {
     const fd = this.fireData.copy();
+    fd.elapsedSec = player.getElapsedSeconds();
     state.modifyFireData(fd);
-    owner.fire(fd, this.bullet);
+    player.events.emit("fired", fd, this.bullet);
   }
 }
 
@@ -51,7 +57,11 @@ export class Fire implements Gun {
  * Do nothing.
  */
 export class Nop implements Gun {
-  public *play(_owner: Owner, _state: FiringState): IterableIterator<void> {
+  public *play(
+    _owner: Owner,
+    _player: PlayerLike,
+    _state: FiringState
+  ): IterableIterator<void> {
     /** Do nothing */
   }
 }
@@ -77,7 +87,11 @@ export class Repeat implements Gun {
     this.gun = gun;
   }
 
-  public *play(owner: Owner, state: FiringState): IterableIterator<void> {
+  public *play(
+    owner: Owner,
+    player: PlayerLike,
+    state: FiringState
+  ): IterableIterator<void> {
     const name = this.option.name;
     const repeatTimes = this.calcRepeatTimes(state);
     const stateClones = range(repeatTimes).map((): FiringState => state.copy());
@@ -88,7 +102,7 @@ export class Repeat implements Gun {
 
     for (const i of range(repeatTimes)) {
       const clone = stateClones[i];
-      yield* this.gun.play(owner, clone);
+      yield* this.gun.play(owner, player, clone);
       yield* wait(this.calcInterval(clone));
       clone.repeatStates.finish(repeatStates[i], name);
     }
@@ -114,7 +128,11 @@ export class ParallelRepeat implements Gun {
     this.gun = gun;
   }
 
-  public *play(owner: Owner, state: FiringState): IterableIterator<void> {
+  public *play(
+    owner: Owner,
+    player: PlayerLike,
+    state: FiringState
+  ): IterableIterator<void> {
     const repeatTimes = getNumberFromLazy(state, this.option.times);
 
     if (repeatTimes === 0) return;
@@ -145,7 +163,7 @@ export class ParallelRepeat implements Gun {
       gun: Gun
     ): IterableIterator<void> {
       yield* wait(boot);
-      yield* gun.play(owner, st);
+      yield* gun.play(owner, player, st);
       yield* wait(interval);
       st.repeatStates.finish(rs, name);
     }
@@ -186,9 +204,13 @@ export class Concat implements Gun {
     this.guns = guns;
   }
 
-  public *play(owner: Owner, state: FiringState): IterableIterator<void> {
+  public *play(
+    owner: Owner,
+    player: PlayerLike,
+    state: FiringState
+  ): IterableIterator<void> {
     for (const gun of this.guns) {
-      yield* gun.play(owner, state);
+      yield* gun.play(owner, player, state);
     }
   }
 }
@@ -204,9 +226,13 @@ export class Sequential implements Gun {
     this.guns = guns;
   }
 
-  public *play(owner: Owner, state: FiringState): IterableIterator<void> {
+  public *play(
+    owner: Owner,
+    player: PlayerLike,
+    state: FiringState
+  ): IterableIterator<void> {
     for (const gun of this.guns) {
-      yield* gun.play(owner, state.copy());
+      yield* gun.play(owner, player, state.copy());
     }
   }
 }
@@ -222,9 +248,13 @@ export class Parallel implements Gun {
     this.guns = guns;
   }
 
-  public *play(owner: Owner, state: FiringState): IterableIterator<void> {
+  public *play(
+    owner: Owner,
+    player: PlayerLike,
+    state: FiringState
+  ): IterableIterator<void> {
     const progresses = this.guns.map(
-      (g): IterableIterator<void> => g.play(owner, state.copy())
+      (g): IterableIterator<void> => g.play(owner, player, state.copy())
     );
     while (true) {
       const doneList = progresses.map((p): boolean => p.next().done !== false);
@@ -247,7 +277,11 @@ export class Wait implements Gun {
     this.frames = frames;
   }
 
-  public *play(_owner: Owner, state: FiringState): IterableIterator<void> {
+  public *play(
+    _owner: Owner,
+    player: PlayerLike,
+    state: FiringState
+  ): IterableIterator<void> {
     yield* wait(getNumberFromLazy(state, this.frames));
   }
 }
@@ -292,8 +326,12 @@ export class Mirror implements Gun {
     this.parallel = new Parallel(gun, new Concat(...mirroredChild));
   }
 
-  public *play(owner: Owner, state: FiringState): IterableIterator<void> {
-    yield* this.parallel.play(owner, state);
+  public *play(
+    owner: Owner,
+    player: PlayerLike,
+    state: FiringState
+  ): IterableIterator<void> {
+    yield* this.parallel.play(owner, player, state);
   }
 }
 
@@ -325,7 +363,11 @@ export class Alternate implements Gun {
     this.parallel = new Sequential(gun, new Concat(...mirroredChild));
   }
 
-  public *play(owner: Owner, state: FiringState): IterableIterator<void> {
-    yield* this.parallel.play(owner, state);
+  public *play(
+    owner: Owner,
+    player: PlayerLike,
+    state: FiringState
+  ): IterableIterator<void> {
+    yield* this.parallel.play(owner, player, state);
   }
 }
