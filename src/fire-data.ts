@@ -14,7 +14,7 @@ export class FireData {
   /** Parameters express string value. */
   public texts = new Map<string, string>();
 
-  /** Seconds between played current frame and fired. */
+  /** Seconds between fired and finish current frame. */
   public elapsedSec = 0;
 
   public copy(): FireData {

@@ -1,5 +1,8 @@
 import * as mat from "transformation-matrix";
 
+/**
+ * Owner inform game information to GunTree system.
+ */
 export interface Owner {
   /**
    * Get muzzle transform.

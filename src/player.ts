@@ -140,6 +140,12 @@ export class Player implements PlayerLike {
 
   /**
    * Start playing guntree.
+   *
+   * @param loop loop this firing.
+   * @param owner owner inform game information
+   * @param gunTree firing guntree
+   * @param firingState FiringState using this firing
+   * @returns firing was finished
    */
   public start(
     loop: boolean,
