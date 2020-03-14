@@ -56,6 +56,7 @@ export class YourWeapon implements gt.Owner {
   constructor() {
     this.player.events.on("fired", (data: gt.FireData, bullet: gt.Bullet) => {
       const [location, angleDeg, scale] = gt.decomposeTransform(data.transform);
+      const elapsedSec = data.elapsedSec; // Seconds between fired and finish current frame
       const speed = data.parameters.get("speed");
       const size = state.parameters.get("size");
 
