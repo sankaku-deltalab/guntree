@@ -16,7 +16,7 @@ describe.only("#nWay", (): void => {
     fs.setMuzzle(muzzle);
 
     const fires: FiringState[] = [];
-    const fire = createGunMockWithCallback((_owner, state) =>
+    const fire = createGunMockWithCallback((_owner, _player, state) =>
       fires.push(state)
     );
 
@@ -25,7 +25,7 @@ describe.only("#nWay", (): void => {
       { ways: 2, totalAngle: 80 },
       nWay({ ways: 2, totalAngle: 4 }, fire)
     );
-    const progress = repeat.play(simpleMock(), fs);
+    const progress = repeat.play(simpleMock(), simpleMock(), fs);
     while (true) {
       const r = progress.next();
       if (r.done) break;

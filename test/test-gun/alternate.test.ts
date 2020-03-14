@@ -5,6 +5,7 @@ import { Alternate } from "guntree/elements/gun";
 import { decomposeTransform } from "guntree/transform-util";
 import { FireData } from "guntree/fire-data";
 import { Owner } from "guntree/owner";
+import { Player } from "guntree/player";
 import {
   simpleMock,
   createGunMockConsumeFrames,
@@ -31,15 +32,16 @@ describe("#Alternate", (): void => {
 
     // When play Alternate
     const owner = simpleMock<Owner>();
-    const progress = alternate.play(owner, state);
+    const player = simpleMock<Player>();
+    const progress = alternate.play(owner, simpleMock(), state);
     while (true) {
       const r = progress.next();
       if (r.done) break;
     }
 
     // Then child gun played twice
-    expect(childGun.play).toBeCalledWith(owner, stateClone1);
-    expect(childGun.play).toBeCalledWith(owner, stateClone2);
+    expect(childGun.play).toBeCalledWith(owner, player, stateClone1);
+    expect(childGun.play).toBeCalledWith(owner, player, stateClone2);
   });
 
   test("invert angle in second firing", (): void => {
@@ -49,7 +51,7 @@ describe("#Alternate", (): void => {
 
     // And Alternate with fire gun
     const angles: number[] = [];
-    const fire = createGunMockWithCallback((_owner, state) => {
+    const fire = createGunMockWithCallback((_owner, _player, state) => {
       const fd = new FireData();
       fd.transform = mat.rotateDEG(originalAngle);
       state.modifyFireData(fd);
@@ -59,7 +61,7 @@ describe("#Alternate", (): void => {
     const alternate = new Alternate({}, fire);
 
     // When play Alternate
-    alternate.play(simpleMock(), state).next();
+    alternate.play(simpleMock(), simpleMock(), state).next();
 
     // Then seconds firing angle was inverted
     expect(angles[0]).toBeCloseTo(originalAngle);
@@ -78,7 +80,7 @@ describe("#Alternate", (): void => {
 
     // And Alternate gun
     const angles: number[] = [];
-    const fire = createGunMockWithCallback((_owner, state) => {
+    const fire = createGunMockWithCallback((_owner, _player, state) => {
       const fd = new FireData();
       state.modifyFireData(fd);
       const [_pos, rot, _scale] = decomposeTransform(fd.transform);
@@ -88,7 +90,7 @@ describe("#Alternate", (): void => {
 
     // When play Alternate
     const state = new FiringState();
-    alternate.play(owner, state).next();
+    alternate.play(owner, simpleMock(), state).next();
 
     // Then seconds firing used another muzzle
     expect(angles[0]).toBeCloseTo(0);
@@ -108,7 +110,7 @@ describe("#Alternate", (): void => {
 
     // When play Alternate
     let consumedFrames = 0;
-    const progress = alternate.play(simpleMock(), state);
+    const progress = alternate.play(simpleMock(), simpleMock(), state);
     while (true) {
       const r = progress.next();
       if (r.done) break;
@@ -126,7 +128,7 @@ describe("#Alternate", (): void => {
 
     // And Alternate with fire gun
     const transY: number[] = [];
-    const fire = createGunMockWithCallback((_owner, state) => {
+    const fire = createGunMockWithCallback((_owner, _player, state) => {
       const fd = new FireData();
       fd.transform = mat.translate(0, originalTranslateY);
       state.modifyFireData(fd);
@@ -136,7 +138,7 @@ describe("#Alternate", (): void => {
     const alternate = new Alternate({ mirrorTranslationY: true }, fire);
 
     // When play Alternate
-    alternate.play(simpleMock(), state).next();
+    alternate.play(simpleMock(), simpleMock(), state).next();
 
     // Then seconds firing translation Y was inverted
     expect(transY[0]).toBeCloseTo(originalTranslateY);

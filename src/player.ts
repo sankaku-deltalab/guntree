@@ -2,7 +2,57 @@ import { Gun } from "./gun";
 import { FiringState } from "./firing-state";
 import { Owner } from "./owner";
 
-class FixedFrameratePlayer {
+export interface PlayerLike {
+  /**
+   * Start playing guntree.
+   */
+  start(
+    loop: boolean,
+    owner: Owner,
+    gunTree: Gun,
+    firingState: FiringState
+  ): boolean;
+
+  /**
+   * Is playing guntree.
+   *
+   * @returns Player is playing guntree.
+   */
+  isRunning(): boolean;
+
+  /**
+   * Is in loop.
+   *
+   * @returns Player is in loop.
+   */
+  isInLoopMode(): boolean;
+
+  /**
+   * Get seconds since finish current frame.
+   *
+   * @returns Seconds.
+   */
+  getElapsedSeconds(): number;
+
+  /**
+   * Stop playing after finish current loop.
+   */
+  requestStop(): void;
+
+  /**
+   * Stop playing immediately.
+   */
+  forceStop(): void;
+
+  /**
+   * Continue playing guntree as fixed frame rate.
+   *
+   * @returns Is finished
+   */
+  tick(): boolean;
+}
+
+class FixedFrameratePlayer implements PlayerLike {
   private loop = false;
   private owner?: Owner;
   private gunTree?: Gun;
@@ -17,6 +67,10 @@ class FixedFrameratePlayer {
     return this.loop;
   }
 
+  public getElapsedSeconds(): number {
+    return 0;
+  }
+
   public start(
     loop: boolean,
     owner: Owner,
@@ -29,7 +83,7 @@ class FixedFrameratePlayer {
       this.gunTree = gunTree;
       this.firingState = firingState.copy();
     }
-    this.firingProgress = gunTree.play(owner, firingState);
+    this.firingProgress = gunTree.play(owner, this, firingState);
     return this.tick();
   }
 
@@ -58,7 +112,7 @@ class FixedFrameratePlayer {
 /**
  * Player play guntree with dynamic or fixed framerate.
  */
-export class Player {
+export class Player implements PlayerLike {
   private readonly frameSec = 1 / 60;
   private elapsedSec = 0;
   private readonly player: FixedFrameratePlayer;

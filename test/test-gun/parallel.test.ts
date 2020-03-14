@@ -4,6 +4,7 @@ import { Gun } from "guntree/gun";
 import { FiringState } from "guntree/firing-state";
 import { Parallel } from "guntree/elements/gun";
 import { Owner } from "guntree/owner";
+import { Player } from "guntree/player";
 import {
   createGunMockConsumeFrames,
   createFiringStateMock,
@@ -30,7 +31,8 @@ describe("#Parallel", (): void => {
 
     // When play Concat
     const owner = simpleMock<Owner>();
-    const progress = sec.play(owner, state);
+    const player = simpleMock<Player>();
+    const progress = sec.play(owner, player, state);
     let consumedFrames = 0;
     while (true) {
       const r = progress.next();
@@ -39,7 +41,7 @@ describe("#Parallel", (): void => {
       // Then play child guns as parallel with state without copy
       for (const idx of range(gunNum)) {
         expect(guns[idx].play).toBeCalledTimes(1);
-        expect(guns[idx].play).toBeCalledWith(owner, clones[idx]);
+        expect(guns[idx].play).toBeCalledWith(owner, player, clones[idx]);
       }
 
       consumedFrames += 1;

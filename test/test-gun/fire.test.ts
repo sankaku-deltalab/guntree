@@ -19,7 +19,7 @@ describe("#Fire", (): void => {
     owner.fire = jest.fn();
     const state = new FiringState();
 
-    const result = fire.play(owner, state).next();
+    const result = fire.play(owner, simpleMock(), state).next();
 
     // Then owner.fire was called with modified FireData and bullet
     expect(owner.fire).toBeCalledTimes(1);
