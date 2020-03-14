@@ -262,7 +262,7 @@ export const spread = (
  * const mirroredFiring = concat(
  *   useMuzzle('muzzle.L'),
  *   mirror(
- *     { invertedMuzzleName: 'muzzle.R', mirrorTranslationY: true },
+ *     { invertedMuzzleName: 'muzzle.R' },
  *     fire(bullet),
  *   )
  * );
@@ -272,7 +272,7 @@ export const spread = (
  * @param guns Guns would be played.
  */
 export const mirror = (
-  option: gunO.TMirrorOption,
+  option: { invertedMuzzleName?: string },
   ...guns: Gun[]
 ): gunO.Mirror => {
   return new gunO.Mirror(option, concat(...guns));
@@ -295,7 +295,7 @@ export const mirror = (
  * @param guns Guns would be played.
  */
 export const alternate = (
-  option: gunO.TMirrorOption,
+  option: { invertedMuzzleName?: string },
   ...guns: Gun[]
 ): gunO.Alternate => {
   return new gunO.Alternate(option, concat(...guns));

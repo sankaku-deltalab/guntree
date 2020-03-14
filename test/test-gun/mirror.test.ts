@@ -27,35 +27,47 @@ describe("#Mirror", (): void => {
     const state = createFiringState(stateClone1, stateClone2);
 
     // And Mirror with child gun
-    const childGun = createGunMockConsumeFrames(0);
+    const childFrames = 6;
+    const childGun = createGunMockConsumeFrames(childFrames);
     const mirror = new Mirror({}, childGun);
 
     // When play Mirror
     const owner = simpleMock<Owner>();
     const player = simpleMock<Player>();
     const progress = mirror.play(owner, simpleMock(), state);
+    let consumedFrames = 0;
     while (true) {
       const r = progress.next();
       if (r.done) break;
+      consumedFrames += 1;
     }
 
     // Then child gun played twice
     expect(childGun.play).toBeCalledWith(owner, player, stateClone1);
     expect(childGun.play).toBeCalledWith(owner, player, stateClone2);
+
+    // And consume frames equal to child frames
+    expect(consumedFrames).toBe(childFrames);
   });
 
-  test("invert angle in second firing", (): void => {
+  test("invert angle and translation Y in second firing", (): void => {
     // Given FiringState
     const originalAngle = 30;
+    const originalTranslateY = 30;
     const state = new FiringState();
 
     // And Mirror with fire gun
+    const transY: number[] = [];
     const angles: number[] = [];
     const fire = createGunMockWithCallback((_owner, _player, state) => {
       const fd = new FireData();
-      fd.transform = mat.rotateDEG(originalAngle);
+      fd.transform = mat.transform(
+        mat.translate(0, originalTranslateY),
+        mat.rotateDEG(originalAngle)
+      );
       state.modifyFireData(fd);
-      const [_pos, rot, _scale] = decomposeTransform(fd.transform);
+      const [pos, rot, _scale] = decomposeTransform(fd.transform);
+      transY.push(pos.y);
       angles.push(rot);
     });
     const mirror = new Mirror({}, fire);
@@ -66,6 +78,10 @@ describe("#Mirror", (): void => {
     // Then seconds firing angle was inverted
     expect(angles[0]).toBeCloseTo(originalAngle);
     expect(angles[1]).toBeCloseTo(-originalAngle);
+
+    // And seconds firing translation Y was inverted
+    expect(transY[0]).toBeCloseTo(originalTranslateY);
+    expect(transY[1]).toBeCloseTo(-originalTranslateY);
   });
 
   test("can specify another muzzle for inverted firing", (): void => {
@@ -119,29 +135,5 @@ describe("#Mirror", (): void => {
 
     // Then consume frames equal to child frames
     expect(consumedFrames).toBe(childFrames);
-  });
-
-  test("can invert translation y", (): void => {
-    // Given FiringState
-    const originalTranslateY = 30;
-    const state = new FiringState();
-
-    // And Mirror with fire gun
-    const transY: number[] = [];
-    const fire = createGunMockWithCallback((_owner, _player, state) => {
-      const fd = new FireData();
-      fd.transform = mat.translate(0, originalTranslateY);
-      state.modifyFireData(fd);
-      const [pos, _rot, _scale] = decomposeTransform(fd.transform);
-      transY.push(pos.y);
-    });
-    const mirror = new Mirror({ mirrorTranslationY: true }, fire);
-
-    // When play Mirror
-    mirror.play(simpleMock(), simpleMock(), state).next();
-
-    // Then seconds firing translation Y was inverted
-    expect(transY[0]).toBeCloseTo(originalTranslateY);
-    expect(transY[1]).toBeCloseTo(-originalTranslateY);
   });
 });

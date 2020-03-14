@@ -264,15 +264,13 @@ export const resetSize = (
  *   fire(bullet()),
  * );
  * const invertedFire = concat(
- *   invert({ angle: true, translationY: true }),
+ *   invert(),
  *   leanFireFromRight,
  * );
  * ```
  *
  * @param newValue New value.
  */
-export const invert = (
-  option: modO.TInvertTransformOption
-): modO.ModifierGun => {
-  return new modO.ModifierGun(new modO.InvertTransformModifier(option));
+export const invert = (): modO.ModifierGun => {
+  return new modO.ModifierGun(new modO.InvertTransformModifier());
 };

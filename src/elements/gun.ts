@@ -287,32 +287,14 @@ export class Wait implements Gun {
 }
 
 /**
- * Mirror firing option.
- */
-export interface TMirrorOption {
-  /** Muzzle name used for inverted firing. */
-  invertedMuzzleName?: string;
-  /** Mirror firing translation x. */
-  mirrorTranslationX?: true;
-  /** Mirror firing translation y. */
-  mirrorTranslationY?: true;
-}
-
-/**
  * Mirror play gun and inverted gun as parallel.
  * Mirror can use another muzzle for inverted gun.
  */
 export class Mirror implements Gun {
   private readonly parallel: Gun;
 
-  public constructor(option: TMirrorOption, gun: Gun) {
-    const invert = new ModifierGun(
-      new InvertTransformModifier({
-        angle: true,
-        translationX: option.mirrorTranslationX,
-        translationY: option.mirrorTranslationY
-      })
-    );
+  public constructor(option: { invertedMuzzleName?: string }, gun: Gun) {
+    const invert = new ModifierGun(new InvertTransformModifier());
     const mirroredChild: Gun[] = [];
     // Set muzzle if name was specified
     if (option.invertedMuzzleName !== undefined) {
@@ -342,14 +324,8 @@ export class Mirror implements Gun {
 export class Alternate implements Gun {
   private readonly parallel: Gun;
 
-  public constructor(option: TMirrorOption, gun: Gun) {
-    const invert = new ModifierGun(
-      new InvertTransformModifier({
-        angle: true,
-        translationX: option.mirrorTranslationX,
-        translationY: option.mirrorTranslationY
-      })
-    );
+  public constructor(option: { invertedMuzzleName?: string }, gun: Gun) {
+    const invert = new ModifierGun(new InvertTransformModifier());
     const mirroredChild: Gun[] = [];
     // Set muzzle if name was specified
     if (option.invertedMuzzleName !== undefined) {

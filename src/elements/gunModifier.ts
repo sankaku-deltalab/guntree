@@ -6,7 +6,6 @@ import {
   TConstantOrLazy,
   calcTransFormFromConstantOrLazy
 } from "../lazyEvaluative";
-import { decomposeTransform } from "../transform-util";
 import { FireData } from "guntree/fire-data";
 import { Owner } from "guntree/owner";
 import { PlayerLike } from "guntree/player";
@@ -57,40 +56,12 @@ export class TransformModifier implements FireDataModifier {
 }
 
 /**
- * Invert option.
- */
-export interface TInvertTransformOption {
-  /** Invert angle. */
-  angle?: true;
-  /** Invert translation x. */
-  translationX?: true;
-  /** Invert translation y. */
-  translationY?: true;
-}
-
-/**
  * Invert transform matrix.
  */
 export class InvertTransformModifier implements FireDataModifier {
-  private readonly option: TInvertTransformOption;
-  public constructor(option: TInvertTransformOption) {
-    this.option = option;
-  }
-
   public createModifier(_state: FiringState): (fireData: FireData) => void {
-    const xRate = this.option.translationX ? -1 : 1;
-    const yRate = this.option.translationY ? -1 : 1;
-    const angleRate = this.option.angle ? -1 : 1;
-
     return (fireData: FireData): void => {
-      const [t, angleDeg, scale] = decomposeTransform(fireData.transform);
-      const translateNew = { x: t.x * xRate, y: t.y * yRate };
-      const angleDegNew = angleDeg * angleRate;
-      fireData.transform = mat.transform(
-        mat.translate(translateNew.x, translateNew.y),
-        mat.rotateDEG(angleDegNew),
-        mat.scale(scale.x, scale.y)
-      );
+      fireData.transform = mat.transform(mat.scale(1, -1), fireData.transform);
     };
   }
 }
