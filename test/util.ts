@@ -7,9 +7,16 @@ import { RepeatingManager, RepeatState } from "guntree/repeating-manager";
 import { Owner } from "guntree/owner";
 import { PlayerLike } from "guntree/player";
 
-export const simpleMock = <T>(): T => {
-  const cls = jest.fn<T, []>();
-  return new cls();
+export const simpleMock = <T>(values?: { [key: string]: unknown }): T => {
+  const cls = jest.fn();
+  const obj = new cls();
+
+  if (values === undefined) return obj;
+
+  for (const [key, value] of Object.entries(values)) {
+    obj[key] = value;
+  }
+  return obj;
 };
 
 export const createLazyEvaluativeMockReturnOnce = <T>(

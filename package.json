@@ -38,6 +38,7 @@
     "typescript": "^3.7.2"
   },
   "dependencies": {
+    "eventemitter3": "^4.0.0",
     "lodash": "^4.17.15",
     "transformation-matrix": "^2.2.0"
   },

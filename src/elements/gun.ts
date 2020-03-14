@@ -47,8 +47,9 @@ export class Fire implements Gun {
     state: FiringState
   ): IterableIterator<void> {
     const fd = this.fireData.copy();
+    fd.elapsedSec = player.getElapsedSeconds();
     state.modifyFireData(fd);
-    owner.fire(fd, this.bullet);
+    player.events.emit("fired", fd, this.bullet);
   }
 }
 
