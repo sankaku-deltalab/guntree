@@ -19,7 +19,7 @@ import * as le from "./lazyEvaluative";
  *
  * @param guns Guns would be played.
  */
-export const concat = (...guns: Gun[]): gunO.Concat => new gunO.Concat(...guns);
+export const concat = (...guns: Gun[]): Gun => new gunO.Concat(...guns);
 
 /**
  * Play guns sequentially.
@@ -35,8 +35,7 @@ export const concat = (...guns: Gun[]): gunO.Concat => new gunO.Concat(...guns);
  *
  * @param guns Guns would be played.
  */
-export const sequential = (...guns: Gun[]): gunO.Sequential =>
-  new gunO.Sequential(...guns);
+export const sequential = (...guns: Gun[]): Gun => new gunO.Sequential(...guns);
 
 /**
  * Play guns parallel.
@@ -55,8 +54,7 @@ export const sequential = (...guns: Gun[]): gunO.Sequential =>
  *
  * @param guns Guns would be played.
  */
-export const parallel = (...guns: Gun[]): gunO.Parallel =>
-  new gunO.Parallel(...guns);
+export const parallel = (...guns: Gun[]): Gun => new gunO.Parallel(...guns);
 
 /**
  * Wait frames.
@@ -70,7 +68,7 @@ export const parallel = (...guns: Gun[]): gunO.Parallel =>
  *
  * @param frames wait frames
  */
-export const wait = (frames: TConstantOrLazy<number>): gunO.Wait =>
+export const wait = (frames: TConstantOrLazy<number>): Gun =>
   new gunO.Wait(frames);
 
 /**
@@ -82,12 +80,12 @@ export const wait = (frames: TConstantOrLazy<number>): gunO.Wait =>
  *
  * @param bullet Bullet would be fired.
  */
-export const fire = (bullet: Bullet): gunO.Fire => new gunO.Fire(bullet);
+export const fire = (bullet: Bullet): Gun => new gunO.Fire(bullet);
 
 /**
  * Do nothing.
  */
-export const nop = (): gunO.Nop => new gunO.Nop();
+export const nop = (): Gun => new gunO.Nop();
 
 /**
  * Repeat guns sequentially.
@@ -104,10 +102,7 @@ export const nop = (): gunO.Nop => new gunO.Nop();
  * @param option Repeating option.
  * @param guns Guns would be played.
  */
-export const repeat = (
-  option: gunO.TRepeatOption,
-  ...guns: Gun[]
-): gunO.Repeat => {
+export const repeat = (option: gunO.TRepeatOption, ...guns: Gun[]): Gun => {
   return new gunO.Repeat(option, new gunO.Concat(...guns));
 };
 
@@ -133,7 +128,7 @@ export const repeat = (
 export const parallelRepeat = (
   option: gunO.TRepeatOption,
   ...guns: Gun[]
-): gunO.ParallelRepeat => {
+): Gun => {
   return new gunO.ParallelRepeat(option, new gunO.Concat(...guns));
 };
 
@@ -143,10 +138,8 @@ export const parallelRepeat = (
  * @param option
  * @param guns
  */
-export const paraRepeat = (
-  option: gunO.TRepeatOption,
-  ...guns: Gun[]
-): gunO.ParallelRepeat => parallelRepeat(option, ...guns);
+export const paraRepeat = (option: gunO.TRepeatOption, ...guns: Gun[]): Gun =>
+  parallelRepeat(option, ...guns);
 
 /**
  * N-Way firing option.
@@ -173,10 +166,7 @@ export interface TNWayOption {
  * @param option N-Way option.
  * @param guns Guns would be played.
  */
-export const nWay = (
-  option: TNWayOption,
-  ...guns: Gun[]
-): gunO.ParallelRepeat => {
+export const nWay = (option: TNWayOption, ...guns: Gun[]): Gun => {
   return paraRepeat(
     { times: option.ways, interval: 0, name: option.name },
     mod.addAngle(le.nWayAngle({ totalAngle: option.totalAngle })),
@@ -209,7 +199,7 @@ export type TWhipOption = gunO.TRepeatOption & {
  * @param option Whip firing option.
  * @param guns Guns would be played.
  */
-export const whip = (option: TWhipOption, ...guns: Gun[]): gunO.Repeat => {
+export const whip = (option: TWhipOption, ...guns: Gun[]): Gun => {
   const sr = option.speedRateRange;
   return repeat(
     { times: option.times, interval: 0, name: option.name },
@@ -243,10 +233,7 @@ export interface TSpreadOption {
  * @param option Spread firing option.
  * @param guns Guns would be played.
  */
-export const spread = (
-  option: TWhipOption,
-  ...guns: Gun[]
-): gunO.ParallelRepeat => {
+export const spread = (option: TWhipOption, ...guns: Gun[]): Gun => {
   const sr = option.speedRateRange;
   return paraRepeat(
     { times: option.times, interval: 0, name: option.name },
@@ -274,7 +261,7 @@ export const spread = (
 export const mirror = (
   option: { invertedMuzzleName?: string },
   ...guns: Gun[]
-): gunO.Mirror => {
+): Gun => {
   return new gunO.Mirror(option, concat(...guns));
 };
 
@@ -297,6 +284,6 @@ export const mirror = (
 export const alternate = (
   option: { invertedMuzzleName?: string },
   ...guns: Gun[]
-): gunO.Alternate => {
+): Gun => {
   return new gunO.Alternate(option, concat(...guns));
 };

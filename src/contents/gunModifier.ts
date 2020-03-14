@@ -5,6 +5,7 @@ import {
   calcValueFromConstantOrLazy
 } from "../lazyEvaluative";
 import * as modO from "../elements/gunModifier";
+import { Gun } from "../gun";
 import * as le from "../contents/lazyEvaluative";
 import { FiringState } from "guntree/firing-state";
 
@@ -13,9 +14,7 @@ import { FiringState } from "guntree/firing-state";
  *
  * @param trans transform.
  */
-export const transform = (
-  trans: TConstantOrLazy<mat.Matrix>
-): modO.ModifierGun => {
+export const transform = (trans: TConstantOrLazy<mat.Matrix>): Gun => {
   return new modO.ModifierGun(new modO.TransformModifier(trans));
 };
 
@@ -34,7 +33,7 @@ export const transform = (
 export const addTranslation = (translation: {
   x?: TConstantOrLazy<number>;
   y?: TConstantOrLazy<number>;
-}): modO.ModifierGun => {
+}): Gun => {
   const transX = translation.x === undefined ? 0 : translation.x;
   const transY = translation.y === undefined ? 0 : translation.y;
   return transform(le.createTransform({ translation: [transX, transY] }));
@@ -49,7 +48,7 @@ export const addTranslation = (translation: {
 export const modifyParameter = (
   name: string,
   modifier: (state: FiringState) => (oldValue: number) => number
-): modO.ModifierGun => {
+): Gun => {
   return new modO.ModifierGun(new modO.ModifyParameterModifier(name, modifier));
 };
 
@@ -65,9 +64,7 @@ export const modifyParameter = (
  *
  * @param angleDeg Adding angle degrees.
  */
-export const addAngle = (
-  angleDeg: TConstantOrLazy<number>
-): modO.ModifierGun => {
+export const addAngle = (angleDeg: TConstantOrLazy<number>): Gun => {
   return transform(le.createTransform({ rotationDeg: angleDeg }));
 };
 
@@ -88,7 +85,7 @@ export const addAngle = (
 export const addParameter = (
   name: string,
   adding: TConstantOrLazy<number>
-): modO.ModifierGun => {
+): Gun => {
   return modifyParameter(name, state => {
     const addingConst = calcValueFromConstantOrLazy<number>(state, adding);
     return (oldValue): number => oldValue + addingConst;
@@ -112,7 +109,7 @@ export const addParameter = (
 export const mltParameter = (
   name: string,
   multiplier: TConstantOrLazy<number>
-): modO.ModifierGun => {
+): Gun => {
   return modifyParameter(name, state => {
     const mltConst = calcValueFromConstantOrLazy<number>(state, multiplier);
     return (oldValue): number => oldValue * mltConst;
@@ -136,7 +133,7 @@ export const mltParameter = (
 export const resetParameter = (
   name: string,
   newValue: TConstantOrLazy<number>
-): modO.ModifierGun => {
+): Gun => {
   return modifyParameter(name, state => {
     const valueConst = calcValueFromConstantOrLazy<number>(state, newValue);
     return (): number => valueConst;
@@ -155,7 +152,7 @@ export const resetParameter = (
  *
  * @param adding Adding speed.
  */
-export const addSpeed = (adding: TConstantOrLazy<number>): modO.ModifierGun =>
+export const addSpeed = (adding: TConstantOrLazy<number>): Gun =>
   addParameter("speed", adding);
 
 /**
@@ -170,7 +167,7 @@ export const addSpeed = (adding: TConstantOrLazy<number>): modO.ModifierGun =>
  *
  * @param adding Adding size.
  */
-export const addSize = (adding: TConstantOrLazy<number>): modO.ModifierGun =>
+export const addSize = (adding: TConstantOrLazy<number>): Gun =>
   addParameter("size", adding);
 
 /**
@@ -186,9 +183,8 @@ export const addSize = (adding: TConstantOrLazy<number>): modO.ModifierGun =>
  *
  * @param option N-Way firing option.
  */
-export const addNWayAngle = (
-  option: le.TAddNWayAngleOption
-): modO.ModifierGun => addAngle(le.nWayAngle(option));
+export const addNWayAngle = (option: le.TAddNWayAngleOption): Gun =>
+  addAngle(le.nWayAngle(option));
 
 /**
  * Multiply bullet speed.
@@ -202,9 +198,8 @@ export const addNWayAngle = (
  *
  * @param multiplier Multiplier.
  */
-export const mltSpeed = (
-  multiplier: TConstantOrLazy<number>
-): modO.ModifierGun => mltParameter("speed", multiplier);
+export const mltSpeed = (multiplier: TConstantOrLazy<number>): Gun =>
+  mltParameter("speed", multiplier);
 
 /**
  * Multiply bullet size.
@@ -218,9 +213,8 @@ export const mltSpeed = (
  *
  * @param multiplier Multiplier.
  */
-export const mltSize = (
-  multiplier: TConstantOrLazy<number>
-): modO.ModifierGun => mltParameter("size", multiplier);
+export const mltSize = (multiplier: TConstantOrLazy<number>): Gun =>
+  mltParameter("size", multiplier);
 
 /**
  * Reset bullet speed.
@@ -234,9 +228,8 @@ export const mltSize = (
  *
  * @param newValue New value.
  */
-export const resetSpeed = (
-  newValue: TConstantOrLazy<number>
-): modO.ModifierGun => resetParameter("speed", newValue);
+export const resetSpeed = (newValue: TConstantOrLazy<number>): Gun =>
+  resetParameter("speed", newValue);
 
 /**
  * Reset bullet size.
@@ -250,9 +243,8 @@ export const resetSpeed = (
  *
  * @param newValue New value.
  */
-export const resetSize = (
-  newValue: TConstantOrLazy<number>
-): modO.ModifierGun => resetParameter("size", newValue);
+export const resetSize = (newValue: TConstantOrLazy<number>): Gun =>
+  resetParameter("size", newValue);
 
 /**
  * Invert angle and translation.
@@ -271,6 +263,6 @@ export const resetSize = (
  *
  * @param newValue New value.
  */
-export const invert = (): modO.ModifierGun => {
+export const invert = (): Gun => {
   return new modO.ModifierGun(new modO.InvertTransformModifier());
 };
