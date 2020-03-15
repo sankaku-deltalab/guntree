@@ -1,5 +1,6 @@
+import { Gun } from "../gun";
 import { TConstantOrLazy } from "../lazyEvaluative";
-import * as setO from "../elements/gunSetter";
+import * as setO from "../elements/setter-gun";
 import { VirtualMuzzleGenerator } from "../muzzle";
 
 /**
@@ -18,7 +19,7 @@ import { VirtualMuzzleGenerator } from "../muzzle";
 export const useParameter = (
   name: string,
   value: TConstantOrLazy<number>
-): setO.SetterGun => {
+): Gun => {
   return new setO.SetterGun(new setO.UseParameterUpdater(name, value));
 };
 
@@ -35,10 +36,7 @@ export const useParameter = (
  * @param name Text name.
  * @param text Initial text.
  */
-export const useText = (
-  name: string,
-  text: TConstantOrLazy<string>
-): setO.SetterGun => {
+export const useText = (name: string, text: TConstantOrLazy<string>): Gun => {
   return new setO.SetterGun(new setO.UseTextUpdater(name, text));
 };
 
@@ -55,7 +53,7 @@ export const useText = (
  *
  * @param name Muzzle name
  */
-export const useMuzzle = (name: TConstantOrLazy<string>): setO.SetterGun => {
+export const useMuzzle = (name: TConstantOrLazy<string>): Gun => {
   return new setO.SetterGun(new setO.UseMuzzleUpdater(name));
 };
 
@@ -74,7 +72,7 @@ export const useMuzzle = (name: TConstantOrLazy<string>): setO.SetterGun => {
  */
 export const useVirtualMuzzle = (
   virtualMuzzleGenerator: VirtualMuzzleGenerator
-): setO.SetterGun => {
+): Gun => {
   return new setO.SetterGun(
     new setO.AttachVirtualMuzzleUpdater(virtualMuzzleGenerator)
   );

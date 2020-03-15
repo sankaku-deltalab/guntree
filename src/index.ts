@@ -1,5 +1,7 @@
 export * from "./gun";
+export * from "./fire-data";
 export * from "./firing-state";
+export * from "./repeating-manager";
 export * from "./lazyEvaluative";
 export * from "./muzzle";
 export * from "./player";

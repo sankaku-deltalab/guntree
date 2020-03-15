@@ -1,20 +1,11 @@
-import { FiringState, FireData } from "guntree/firing-state";
-import { UseTextUpdater } from "guntree/elements/gunSetter";
+import { FiringState } from "guntree/firing-state";
+import { UseTextUpdater } from "guntree/elements";
 import { simpleMock, createLazyEvaluativeMockReturnOnce } from "../util";
-
-const createFireData = (texts: Map<string, string>): FireData => {
-  const fd = simpleMock<FireData>();
-  fd.texts = texts;
-  return fd;
-};
 
 describe("#UseTextUpdater", (): void => {
   test("can set text with unset name", (): void => {
     // Given firing state
-    const state = simpleMock<FiringState>();
-
-    // And FireData
-    state.fireData = createFireData(new Map());
+    const state = new FiringState();
 
     // And UseTextUpdater
     const name = "a";
@@ -22,38 +13,35 @@ describe("#UseTextUpdater", (): void => {
     const setTextMod = new UseTextUpdater(name, text);
 
     // When use UseTextUpdater
-    setTextMod.updateFiringState(state);
+    setTextMod.updateFiringState(simpleMock(), state);
 
     // Then text was set
-    expect(state.fireData.texts).toEqual(new Map([[name, text]]));
+    expect(state.texts.get(name)).toBe(text);
   });
 
   test("can set text with already set name", (): void => {
     // Given firing state
-    const state = simpleMock<FiringState>();
+    const state = new FiringState();
 
     // And FireData
     const name = "a";
     const initialText = "aa";
-    state.fireData = createFireData(new Map([[name, initialText]]));
+    state.texts.set(name, initialText);
 
     // And UseTextUpdater
     const text = "bb";
     const setTextMod = new UseTextUpdater(name, text);
 
     // When use UseTextUpdater
-    setTextMod.updateFiringState(state);
+    setTextMod.updateFiringState(simpleMock(), state);
 
     // Then text was set
-    expect(state.fireData.texts).toEqual(new Map([[name, text]]));
+    expect(state.texts.get(name)).toBe(text);
   });
 
   test("can set text with lazyEvaluative text", (): void => {
     // Given firing state
-    const state = simpleMock<FiringState>();
-
-    // And FireData
-    state.fireData = createFireData(new Map());
+    const state = new FiringState();
 
     // And UseTextUpdater
     const name = "a";
@@ -62,9 +50,9 @@ describe("#UseTextUpdater", (): void => {
     const setTextMod = new UseTextUpdater(name, textLe);
 
     // When use UseTextUpdater
-    setTextMod.updateFiringState(state);
+    setTextMod.updateFiringState(simpleMock(), state);
 
     // Then text was set
-    expect(state.fireData.texts).toEqual(new Map([[name, textConst]]));
+    expect(state.texts.get(name)).toBe(textConst);
   });
 });

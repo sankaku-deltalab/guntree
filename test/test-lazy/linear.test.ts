@@ -1,5 +1,5 @@
-import { RepeatState } from "guntree/firing-state";
-import { Linear } from "guntree/elements/lazyEvaluative";
+import { RepeatState } from "guntree/repeating-manager";
+import { Linear } from "guntree/elements/lazy-evaluative";
 import {
   createRepeatStateManagerWithGet,
   createFiringStateWithRSM

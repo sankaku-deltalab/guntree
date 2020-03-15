@@ -1,53 +1,81 @@
 import { range } from "lodash";
 
-import { FiringState } from "guntree/firing-state";
-import { DefaultPlayer } from "guntree/player";
-import {
-  simpleMock,
-  createGunMockConsumeFrames,
-  createFiringStateMock
-} from "./util";
+import { Player } from "guntree/player";
+import { simpleMock, createGunMockConsumeFrames } from "./util";
 import { Owner } from "guntree/owner";
 
 describe("#Player", (): void => {
-  test("can start gun tree", (): void => {
-    // Given FiringState as master with clone
-    const state = createFiringStateMock();
-    const stateMaster = createFiringStateMock(state);
-    stateMaster.fireData = simpleMock();
-    stateMaster.repeatStates = simpleMock();
-
-    // And gun tree
+  test("start gun tree", (): void => {
+    // Given gun tree
     const gunTree = createGunMockConsumeFrames(0);
 
     // And Player
     const owner = simpleMock<Owner>();
-    const player = new DefaultPlayer(owner, (): FiringState => stateMaster);
+    const player = new Player();
 
-    // When set gun tree to player
-    player.setGunTree(gunTree);
-
-    // And start player
-    player.start();
+    // When start player
+    player.start(false, owner, gunTree);
 
     // Then gun tree was played
     expect(gunTree.play).toBeCalledTimes(1);
   });
 
-  test("throw error if start without gun tree", (): void => {
-    // Given FiringState as master with clone
-    const state = createFiringStateMock();
-    const stateMaster = createFiringStateMock(state);
+  test.each`
+    loop
+    ${true}
+    ${false}
+  `(
+    "emit event when firing cycle was finished when $loop",
+    ({ loop }): void => {
+      // Given gun tree
+      const gunFrames = 3;
+      const gunTree = createGunMockConsumeFrames(gunFrames);
 
-    // And Player
+      // And Player
+      const finishedCallback = jest.fn();
+      const player = new Player();
+      player.events.on("finished", finishedCallback);
+
+      // When start player
+      const owner = simpleMock<Owner>();
+      player.start(loop, owner, gunTree);
+
+      // And continue
+      for (const _ of range(gunFrames)) {
+        expect(player.isRunning()).toBe(true);
+        expect(finishedCallback).not.toBeCalled();
+        player.tick();
+      }
+
+      // Then finished event was called when finished
+      expect(finishedCallback).toBeCalled();
+    }
+  );
+
+  test("can stop loop if request stop when finished with event", (): void => {
+    // Given gun tree
+    const gunFrames = 3;
+    const gunTree = createGunMockConsumeFrames(gunFrames);
+
+    // And Player with stopping callback
+    const player = new Player();
+    const finishedCallback = (): void => {
+      player.requestStop();
+    };
+    player.events.on("finished", finishedCallback);
+
+    // When start player without loop
     const owner = simpleMock<Owner>();
-    const player = new DefaultPlayer(owner, (): FiringState => stateMaster);
+    player.start(true, owner, gunTree);
 
-    // When start player without gun tree
-    const starting = (): boolean => player.start();
+    // And continue
+    for (const _ of range(gunFrames)) {
+      expect(player.isRunning()).toBe(true);
+      player.tick();
+    }
 
-    // Then throw error
-    expect(starting).toThrowError();
+    // Then player was not running
+    expect(player.isRunning()).toBe(false);
   });
 
   test.each`
@@ -55,47 +83,111 @@ describe("#Player", (): void => {
     ${0}
     ${1}
     ${12}
-  `("can continue gun tree", ({ gunTreeLength }): void => {
-    // Given FiringState as master with clone
-    const state = createFiringStateMock();
-    const stateMaster = createFiringStateMock(state);
-
-    // And Player with gun tree
-    const owner = simpleMock<Owner>();
-    const gunTree = createGunMockConsumeFrames(gunTreeLength);
-    const player = new DefaultPlayer(owner, (): FiringState => stateMaster);
-    player.setGunTree(gunTree);
+  `("can continue gun tree as fixed framerate", ({ gunTreeLength }): void => {
+    // Given Player
+    const player = new Player();
 
     // When start player
-    const doneAtFirst = player.start();
+    const owner = simpleMock<Owner>();
+    const gunTree = createGunMockConsumeFrames(gunTreeLength);
+    const doneAtFirst = player.start(false, owner, gunTree);
     expect(doneAtFirst).toBe(gunTreeLength === 0);
 
     // And play full tick
     for (const i of range(gunTreeLength)) {
-      expect(player.isRunning).toBe(true);
+      expect(player.isRunning()).toBe(true);
       const done = player.tick();
       expect(done).toBe(i === gunTreeLength - 1);
     }
 
     // Then playing was finished
-    expect(player.isRunning).toBe(false);
+    expect(player.isRunning()).toBe(false);
   });
 
-  test("can deal muzzle", (): void => {
-    // Given Player with owner
+  test.each`
+    gunTreeLength | ticks
+    ${12}         | ${30}
+  `("can continue gun tree as loop", ({ gunTreeLength, ticks }): void => {
+    // Given Player
+    const player = new Player();
+
+    // When start player
     const owner = simpleMock<Owner>();
-    const muzzleTrans = jest.fn();
-    owner.getMuzzleTransform = jest.fn().mockReturnValueOnce(muzzleTrans);
-    const player = new DefaultPlayer(owner, simpleMock());
+    const gunTree = createGunMockConsumeFrames(gunTreeLength);
+    const doneAtFirst = player.start(true, owner, gunTree);
+    expect(doneAtFirst).toBe(false);
 
-    // When get muzzle from player
-    const muzzle = player.getMuzzle("a");
+    // And play multiple tick
+    for (const _ of range(ticks)) {
+      expect(player.isRunning()).toBe(true);
+      const done = player.tick();
+      expect(done).toBe(false);
+    }
 
-    // And get muzzle transform
-    const trans = muzzle.getMuzzleTransform();
+    // Then playing is not finished
+    expect(player.isRunning()).toBe(true);
 
-    // Then gotten transform was dealt from owner
-    expect(owner.getMuzzleTransform).toBeCalled();
-    expect(trans).toBe(muzzleTrans);
+    // And gun was played
+    expect(gunTree.play).toBeCalledTimes(Math.ceil(ticks / gunTreeLength));
   });
+
+  test.each`
+    gunTreeLength
+    ${0}
+    ${1}
+    ${12}
+  `("can continue gun tree as dynamic framerate", ({ gunTreeLength }): void => {
+    // Given Player
+    const player = new Player();
+
+    // When start player
+    const owner = simpleMock<Owner>();
+    const gunTree = createGunMockConsumeFrames(gunTreeLength);
+    const doneAtFirst = player.start(false, owner, gunTree);
+    expect(doneAtFirst).toBe(gunTreeLength === 0);
+
+    // And play full time
+    const updateNum = gunTreeLength * 2;
+    const deltaSec = 1 / 60 / 2;
+    for (const i of range(updateNum)) {
+      expect(player.isRunning()).toBe(true);
+      const done = player.update(deltaSec);
+      expect(done).toBe(i === updateNum - 1);
+    }
+
+    // Then playing was finished
+    expect(player.isRunning()).toBe(false);
+  });
+
+  test.each`
+    gunTreeLength | ticks
+    ${12}         | ${30}
+  `(
+    "can continue gun tree as dynamic framerate and loop",
+    ({ gunTreeLength, ticks }): void => {
+      // Given Player
+      const player = new Player();
+
+      // When start player
+      const owner = simpleMock<Owner>();
+      const gunTree = createGunMockConsumeFrames(gunTreeLength);
+      const doneAtFirst = player.start(true, owner, gunTree);
+      expect(doneAtFirst).toBe(false);
+
+      // And play multiple tick
+      const updateNum = ticks * 2;
+      const deltaSec = 1 / 60 / 2;
+      for (const _ of range(updateNum)) {
+        expect(player.isRunning()).toBe(true);
+        const done = player.update(deltaSec);
+        expect(done).toBe(false);
+      }
+
+      // Then playing is not finished
+      expect(player.isRunning()).toBe(true);
+
+      // And gun was played
+      expect(gunTree.play).toBeCalledTimes(Math.ceil(ticks / gunTreeLength));
+    }
+  );
 });

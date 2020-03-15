@@ -1,5 +1,5 @@
 import { FiringState } from "guntree/firing-state";
-import { AttachVirtualMuzzleUpdater } from "guntree/elements/gunSetter";
+import { AttachVirtualMuzzleUpdater } from "guntree/elements/";
 import { Muzzle, VirtualMuzzle, VirtualMuzzleGenerator } from "guntree/muzzle";
 import { simpleMock } from "../util";
 
@@ -10,9 +10,9 @@ describe("#AttachVirtualMuzzleUpdater", (): void => {
     virtualMuzzle.basedOn = jest.fn();
 
     // And FiringState with muzzle
-    const state = simpleMock<FiringState>();
+    const state = new FiringState();
     const baseMuzzle = simpleMock<Muzzle>();
-    state.muzzle = baseMuzzle;
+    state.setMuzzle(baseMuzzle);
 
     // And AttachVirtualMuzzleUpdater
     const virtualMuzzleGenerator = simpleMock<VirtualMuzzleGenerator>();
@@ -24,10 +24,10 @@ describe("#AttachVirtualMuzzleUpdater", (): void => {
     );
 
     // When use AttachVirtualMuzzleUpdater
-    attachMuzzleMod.updateFiringState(state);
+    attachMuzzleMod.updateFiringState(simpleMock(), state);
 
     // Then muzzle was attached
-    expect(state.muzzle).toBe(virtualMuzzle);
+    expect(state.getMuzzle()).toBe(virtualMuzzle);
 
     // And virtual muzzle was based on state muzzle
     expect(virtualMuzzle.basedOn).toBeCalledWith(baseMuzzle);

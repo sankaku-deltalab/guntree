@@ -1,5 +1,5 @@
 import { FiringState } from "guntree/firing-state";
-import { ModifierGun, FireDataModifier } from "guntree/elements/gunModifier";
+import { ModifierGun, FireDataModifier } from "guntree/elements/";
 import { simpleMock } from "../util";
 
 describe("#ModifyGun", (): void => {
@@ -15,7 +15,7 @@ describe("#ModifyGun", (): void => {
     // When play ModifierGun
     const firingState = simpleMock<FiringState>();
     firingState.pushModifier = jest.fn();
-    modGun.play(firingState).next();
+    modGun.play(simpleMock(), simpleMock(), firingState).next();
 
     // Then modifier was pushed
     expect(firingState.pushModifier).toBeCalledWith(mod);

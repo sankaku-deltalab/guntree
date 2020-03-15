@@ -1,9 +1,9 @@
-import { DefaultRepeatStateManager, RepeatState } from "guntree/firing-state";
+import { RepeatingManager, RepeatState } from "guntree/repeating-manager";
 
 describe("#RepeatStateManager", (): void => {
   test("has initial repeating", (): void => {
     // Given RepeatStateManager
-    const rsm = new DefaultRepeatStateManager();
+    const rsm = new RepeatingManager();
 
     // When get current repeating
     const actual = rsm.get();
@@ -15,7 +15,7 @@ describe("#RepeatStateManager", (): void => {
 
   test("can get current repeat state", (): void => {
     // Given RepeatStateManager
-    const rsm = new DefaultRepeatStateManager();
+    const rsm = new RepeatingManager();
 
     // And repeating was started
     const repeatState: RepeatState = { finished: 0, total: 10 };
@@ -30,7 +30,7 @@ describe("#RepeatStateManager", (): void => {
 
   test("can get repeat state by name", (): void => {
     // Given RepeatStateManager
-    const rsm = new DefaultRepeatStateManager();
+    const rsm = new RepeatingManager();
 
     // And repeating was started with repeating name
     const nameAndState = new Map([
@@ -53,7 +53,7 @@ describe("#RepeatStateManager", (): void => {
 
   test("can nest repeating name when start repeating", (): void => {
     // Given RepeatStateManager
-    const rsm = new DefaultRepeatStateManager();
+    const rsm = new RepeatingManager();
 
     // And repeating was started
     const name = "a";
@@ -75,7 +75,7 @@ describe("#RepeatStateManager", (): void => {
 
   test("throw error if get repeat state with name and repeating was not started with that name", (): void => {
     // Given RepeatStateManager
-    const rsm = new DefaultRepeatStateManager();
+    const rsm = new RepeatingManager();
 
     // And repeating was started with name
     const name = "a";
@@ -91,7 +91,7 @@ describe("#RepeatStateManager", (): void => {
 
   test("throw error if finish repeating if repeating was completed", (): void => {
     // Given RepeatStateManager
-    const rsm = new DefaultRepeatStateManager();
+    const rsm = new RepeatingManager();
 
     // And repeating was started
     const repeatState: RepeatState = { finished: 0, total: 10 };
@@ -109,7 +109,7 @@ describe("#RepeatStateManager", (): void => {
 
   test("throw error when finish repeating if finishing repeating is not current repeating", (): void => {
     // Given RepeatStateManager
-    const rsm = new DefaultRepeatStateManager();
+    const rsm = new RepeatingManager();
 
     // And repeating was started twice
     const rs1 = rsm.start({ finished: 0, total: 10 });
@@ -124,7 +124,7 @@ describe("#RepeatStateManager", (): void => {
 
   test("can copy self with repeat states", (): void => {
     // Given RepeatStateManager
-    const rsm = new DefaultRepeatStateManager();
+    const rsm = new RepeatingManager();
 
     // And repeating was started with repeating name
     const states = [
@@ -149,7 +149,7 @@ describe("#RepeatStateManager", (): void => {
 
   test("can copy self with named repeat states", (): void => {
     // Given RepeatStateManager
-    const rsm = new DefaultRepeatStateManager();
+    const rsm = new RepeatingManager();
 
     // And repeating was started with repeating name
     const nameAndState = new Map([

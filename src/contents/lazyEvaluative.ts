@@ -1,5 +1,6 @@
-import { TConstantOrLazy } from "../lazyEvaluative";
-import * as leO from "../elements/lazyEvaluative";
+import * as mat from "transformation-matrix";
+import { TConstantOrLazy, LazyEvaluative } from "../lazyEvaluative";
+import * as leO from "../elements/lazy-evaluative";
 
 /**
  * Linear interpolate.
@@ -20,7 +21,7 @@ export const linear = (
   start: TConstantOrLazy<number>,
   stop: TConstantOrLazy<number>,
   target?: string
-): leO.Linear => new leO.Linear(start, stop, target);
+): LazyEvaluative<number> => new leO.Linear(start, stop, target);
 
 /**
  * Linear interpolate.
@@ -32,7 +33,7 @@ export const linear = (
 export const centerizedLinear = (
   totalRange: TConstantOrLazy<number>,
   target?: string
-): leO.CenterizedLinear => new leO.CenterizedLinear(totalRange, target);
+): LazyEvaluative<number> => new leO.CenterizedLinear(totalRange, target);
 
 /**
  * Iterate input at each repeating.
@@ -43,20 +44,20 @@ export const centerizedLinear = (
 export const iterate = (
   array: TConstantOrLazy<number>[],
   option?: leO.TIterateOption
-): leO.Iterate => new leO.Iterate(array, option);
+): LazyEvaluative<number> => new leO.Iterate(array, option);
 
 /**
  * Round number to int.
  *
  * @param input number.
  */
-export const round = (input: TConstantOrLazy<number>): leO.Round =>
+export const round = (input: TConstantOrLazy<number>): LazyEvaluative<number> =>
   new leO.Round(input);
 
 /**
  * Option for nWayAngle.
  */
-export interface TAddNWayAngleOption {
+export interface TNWayAngleOption {
   /** Total angle. */
   totalAngle: TConstantOrLazy<number>;
   /** Repeating name. When not specified target, use current repeating. */
@@ -68,7 +69,7 @@ export interface TAddNWayAngleOption {
  *
  * @param option Option.
  */
-export const nWayAngle = (option: TAddNWayAngleOption): leO.CenterizedLinear =>
+export const nWayAngle = (option: TNWayAngleOption): LazyEvaluative<number> =>
   new leO.CenterizedLinear(option.totalAngle, option.target);
 
 /**
@@ -78,4 +79,4 @@ export const nWayAngle = (option: TAddNWayAngleOption): leO.CenterizedLinear =>
  */
 export const createTransform = (
   option: leO.TCreateTransformOption
-): leO.CreateTransform => new leO.CreateTransform(option);
+): LazyEvaluative<mat.Matrix> => new leO.CreateTransform(option);

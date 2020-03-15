@@ -1,17 +1,13 @@
-import { FiringState } from "guntree/firing-state";
 import { Nop } from "guntree/elements/gun";
 import { simpleMock } from "../util";
 
 describe("#Nop", (): void => {
   test("do not consume frames", (): void => {
-    // Given FiringState
-    const state = simpleMock<FiringState>();
-
-    // And Nop
+    // Given Nop
     const fire = new Nop();
 
     // When play Nop with one frame
-    const progress = fire.play(state);
+    const progress = fire.play(simpleMock(), simpleMock(), simpleMock());
     const result = progress.next();
 
     // Then progress was finished

@@ -2,8 +2,14 @@ import { range } from "lodash";
 
 import { Gun } from "guntree/gun";
 import { FiringState } from "guntree/firing-state";
+import { Owner } from "guntree/owner";
+import { Player } from "guntree/player";
 import { Sequential } from "guntree/elements/gun";
-import { createGunMockConsumeFrames, createFiringStateMock } from "../util";
+import {
+  createGunMockConsumeFrames,
+  createFiringStateMock,
+  simpleMock
+} from "../util";
 
 describe("#Sequential", (): void => {
   test("play multiple guns as sequentially and each guns are played with cloned state", (): void => {
@@ -24,7 +30,9 @@ describe("#Sequential", (): void => {
     const sec = new Sequential(...guns);
 
     // When play Concat
-    const progress = sec.play(state);
+    const owner = simpleMock<Owner>();
+    const player = simpleMock<Player>();
+    const progress = sec.play(owner, player, state);
     let consumedFrames = 0;
     while (true) {
       const r = progress.next();
@@ -33,7 +41,7 @@ describe("#Sequential", (): void => {
       // Then play child guns as sequentially with state without copy
       const idx = Math.floor(consumedFrames / childFrames);
       expect(guns[idx].play).toBeCalledTimes(1);
-      expect(guns[idx].play).toBeCalledWith(clones[idx]);
+      expect(guns[idx].play).toBeCalledWith(owner, player, clones[idx]);
 
       for (const gun of guns.slice(idx + 1)) {
         expect(gun.play).toBeCalledTimes(0);

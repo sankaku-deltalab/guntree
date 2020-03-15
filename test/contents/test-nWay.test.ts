@@ -1,49 +1,46 @@
 import * as mat from "transformation-matrix";
 
-import {
-  DefaultFiringState,
-  DefaultRepeatStateManager,
-  DefaultFireData,
-  FireData
-} from "guntree/firing-state";
-import { simpleMock } from "../util";
-import { fire, bullet, nWay } from "guntree/contents";
+import { FiringState } from "guntree/firing-state";
+import { FireData } from "guntree/fire-data";
+import { simpleMock, createGunMockWithCallback } from "../util";
+import { nWay } from "guntree/contents";
 import { Muzzle } from "guntree/muzzle";
 import { decomposeTransform } from "guntree/transform-util";
-import { Player } from "guntree/player";
 
 describe.only("#nWay", (): void => {
   test("can add angle twice", (): void => {
     // Given firing state
     const muzzle = simpleMock<Muzzle>();
     muzzle.getMuzzleTransform = jest.fn().mockReturnValue(mat.rotateDEG(0));
-    const rsm = new DefaultRepeatStateManager();
-    const fd = new DefaultFireData();
-    const player = simpleMock<Player>();
-    player.getMuzzle = jest.fn().mockReturnValue(muzzle);
-    const fs = new DefaultFiringState(player, fd, rsm);
-    fs.muzzle = muzzle;
+    const fs = new FiringState();
+    fs.setMuzzle(muzzle);
 
-    const angles: number[] = [];
-    muzzle.fire = jest.fn().mockImplementation((data: FireData) => {
-      const [_posInAreaPoint, rotationDeg, _scale] = decomposeTransform(
-        data.transform
-      );
-      angles.push(rotationDeg);
-    });
+    const fires: FiringState[] = [];
+    const fire = createGunMockWithCallback((_owner, _player, state) =>
+      fires.push(state)
+    );
 
     // When play nested nway
     const repeat = nWay(
-      { ways: 2, totalAngle: 80 }, // TODO: ここでnameを指定しないとバグる、なぜならnameを指定しないと直近のリピートを指定することになり、1つめのnWayで使っているcenterizedLinearはfireがactivateされた後に評価されるから。評価するタイミングを工夫するかnameを自動で指定するかする必要がある。
-      nWay({ ways: 2, totalAngle: 4 }, fire(bullet()))
+      { ways: 2, totalAngle: 80 },
+      nWay({ ways: 2, totalAngle: 4 }, fire)
     );
-    const progress = repeat.play(fs);
+    const progress = repeat.play(simpleMock(), simpleMock(), fs);
     while (true) {
       const r = progress.next();
       if (r.done) break;
     }
 
     // Then double angles was applied
+    const fireData = fires.map(state => {
+      const fd = new FireData();
+      state.modifyFireData(fd);
+      return fd;
+    });
+    const angles = fireData.map(fd => {
+      const [_pos, rot, _scale] = decomposeTransform(fd.transform);
+      return rot;
+    });
     expect(angles).toEqual([-21, -19, 19, 21]);
   });
 });

@@ -1,45 +1,38 @@
 import { Bullet } from "guntree/bullet";
 import { FiringState } from "guntree/firing-state";
 import { Fire } from "guntree/elements/gun";
+import { Owner } from "guntree/owner";
+import { FireData } from "guntree/fire-data";
+import { Player } from "guntree/player";
 import { simpleMock } from "../util";
 
 describe("#Fire", (): void => {
-  test("notify firing to firing state", (): void => {
-    // Given FiringState
-    const state = simpleMock<FiringState>();
-    state.fire = jest.fn();
-
-    // And Bullet
+  test("notify firing to owner", (): void => {
+    // Given Fire
     const bullet = simpleMock<Bullet>();
-
-    // And Fire
-    const fire = new Fire(bullet);
+    const fireData = new FireData();
+    const fdClone = new FireData();
+    fireData.copy = jest.fn().mockReturnValueOnce(fdClone);
+    const fire = new Fire(bullet, fireData);
 
     // When play Fire with one frame
-    const progress = fire.play(state);
-    progress.next();
+    const elapsedSec = 123;
+    const owner = simpleMock<Owner>();
+    const emitFunc = jest.fn();
+    const player = simpleMock<Player>({
+      events: { emit: emitFunc },
+      getElapsedSeconds: jest.fn().mockReturnValueOnce(elapsedSec)
+    });
+    const state = new FiringState();
 
-    // Then parameter has added only once
-    expect(state.fire).toBeCalledTimes(1);
-    expect(state.fire).toBeCalledWith(bullet);
-  });
+    const result = fire.play(owner, player, state).next();
 
-  test("do not consume frames", (): void => {
-    // Given FiringState
-    const state = simpleMock<FiringState>();
-    state.fire = jest.fn();
+    // Then Fire gun use Player's emitter and elapsed seconds
+    expect(emitFunc).toBeCalledTimes(1);
+    expect(emitFunc).toBeCalledWith("fired", fdClone, bullet);
+    expect(fdClone.elapsedSec).toBe(elapsedSec);
 
-    // And Bullet
-    const bullet = simpleMock<Bullet>();
-
-    // And Fire
-    const fire = new Fire(bullet);
-
-    // When play Fire with one frame
-    const progress = fire.play(state);
-    const result = progress.next();
-
-    // Then progress was finished
+    // And Gun was finished
     expect(result.done).toBe(true);
   });
 });

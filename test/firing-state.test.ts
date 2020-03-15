@@ -1,48 +1,26 @@
 import { range } from "lodash";
 import * as mat from "transformation-matrix";
 
-import {
-  DefaultFiringState,
-  FireData,
-  RepeatStateManager
-} from "guntree/firing-state";
-import { Player } from "guntree/player";
-import { Bullet } from "guntree/bullet";
+import { FiringState } from "guntree/firing-state";
+import { FireData } from "guntree/fire-data";
+import { RepeatingManager } from "guntree/repeating-manager";
 import { Muzzle } from "guntree/muzzle";
 import { simpleMock } from "./util";
 
-const createSimpleFireDataMock = (): [FireData, FireData] => {
-  const fireData = simpleMock<FireData>();
-  const fireDataClone = simpleMock<FireData>();
-  fireData.copy = jest.fn().mockReturnValueOnce(fireDataClone);
-  return [fireData, fireDataClone];
-};
-
-const createSimpleRSMMock = (): [RepeatStateManager, RepeatStateManager] => {
-  const rsm = simpleMock<RepeatStateManager>();
-  const rsmClone = simpleMock<RepeatStateManager>();
+const createSimpleRSMMock = (): [RepeatingManager, RepeatingManager] => {
+  const rsm = simpleMock<RepeatingManager>();
+  const rsmClone = simpleMock<RepeatingManager>();
   rsm.copy = jest.fn().mockReturnValueOnce(rsmClone);
   return [rsm, rsmClone];
 };
 
 describe("#FiringState", (): void => {
-  test("can add modifier and apply their", (): void => {
-    // Given FireData with clone
-    const [fireData, fireDataClone] = createSimpleFireDataMock();
-    fireDataClone.transform = mat.translate(0);
-
-    // And muzzle with transform
+  test("can add modifier and use their", (): void => {
+    // Given FiringState with muzzle
+    const state = new FiringState(simpleMock<RepeatingManager>());
     const muzzle = simpleMock<Muzzle>();
     muzzle.getMuzzleTransform = jest.fn().mockReturnValueOnce(mat.translate(0));
-
-    // And FiringState with muzzle and FireData clone
-    const state = new DefaultFiringState(
-      simpleMock<Player>(),
-      fireData,
-      simpleMock<RepeatStateManager>()
-    );
-    state.muzzle = muzzle;
-    state.fireData.copy = jest.fn().mockReturnValueOnce(fireDataClone);
+    state.setMuzzle(muzzle);
 
     // And modifiers
     const calledModifiers: jest.Mock[] = [];
@@ -59,11 +37,12 @@ describe("#FiringState", (): void => {
     modifiers.map((m): void => state.pushModifier(m));
 
     // And calc modified fireData
-    state.calcModifiedFireData();
+    const fireData = new FireData();
+    state.modifyFireData(fireData);
 
     // Then modifiers are called with fireData copy
     modifiers.map((mod): void => {
-      expect(mod).toBeCalledWith(state, fireDataClone);
+      expect(mod).toBeCalledWith(fireData);
       expect(mod).toBeCalledTimes(1);
     });
 
@@ -71,32 +50,27 @@ describe("#FiringState", (): void => {
     expect(calledModifiers).toEqual(modifiers.reverse());
   });
 
-  test("can copy with fireData", (): void => {
-    // Given FireData with clone
-    const [fireData, fireDataClone] = createSimpleFireDataMock();
-
-    // And RepeatStateManager with clone
+  test("use muzzle transform in calcModifiedFireData", (): void => {
+    // Given FiringState with muzzle
     const [rsm, _rsmClone] = createSimpleRSMMock();
+    const state = new FiringState(rsm);
+    const muzzle = simpleMock<Muzzle>();
+    const muzzleTrans = mat.translate(1.2, 5.3);
+    muzzle.getMuzzleTransform = jest.fn().mockReturnValueOnce(muzzleTrans);
+    state.setMuzzle(muzzle);
 
-    // And FiringState
-    const state = new DefaultFiringState(simpleMock(), fireData, rsm);
+    // When calc modified fireData
+    const fireData = new FireData();
+    state.modifyFireData(fireData);
 
-    // When copy FiringState
-    const clone = state.copy();
-
-    // Then copy's fireData is original's clone
-    expect(clone.fireData).toBe(fireDataClone);
+    // Then
+    expect(fireData.transform).toEqual(muzzleTrans);
   });
 
   test("can copy with repeatStates", (): void => {
-    // Given FireData with clone
-    const [fireData, _fireDataClone] = createSimpleFireDataMock();
-
-    // And RepeatStateManager with clone
+    // Given FiringState
     const [rsm, rsmClone] = createSimpleRSMMock();
-
-    // And FiringState
-    const state = new DefaultFiringState(simpleMock(), fireData, rsm);
+    const state = new FiringState(rsm);
 
     // When copy FiringState
     const clone = state.copy();
@@ -106,93 +80,31 @@ describe("#FiringState", (): void => {
   });
 
   test("can copy with muzzle", (): void => {
-    // Given FireData with clone
-    const [fireData, _fireDataClone] = createSimpleFireDataMock();
-
-    // And RepeatStateManager with clone
-    const [rsm, _rsmClone] = createSimpleRSMMock();
-
-    // And Muzzle
-    const muzzle = simpleMock<Muzzle>();
-
     // Given FiringState with muzzle
-    const state = new DefaultFiringState(simpleMock(), fireData, rsm);
-    state.muzzle = muzzle;
+    const state = new FiringState();
+    const muzzle = simpleMock<Muzzle>();
+    state.setMuzzle(muzzle);
 
     // When copy FiringState
     const clone = state.copy();
 
-    // Then copy's repeatStates is original's clone
-    expect(clone.muzzle).toBe(muzzle);
+    // Then copy's muzzle is original's
+    expect(clone.getMuzzle()).toBe(muzzle);
   });
 
-  test("can get muzzle by name", (): void => {
-    // Given Player with muzzle
-    const muzzle = simpleMock<Muzzle>();
-    const player = simpleMock<Player>();
-    player.getMuzzle = jest.fn().mockReturnValueOnce(muzzle);
+  test("can copy with parameters", (): void => {
+    // Given FiringState with muzzle
+    const params = new Map([
+      ["a", 1],
+      ["b", 2]
+    ]);
+    const state = new FiringState();
+    state.parameters = params;
 
-    // And FiringState
-    const state = new DefaultFiringState(player, simpleMock(), simpleMock());
+    // When copy FiringState
+    const clone = state.copy();
 
-    // When get muzzle by name
-    const muzzleName = "a";
-    const gottenMuzzle = state.getMuzzleByName(muzzleName);
-
-    // Then gotten muzzle is Player's muzzle
-    expect(gottenMuzzle).toBe(muzzle);
-    expect(player.getMuzzle).toBeCalledWith(muzzleName);
-  });
-
-  test("can call fire and pass firing to muzzle", (): void => {
-    // Given Muzzle can fire
-    const muzzle = simpleMock<Muzzle>();
-    muzzle.fire = jest.fn();
-
-    // And RepeatStateManager with clone
-    const rsm = simpleMock<RepeatStateManager>();
-    const rsmClone = simpleMock<RepeatStateManager>();
-    rsm.copy = jest.fn().mockReturnValueOnce(rsmClone);
-
-    // And FiringState with muzzle and can calcModifiedFireData
-    const state = new DefaultFiringState(simpleMock(), simpleMock(), rsm);
-    state.muzzle = muzzle;
-    const modifiedFireData = simpleMock<FireData>();
-    state.calcModifiedFireData = jest
-      .fn()
-      .mockReturnValueOnce(modifiedFireData);
-
-    // And Bullet
-    const bullet = simpleMock<Bullet>();
-
-    // When fire
-    state.fire(bullet);
-
-    // Then FiringState pass firing to muzzle with modified fire data
-    expect(muzzle.fire).toBeCalledWith(modifiedFireData, bullet);
-  });
-
-  test("use muzzle transform in calcModifiedFireData", (): void => {
-    // Given FireData with clone
-    const [fireData, fireDataClone] = createSimpleFireDataMock();
-    fireDataClone.transform = mat.translate(0);
-
-    // And RepeatStateManager with clone
-    const [rsm, _rsmClone] = createSimpleRSMMock();
-
-    // And muzzle
-    const muzzle = simpleMock<Muzzle>();
-    const muzzleTrans = mat.translate(1.2, 5.3);
-    muzzle.getMuzzleTransform = jest.fn().mockReturnValueOnce(muzzleTrans);
-
-    // And firing state with muzzle and FireData clone
-    const state = new DefaultFiringState(simpleMock(), fireData, rsm);
-    state.muzzle = muzzle;
-
-    // When calc modified fireData
-    const modifiedFD = state.calcModifiedFireData();
-
-    // Then
-    expect(modifiedFD.transform).toEqual(muzzleTrans);
+    // Then copy's parameters is original's copy
+    expect(clone.parameters).toEqual(params);
   });
 });

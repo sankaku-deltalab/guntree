@@ -1,7 +1,8 @@
 import * as mat from "transformation-matrix";
 
-import { FiringState, FireData } from "guntree/firing-state";
-import { TransformModifier } from "guntree/elements/gunModifier";
+import { FiringState } from "guntree/firing-state";
+import { FireData } from "guntree/fire-data";
+import { TransformModifier } from "guntree/elements";
 import { simpleMock, createLazyEvaluativeMockReturnOnce } from "../util";
 
 const createFireData = (trans: mat.Matrix): FireData => {
@@ -24,7 +25,7 @@ describe("#TransformModifier", (): void => {
     const transformMod = new TransformModifier(trans);
 
     // When modify FireData
-    transformMod.createModifier(state)(state, fd);
+    transformMod.createModifier(state)(fd);
 
     // Then transform in fireData was transformed
     const expectedTrans = mat.transform(initialTrans, trans);
@@ -45,7 +46,7 @@ describe("#TransformModifier", (): void => {
     const transformMod = new TransformModifier(transLe);
 
     // When modify FireData
-    transformMod.createModifier(state)(state, fd);
+    transformMod.createModifier(state)(fd);
 
     // Then transform in fireData was transformed
     const expectedTrans = mat.transform(initialTrans, transConst);

@@ -1,20 +1,9 @@
 import * as mat from "transformation-matrix";
 
-import { Bullet } from "./bullet";
-import { FireData } from "./firing-state";
-
 /**
  * Muzzle presents firing location and angle.
  */
 export interface Muzzle {
-  /**
-   * Fire bullet.
-   *
-   * @param data FireData when fired.
-   * @param bullet Firing bullet.
-   */
-  fire(data: FireData, bullet: Bullet): void;
-
   /**
    * Get muzzle transform.
    */

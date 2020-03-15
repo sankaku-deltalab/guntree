@@ -1,5 +1,5 @@
-import { RepeatState } from "guntree/firing-state";
-import { Iterate } from "guntree/elements/lazyEvaluative";
+import { RepeatState } from "guntree/repeating-manager";
+import { Iterate } from "guntree/elements/lazy-evaluative";
 import { createLazyEvaluativeMockReturnOnce } from "../util";
 import {
   createRepeatStateManagerWithGet,
