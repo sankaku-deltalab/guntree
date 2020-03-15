@@ -1,5 +1,5 @@
 import { FiringState } from "guntree/firing-state";
-import { UseMuzzleUpdater } from "guntree/elements/gunSetter";
+import { UseMuzzleUpdater } from "guntree/elements";
 import { RawMuzzle } from "guntree/raw-muzzle";
 import { Owner } from "guntree/owner";
 import { simpleMock, createLazyEvaluativeMockReturnOnce } from "../util";

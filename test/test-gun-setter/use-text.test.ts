@@ -1,5 +1,5 @@
 import { FiringState } from "guntree/firing-state";
-import { UseTextUpdater } from "guntree/elements/gunSetter";
+import { UseTextUpdater } from "guntree/elements";
 import { simpleMock, createLazyEvaluativeMockReturnOnce } from "../util";
 
 describe("#UseTextUpdater", (): void => {

@@ -1,6 +1,6 @@
 import { FiringState } from "guntree/firing-state";
 import { FireData } from "guntree/fire-data";
-import { ModifyParameterModifier } from "guntree/elements/gunModifier";
+import { ModifyParameterModifier } from "guntree/elements";
 import { simpleMock } from "../util";
 
 const createFireData = (parameters: Map<string, number>): FireData => {

@@ -2,7 +2,7 @@ import * as mat from "transformation-matrix";
 
 import { FiringState } from "guntree/firing-state";
 import { FireData } from "guntree/fire-data";
-import { InvertTransformModifier } from "guntree/elements/gunModifier";
+import { InvertTransformModifier } from "guntree/elements";
 import { decomposeTransform } from "guntree/transform-util";
 
 describe("#InvertTransformModifier", (): void => {

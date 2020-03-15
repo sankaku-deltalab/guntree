@@ -1,6 +1,6 @@
 import { Gun } from "../gun";
 import { TConstantOrLazy } from "../lazyEvaluative";
-import * as setO from "../elements/gunSetter";
+import * as setO from "../elements/setter-gun";
 import { VirtualMuzzleGenerator } from "../muzzle";
 
 /**

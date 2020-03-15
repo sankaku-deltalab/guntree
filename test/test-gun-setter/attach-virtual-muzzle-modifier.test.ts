@@ -1,5 +1,5 @@
 import { FiringState } from "guntree/firing-state";
-import { AttachVirtualMuzzleUpdater } from "guntree/elements/gunSetter";
+import { AttachVirtualMuzzleUpdater } from "guntree/elements/";
 import { Muzzle, VirtualMuzzle, VirtualMuzzleGenerator } from "guntree/muzzle";
 import { simpleMock } from "../util";
 

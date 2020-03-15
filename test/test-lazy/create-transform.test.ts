@@ -1,7 +1,7 @@
 import * as mat from "transformation-matrix";
 
 import { FiringState } from "guntree/firing-state";
-import { CreateTransform } from "guntree/elements/lazyEvaluative";
+import { CreateTransform } from "guntree/elements/lazy-evaluative";
 import { simpleMock, createLazyEvaluativeMockReturnOnce } from "../util";
 
 const matKeys: ["a", "b", "c", "d", "e", "f"] = ["a", "b", "c", "d", "e", "f"];
