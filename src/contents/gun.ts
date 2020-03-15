@@ -133,15 +133,6 @@ export const parallelRepeat = (
 };
 
 /**
- * Same of `parallelRepeat`.
- *
- * @param option
- * @param guns
- */
-export const paraRepeat = (option: gunO.TRepeatOption, ...guns: Gun[]): Gun =>
-  parallelRepeat(option, ...guns);
-
-/**
  * N-Way firing option.
  */
 export interface TNWayOption {
@@ -167,9 +158,9 @@ export interface TNWayOption {
  * @param guns Guns would be played.
  */
 export const nWay = (option: TNWayOption, ...guns: Gun[]): Gun => {
-  return paraRepeat(
+  return parallelRepeat(
     { times: option.ways, interval: 0, name: option.name },
-    mod.addAngle(le.nWayAngle({ totalAngle: option.totalAngle })),
+    mod.rotated(le.nWayAngle({ totalAngle: option.totalAngle })),
     ...guns
   );
 };
@@ -203,7 +194,7 @@ export const whip = (option: TWhipOption, ...guns: Gun[]): Gun => {
   const sr = option.speedRateRange;
   return repeat(
     { times: option.times, interval: 0, name: option.name },
-    mod.mltSpeed(le.linear(sr[0], sr[1])),
+    mod.speedMultiplied(le.linear(sr[0], sr[1])),
     ...guns
   );
 };
@@ -235,9 +226,9 @@ export interface TSpreadOption {
  */
 export const spread = (option: TWhipOption, ...guns: Gun[]): Gun => {
   const sr = option.speedRateRange;
-  return paraRepeat(
+  return parallelRepeat(
     { times: option.times, interval: 0, name: option.name },
-    mod.mltSpeed(le.linear(sr[0], sr[1])),
+    mod.speedMultiplied(le.linear(sr[0], sr[1])),
     ...guns
   );
 };

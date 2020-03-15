@@ -3,7 +3,7 @@ import * as mat from "transformation-matrix";
 import { FiringState } from "guntree/firing-state";
 import {
   repeat,
-  addParameter,
+  paramAdded,
   useParameter,
   centerizedLinear
 } from "guntree/contents";
@@ -32,10 +32,10 @@ describe.only("#repeat", (): void => {
     const gun = repeat(
       { times: 3, interval: 0 },
       useParameter("param", 0),
-      addParameter("param", centerizedLinear(90)),
+      paramAdded("param", centerizedLinear(90)),
       repeat(
         { times: 2, interval: 0 },
-        addParameter("param", centerizedLinear(4)),
+        paramAdded("param", centerizedLinear(4)),
         fire
       )
     );

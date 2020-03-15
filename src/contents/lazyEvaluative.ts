@@ -57,7 +57,7 @@ export const round = (input: TConstantOrLazy<number>): LazyEvaluative<number> =>
 /**
  * Option for nWayAngle.
  */
-export interface TAddNWayAngleOption {
+export interface TNWayAngleOption {
   /** Total angle. */
   totalAngle: TConstantOrLazy<number>;
   /** Repeating name. When not specified target, use current repeating. */
@@ -69,9 +69,7 @@ export interface TAddNWayAngleOption {
  *
  * @param option Option.
  */
-export const nWayAngle = (
-  option: TAddNWayAngleOption
-): LazyEvaluative<number> =>
+export const nWayAngle = (option: TNWayAngleOption): LazyEvaluative<number> =>
   new leO.CenterizedLinear(option.totalAngle, option.target);
 
 /**

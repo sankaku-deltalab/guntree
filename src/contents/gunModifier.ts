@@ -23,14 +23,14 @@ export const transform = (trans: TConstantOrLazy<mat.Matrix>): Gun => {
  *
  * ```typescript
  * const fireFromRight = concat(
- *   addTranslation({ y: 0.1 }),
+ *   translationAdded({ y: 0.1 }),
  *   fire(bullet()),
  * );
  * ```
  *
  * @param translation Added translation as [x, y].
  */
-export const addTranslation = (translation: {
+export const translationAdded = (translation: {
   x?: TConstantOrLazy<number>;
   y?: TConstantOrLazy<number>;
 }): Gun => {
@@ -45,7 +45,7 @@ export const addTranslation = (translation: {
  * @param name Parameter name.
  * @param modifier Parameter modify function.
  */
-export const modifyParameter = (
+export const paramModified = (
   name: string,
   modifier: (state: FiringState) => (oldValue: number) => number
 ): Gun => {
@@ -53,18 +53,19 @@ export const modifyParameter = (
 };
 
 /**
- * Add firing angle.
+ * Rotate firing transform.
  *
  * ```typescript
  * const leanFire = concat(
- *   addAngle(45),
+ *   rotated(45),
+ *   translationAdded({ x: 0.1 }),
  *   fire(bullet()),
  * );
  * ```
  *
  * @param angleDeg Adding angle degrees.
  */
-export const addAngle = (angleDeg: TConstantOrLazy<number>): Gun => {
+export const rotated = (angleDeg: TConstantOrLazy<number>): Gun => {
   return transform(le.createTransform({ rotationDeg: angleDeg }));
 };
 
@@ -74,7 +75,7 @@ export const addAngle = (angleDeg: TConstantOrLazy<number>): Gun => {
  * ```typescript
  * const moreDangerousFire = concat(
  *   useParameter('dangerousness', 9999),
- *   addParameter('dangerousness', 10),
+ *   paramAdded('dangerousness', 10),
  *   fire(bullet()),
  * );
  * ```
@@ -82,11 +83,11 @@ export const addAngle = (angleDeg: TConstantOrLazy<number>): Gun => {
  * @param name Parameter name.
  * @param adding Adding amount.
  */
-export const addParameter = (
+export const paramAdded = (
   name: string,
   adding: TConstantOrLazy<number>
 ): Gun => {
-  return modifyParameter(name, state => {
+  return paramModified(name, state => {
     const addingConst = calcValueFromConstantOrLazy<number>(state, adding);
     return (oldValue): number => oldValue + addingConst;
   });
@@ -98,7 +99,7 @@ export const addParameter = (
  * ```typescript
  * const zeroDangerousFire = concat(
  *   useParameter('dangerousness', 9999),
- *   mltParameter('dangerousness', 0),
+ *   parameterMultiplied('dangerousness', 0),
  *   fire(bullet()),
  * );
  * ```
@@ -106,11 +107,11 @@ export const addParameter = (
  * @param name Parameter name.
  * @param multiplier Multiplier.
  */
-export const mltParameter = (
+export const paramMultiplied = (
   name: string,
   multiplier: TConstantOrLazy<number>
 ): Gun => {
-  return modifyParameter(name, state => {
+  return paramModified(name, state => {
     const mltConst = calcValueFromConstantOrLazy<number>(state, multiplier);
     return (oldValue): number => oldValue * mltConst;
   });
@@ -130,45 +131,15 @@ export const mltParameter = (
  * @param name Parameter name.
  * @param newValue New parameter value.
  */
-export const resetParameter = (
+export const paramReset = (
   name: string,
   newValue: TConstantOrLazy<number>
 ): Gun => {
-  return modifyParameter(name, state => {
+  return paramModified(name, state => {
     const valueConst = calcValueFromConstantOrLazy<number>(state, newValue);
     return (): number => valueConst;
   });
 };
-
-/**
- * Add bullet speed.
- *
- * ```typescript
- * const doubleSpeedFire = concat(
- *   addSpeed(1),
- *   fire(bullet()),
- * );
- * ```
- *
- * @param adding Adding speed.
- */
-export const addSpeed = (adding: TConstantOrLazy<number>): Gun =>
-  addParameter("speed", adding);
-
-/**
- * Add bullet size.
- *
- * ```typescript
- * const doubleSizedFire = concat(
- *   addSpeed(1),
- *   fire(bullet()),
- * );
- * ```
- *
- * @param adding Adding size.
- */
-export const addSize = (adding: TConstantOrLazy<number>): Gun =>
-  addParameter("size", adding);
 
 /**
  * Add angle like N-Way firing.
@@ -176,60 +147,60 @@ export const addSize = (adding: TConstantOrLazy<number>): Gun =>
  * ```typescript
  * const firing = repeat(
  *   { times: 5, interval: 10, name: 'masterRepeat'},
- *   addNWayAngle({ totalAngle: 90, name: 'masterRepeat'})
+ *   rotatedAsNWay({ totalAngle: 90, name: 'masterRepeat'}),
  *   fire(bullet()),
  * );
  * ```
  *
  * @param option N-Way firing option.
  */
-export const addNWayAngle = (option: le.TAddNWayAngleOption): Gun =>
-  addAngle(le.nWayAngle(option));
+export const rotatedAsNWay = (option: le.TNWayAngleOption): Gun =>
+  rotated(le.nWayAngle(option));
 
 /**
  * Multiply bullet speed.
  *
  * ```typescript
  * const doubleSpeedFire = concat(
- *   mltSpeed(2),
+ *   speedMultiplied(2),
  *   fire(bullet()),
  * );
  * ```
  *
  * @param multiplier Multiplier.
  */
-export const mltSpeed = (multiplier: TConstantOrLazy<number>): Gun =>
-  mltParameter("speed", multiplier);
+export const speedMultiplied = (multiplier: TConstantOrLazy<number>): Gun =>
+  paramMultiplied("speed", multiplier);
 
 /**
  * Multiply bullet size.
  *
  * ```typescript
  * const doubleSizedFire = concat(
- *   mltSize(2),
+ *   sizeMultiplied(2),
  *   fire(bullet()),
  * );
  * ```
  *
  * @param multiplier Multiplier.
  */
-export const mltSize = (multiplier: TConstantOrLazy<number>): Gun =>
-  mltParameter("size", multiplier);
+export const sizeMultiplied = (multiplier: TConstantOrLazy<number>): Gun =>
+  paramMultiplied("size", multiplier);
 
 /**
  * Reset bullet speed.
  *
  * ```typescript
  * const doubleSpeedFire = concat(
- *   resetSpeed(2),
+ *   speedReset(2),
  *   fire(bullet()),
  * );
  * ```
  *
  * @param newValue New value.
  */
-export const resetSpeed = (newValue: TConstantOrLazy<number>): Gun =>
-  resetParameter("speed", newValue);
+export const speedReset = (newValue: TConstantOrLazy<number>): Gun =>
+  paramReset("speed", newValue);
 
 /**
  * Reset bullet size.
@@ -243,26 +214,26 @@ export const resetSpeed = (newValue: TConstantOrLazy<number>): Gun =>
  *
  * @param newValue New value.
  */
-export const resetSize = (newValue: TConstantOrLazy<number>): Gun =>
-  resetParameter("size", newValue);
+export const sizeReset = (newValue: TConstantOrLazy<number>): Gun =>
+  paramReset("size", newValue);
 
 /**
  * Invert angle and translation.
  *
  * ```typescript
  * const leanFireFromRight = concat(
- *   addTranslation({ x: 0, y: 0.2 }),
- *   addAngle(45),
+ *   translationAdded({ x: 0, y: 0.2 }),
+ *   rotated(45),
  *   fire(bullet()),
  * );
  * const invertedFire = concat(
- *   invert(),
+ *   inverted(),
  *   leanFireFromRight,
  * );
  * ```
  *
  * @param newValue New value.
  */
-export const invert = (): Gun => {
+export const inverted = (): Gun => {
   return new modO.ModifierGun(new modO.InvertTransformModifier());
 };
