@@ -1,5 +1,5 @@
 import { FiringState } from "guntree/firing-state";
-import { ModifierGun, FireDataModifier } from "guntree/elements/gunModifier";
+import { ModifierGun, FireDataModifier } from "guntree/elements/";
 import { simpleMock } from "../util";
 
 describe("#ModifyGun", (): void => {

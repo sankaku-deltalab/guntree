@@ -2,7 +2,7 @@ import * as mat from "transformation-matrix";
 
 import { FiringState } from "guntree/firing-state";
 import { FireData } from "guntree/fire-data";
-import { TransformModifier } from "guntree/elements/gunModifier";
+import { TransformModifier } from "guntree/elements";
 import { simpleMock, createLazyEvaluativeMockReturnOnce } from "../util";
 
 const createFireData = (trans: mat.Matrix): FireData => {

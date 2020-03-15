@@ -1,4 +1,4 @@
-import { Round } from "guntree/elements/lazyEvaluative";
+import { Round } from "guntree/elements/lazy-evaluative";
 import {
   createFiringStateMock,
   createLazyEvaluativeMockReturnOnce

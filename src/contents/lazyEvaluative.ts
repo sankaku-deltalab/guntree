@@ -1,6 +1,6 @@
 import * as mat from "transformation-matrix";
 import { TConstantOrLazy, LazyEvaluative } from "../lazyEvaluative";
-import * as leO from "../elements/lazyEvaluative";
+import * as leO from "../elements/lazy-evaluative";
 
 /**
  * Linear interpolate.

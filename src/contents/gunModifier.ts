@@ -4,7 +4,7 @@ import {
   TConstantOrLazy,
   calcValueFromConstantOrLazy
 } from "../lazyEvaluative";
-import * as modO from "../elements/gunModifier";
+import * as modO from "../elements/modifier-gun";
 import { Gun } from "../gun";
 import * as le from "../contents/lazyEvaluative";
 import { FiringState } from "guntree/firing-state";
