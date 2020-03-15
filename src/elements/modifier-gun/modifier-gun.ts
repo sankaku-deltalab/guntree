@@ -1,5 +1,3 @@
-import * as mat from "transformation-matrix";
-
 import { Gun } from "../../gun";
 import { FiringState } from "../../firing-state";
 import { FireData } from "guntree/fire-data";

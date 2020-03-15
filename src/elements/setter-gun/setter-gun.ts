@@ -1,7 +1,5 @@
 import { Gun } from "../../gun";
 import { FiringState } from "../../firing-state";
-import { VirtualMuzzleGenerator } from "../../muzzle";
-import { RawMuzzle } from "guntree/raw-muzzle";
 import { Owner } from "guntree/owner";
 import { PlayerLike } from "guntree/player";
 

@@ -1,11 +1,5 @@
-import * as mat from "transformation-matrix";
-
 import { FiringState } from "../../firing-state";
-import {
-  LazyEvaluative,
-  TConstantOrLazy,
-  calcValueFromConstantOrLazy
-} from "../../lazyEvaluative";
+import { LazyEvaluative, TConstantOrLazy } from "../../lazyEvaluative";
 
 /**
  * Deal rounded value

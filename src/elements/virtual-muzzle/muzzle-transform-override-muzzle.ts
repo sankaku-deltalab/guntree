@@ -1,6 +1,5 @@
 import * as mat from "transformation-matrix";
-import { decomposeTransform } from "../../transform-util";
-import { Muzzle, VirtualMuzzle, VirtualMuzzleGenerator } from "../../muzzle";
+import { Muzzle, VirtualMuzzle } from "../../muzzle";
 
 /**
  * This override MuzzleTransform of muzzle.

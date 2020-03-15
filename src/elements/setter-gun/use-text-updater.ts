@@ -1,14 +1,10 @@
-import { Gun } from "../../gun";
 import { FiringState } from "../../firing-state";
-import { VirtualMuzzleGenerator } from "../../muzzle";
-import { RawMuzzle } from "guntree/raw-muzzle";
-import { Owner } from "guntree/owner";
-import { PlayerLike } from "guntree/player";
+import { Owner } from "../../owner";
 import { FiringStateUpdater } from "./setter-gun";
 import {
   TConstantOrLazy,
   calcValueFromConstantOrLazy
-} from "guntree/lazyEvaluative";
+} from "../../lazyEvaluative";
 
 /**
  * Use new text when played.

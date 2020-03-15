@@ -1,5 +1,3 @@
-import * as mat from "transformation-matrix";
-
 import { FiringState } from "../../firing-state";
 import {
   LazyEvaluative,
