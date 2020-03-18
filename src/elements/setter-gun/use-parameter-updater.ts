@@ -1,10 +1,10 @@
 import { FiringState } from "../../firing-state";
-import { Owner } from "guntree/owner";
+import { Owner } from "../../owner";
 import { FiringStateUpdater } from "./setter-gun";
 import {
   TConstantOrLazy,
   calcValueFromConstantOrLazy
-} from "guntree/lazyEvaluative";
+} from "../../lazyEvaluative";
 
 /**
  * Use new parameter when played.

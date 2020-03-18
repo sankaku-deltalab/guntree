@@ -1,11 +1,11 @@
 import { FiringState } from "../../firing-state";
-import { RawMuzzle } from "guntree/raw-muzzle";
-import { Owner } from "guntree/owner";
+import { RawMuzzle } from "../../raw-muzzle";
+import { Owner } from "../../owner";
 import { FiringStateUpdater } from "./setter-gun";
 import {
   TConstantOrLazy,
   calcValueFromConstantOrLazy
-} from "guntree/lazyEvaluative";
+} from "../../lazyEvaluative";
 
 /**
  * Use new muzzle when played.

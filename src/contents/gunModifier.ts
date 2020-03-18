@@ -7,7 +7,7 @@ import {
 import * as modO from "../elements/modifier-gun";
 import { Gun } from "../gun";
 import * as le from "../contents/lazyEvaluative";
-import { FiringState } from "guntree/firing-state";
+import { FiringState } from "../firing-state";
 
 /**
  * Transform firing transformation matrix.

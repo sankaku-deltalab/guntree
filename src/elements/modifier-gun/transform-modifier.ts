@@ -1,12 +1,12 @@
 import * as mat from "transformation-matrix";
 
 import { FiringState } from "../../firing-state";
-import { FireData } from "guntree/fire-data";
+import { FireData } from "../../fire-data";
 import { FireDataModifier } from "./modifier-gun";
 import {
   TConstantOrLazy,
   calcTransFormFromConstantOrLazy
-} from "guntree/lazyEvaluative";
+} from "../../lazyEvaluative";
 
 /**
  * Transform matrix.

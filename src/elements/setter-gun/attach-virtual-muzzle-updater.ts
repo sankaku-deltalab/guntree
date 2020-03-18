@@ -1,6 +1,6 @@
 import { FiringState } from "../../firing-state";
 import { VirtualMuzzleGenerator } from "../../muzzle";
-import { Owner } from "guntree/owner";
+import { Owner } from "../../owner";
 import { FiringStateUpdater } from "./setter-gun";
 
 /**
