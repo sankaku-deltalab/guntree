@@ -1,7 +1,7 @@
 import { Gun } from "../../gun";
 import { FiringState } from "../../firing-state";
-import { Owner } from "guntree/owner";
-import { PlayerLike } from "guntree/player";
+import { Owner } from "../../owner";
+import { PlayerLike } from "../../player";
 import { Parallel } from "./parallel";
 import { Concat } from "./concat";
 import { ModifierGun, InvertTransformModifier } from "../modifier-gun";
