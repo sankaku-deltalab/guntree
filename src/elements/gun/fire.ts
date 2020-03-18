@@ -1,9 +1,9 @@
 import { Gun } from "../../gun";
 import { Bullet } from "../../bullet";
 import { FiringState } from "../../firing-state";
-import { FireData } from "guntree/fire-data";
-import { Owner } from "guntree/owner";
-import { PlayerLike } from "guntree/player";
+import { FireData } from "../../fire-data";
+import { Owner } from "../../owner";
+import { PlayerLike } from "../../player";
 
 /**
  * Fire bullet.

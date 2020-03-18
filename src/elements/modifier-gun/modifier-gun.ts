@@ -1,8 +1,8 @@
 import { Gun } from "../../gun";
 import { FiringState } from "../../firing-state";
-import { FireData } from "guntree/fire-data";
-import { Owner } from "guntree/owner";
-import { PlayerLike } from "guntree/player";
+import { FireData } from "../../fire-data";
+import { Owner } from "../../owner";
+import { PlayerLike } from "../../player";
 
 export interface FireDataModifier {
   createModifier(state: FiringState): (fireData: FireData) => void;

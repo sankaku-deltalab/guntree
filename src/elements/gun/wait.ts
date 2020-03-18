@@ -1,8 +1,8 @@
 import { Gun } from "../../gun";
 import { FiringState } from "../../firing-state";
 import { TConstantOrLazy } from "../../lazyEvaluative";
-import { Owner } from "guntree/owner";
-import { PlayerLike } from "guntree/player";
+import { Owner } from "../../owner";
+import { PlayerLike } from "../../player";
 import { wait, getNumberFromLazy } from "./util";
 
 /**

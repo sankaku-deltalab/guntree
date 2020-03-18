@@ -1,7 +1,7 @@
 import { Gun } from "../../gun";
 import { FiringState } from "../../firing-state";
-import { Owner } from "guntree/owner";
-import { PlayerLike } from "guntree/player";
+import { Owner } from "../../owner";
+import { PlayerLike } from "../../player";
 
 /**
  * Do nothing.

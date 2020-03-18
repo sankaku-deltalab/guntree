@@ -2,9 +2,9 @@ import { range } from "lodash";
 import { Gun } from "../../gun";
 import { FiringState } from "../../firing-state";
 import { TConstantOrLazy } from "../../lazyEvaluative";
-import { RepeatState } from "guntree/repeating-manager";
-import { Owner } from "guntree/owner";
-import { PlayerLike } from "guntree/player";
+import { RepeatState } from "../../repeating-manager";
+import { Owner } from "../../owner";
+import { PlayerLike } from "../../player";
 import { wait } from "./util";
 
 /**
